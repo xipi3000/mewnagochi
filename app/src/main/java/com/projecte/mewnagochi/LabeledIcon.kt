@@ -2,10 +2,10 @@ package com.projecte.mewnagochi
 
 import androidx.compose.ui.graphics.vector.ImageVector
 
-class LaveledIcon(
-    lavel: String,
+class LabeledIcon(
+    label: String,
     icon : ImageVector
 ) {
-    val lavel = lavel
+    val label = label
     val icon = icon
 }
