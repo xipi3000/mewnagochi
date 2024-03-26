@@ -2,6 +2,9 @@ package com.projecte.mewnagochi.ui
 
 import android.util.Log
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.Interaction
+import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -41,7 +44,7 @@ fun MainScreen(
     myViewModel : MyViewModel = viewModel(),
     navController : NavHostController = rememberNavController(),
     navigationBarItems : List<LabeledIcon> =listOf(
-        LabeledIcon("Home", Icons.Filled.Home){ HomeScreen() },
+        LabeledIcon("Home", Icons.Filled.Home){ HomeScreen()},
         LabeledIcon("Activities",  ImageVector.vectorResource(id = R.drawable.baseline_directions_run_24)) { ActivitiesScreen() },
         LabeledIcon("Chats",ImageVector.vectorResource(id = R.drawable.baseline_forum_24)) { ChatScreen() },
     )
@@ -49,7 +52,9 @@ fun MainScreen(
     @Composable
     fun MyBox() {
         Box(
-            modifier = Modifier.fillMaxSize().background(Color.Blue)
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.Blue)
         )
     }
 
@@ -70,8 +75,10 @@ fun MainScreen(
                             label = { Text(item.label) },
                             selected = selectedItem == index,
                             onClick = {
-                                myViewModel.setNewSelected(index)
-                                navController.navigate(item.label)
+                                if(selectedItem!=index) {
+                                    myViewModel.setNewSelected(index)
+                                    navController.navigate(item.label)
+                                }
                             }
                         )
                     }
