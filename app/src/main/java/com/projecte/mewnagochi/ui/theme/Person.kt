@@ -3,6 +3,7 @@ package com.projecte.mewnagochi.ui.theme
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.offset
 import androidx.compose.runtime.Composable
@@ -23,6 +24,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import java.lang.Thread.sleep
 import kotlin.math.roundToInt
 
 class Person {
@@ -40,6 +42,14 @@ class Person {
         )
     }
     @Composable
+    fun getFallMaps() : Array<ImageBitmap>{
+        return arrayOf(
+            ImageBitmap.imageResource(id = R.drawable.fall1),
+            ImageBitmap.imageResource(id = R.drawable.fall2),
+            ImageBitmap.imageResource(id = R.drawable.fall3),
+        )
+    }
+    @Composable
     fun getJumpMaps() : Array<ImageBitmap>{
         return arrayOf(
             ImageBitmap.imageResource(id = R.drawable.jump1),
@@ -54,19 +64,20 @@ class Person {
         )
     }
     @Composable
-    fun buildSprite(){
+    fun buildSprite() : Array<Animation>{
 
-        walkingAnimation = Animation(getWalkingMaps(), animTime = 1)
-        idleAnimation = Animation(getIdleMaps(),animTime = 1)
-        jumpAnimation = Animation(getJumpMaps(), animTime = 1)
+    return arrayOf(
+        Animation(getIdleMaps(),animTime = 1),
+        Animation(getWalkingMaps(), animTime = 1),
+        Animation(getJumpMaps(), animTime = 1),
+        Animation(getFallMaps(), animTime = 1),)
 
     }
 
     @Composable
     fun Draw(){
-
-        buildSprite()
-        val aniManager = AnimationManager(arrayOf( idleAnimation,walkingAnimation,jumpAnimation))
+        var playing by remember { mutableStateOf(true) }
+        val aniManager = AnimationManager(buildSprite())
         var offsetX by remember { mutableStateOf(0f) }
         var offsetY by remember { mutableStateOf(0f) }
         aniManager.playAnim(1)
@@ -91,6 +102,13 @@ class Person {
                                 // Delay for 1 second before the next iteration
                                 delay(10)
                             }
+                            aniManager.playAnim(3)
+                            delay(200)
+                            playing=false
+                            delay(2000)
+                            //TODO: FALTA ALGO PER FREEZ EL FRAME FINAL, S'HA DE FER AMB UN CUSTOM ANIMATION UPDATE
+                            playing=true
+                            aniManager.playAnim(1)
                             // Loop finished
                             // You can perform any cleanup or finalization here
 
@@ -107,13 +125,11 @@ class Person {
             })
 
         val handler = Handler(Looper.getMainLooper())
-
         handler.post(object : Runnable {
             override fun run() {
-                // Call your function here
-                aniManager.update()
 
-                // Schedule the next execution
+                if(playing)
+                    aniManager.update()
                 handler.postDelayed(this, 150) // Execute every 1000 milliseconds (1 second)
             }
         })

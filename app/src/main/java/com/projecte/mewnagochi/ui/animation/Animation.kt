@@ -42,10 +42,7 @@ class Animation(
     fun stop(){
         isPlaying=false
     }
-    enum class BoxState {
-        Collapsed,
-        Expanded
-    }
+
 
     @Composable
     fun Draw(modifier: Modifier) {
@@ -78,10 +75,6 @@ class Animation(
                         )
             }
         }
-
-
-        //canvas.drawImage(frames[frameIndex], Offset.Zero,Paint())
-
     }
 
 

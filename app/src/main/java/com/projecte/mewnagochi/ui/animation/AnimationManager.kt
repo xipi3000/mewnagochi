@@ -2,10 +2,11 @@ package com.projecte.mewnagochi.ui.animation
 
 import android.util.Log
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableIntStateOf
 import java.lang.reflect.Modifier
 
 class AnimationManager(private val animations: Array<Animation>) {
-    private var animationIndex = 0
+    private val animationIndex = mutableIntStateOf(0)
     fun playAnim(index: Int) {
         for (i in animations.indices) {
             if (i == index) {
@@ -18,17 +19,17 @@ class AnimationManager(private val animations: Array<Animation>) {
                 }
             } else animations[i].stop()
         }
-        animationIndex = index
+        animationIndex.value = index
     }
 
     @Composable
     fun Draw(modifier: androidx.compose.ui.Modifier) {
-        if (animations[animationIndex].isPlaying)
-            animations[animationIndex].Draw(modifier = modifier)
+        if (animations[animationIndex.value].isPlaying)
+            animations[animationIndex.value].Draw(modifier = modifier)
     }
 
     fun update() {
-        if (animations[animationIndex].isPlaying) animations[animationIndex].update()
+        if (animations[animationIndex.value].isPlaying) animations[animationIndex.value].update()
     }
 }
 
