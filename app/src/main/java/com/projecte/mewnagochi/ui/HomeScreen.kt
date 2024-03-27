@@ -30,7 +30,7 @@ fun HomeScreen(){
     val image = ImageBitmap.imageResource(id = R.drawable.advnt_full)
     //val run0 : ImageBitmap = ImageBitmap.imageResource(id = R.drawable.advnt_full1).asAndroidBitmap().scale(2,2).asImageBitmap()
 
-    val run0 : ImageBitmap = ImageBitmap.imageResource(id = R.drawable.advnt_full1)
+    val run0 : ImageBitmap = ImageBitmap.imageResource(id = R.drawable.run0)
     val run1= ImageBitmap.imageResource(id = R.drawable.run1)
     val run2 = ImageBitmap.imageResource(id = R.drawable.run2)
     val run3 = ImageBitmap.imageResource(id = R.drawable.run3)
@@ -49,7 +49,7 @@ fun HomeScreen(){
             aniManager.update()
 
             // Schedule the next execution
-            handler.postDelayed(this, 1000) // Execute every 1000 milliseconds (1 second)
+            handler.postDelayed(this, 150) // Execute every 1000 milliseconds (1 second)
         }
     })
 
