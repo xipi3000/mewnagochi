@@ -112,11 +112,7 @@ fun MainScreen(
 
 
 
-@Composable
-fun HomeScreen(){
-    Log.i("gooffy","whaaaa")
-    Text(text = "HOME")
-}
+
 @Composable
 fun ActivitiesScreen(){
     Text(text = "ACTIVITIES")
