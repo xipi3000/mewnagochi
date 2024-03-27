@@ -1,8 +1,15 @@
 package com.projecte.mewnagochi.ui.animation
 
 import android.graphics.Bitmap
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.core.animate
+import androidx.compose.animation.core.animateDecay
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.updateTransition
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -36,6 +43,11 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import com.projecte.mewnagochi.R
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import java.lang.Thread.sleep
 import kotlin.math.roundToInt
 
 
@@ -57,42 +69,75 @@ class Animation(
     fun stop(){
         isPlaying=false
     }
+    enum class BoxState {
+        Collapsed,
+        Expanded
+    }
+
     @Composable
     fun Draw() {
 
         if (!isPlaying) return
-        val image = ImageBitmap.imageResource(id = R.drawable.advnt_full)
+
         var offsetX by remember { mutableStateOf(0f) }
         var offsetY by remember { mutableStateOf(0f) }
+        var enabled by remember { mutableStateOf(true) }
 
+        val alphaX: Float by animateFloatAsState(if (enabled) offsetX else 0f)
+        val alphaY: Float by animateFloatAsState(if (enabled) offsetY else 0f)
         Column(
             modifier = Modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.SpaceAround) {
             Text(text = frameIndex.value.toString())
-
+            val handler = Handler(Looper.getMainLooper())
             Canvas(
 
                 modifier = Modifier
                     .size(Dp(100F))
                     .offset { IntOffset(offsetX.roundToInt(), offsetY.roundToInt()) }
                     .pointerInput(Unit) {
-                        detectDragGestures { change, dragAmount ->
+                        detectDragGestures(
+                            onDragEnd = {
+
+
+                                val scope = CoroutineScope(Dispatchers.Main)
+
+                                scope.launch {
+
+                                    var reps = 0F
+                                    // Loop until offsetY < 0F
+                                    while (offsetY <= 0F) {
+                                        // Your loop code here
+                                        // For example, update offsetY
+                                        reps++
+                                        offsetY += 10F + reps// Example decrement of offsetY
+                                        offsetX += 1F
+
+                                        // Delay for 1 second before the next iteration
+                                        delay(10)
+                                    }
+
+                                    // Loop finished
+                                    // You can perform any cleanup or finalization here
+                                }
+
+
+
+                            },
+
+                        ) { change, dragAmount ->
                             change.consume()
+                            Log.i("offset",offsetY.toString())
                             offsetX += dragAmount.x
                             offsetY += dragAmount.y
                         }
+
                     }
                     .background(Color.Red)
 
 
             ) {
-
-                    drawImage(
-                        topLeft = Offset(offsetX,
-                            offsetY
-                        ),
-                        image = image)
 
                     drawImage(frames[frameIndex.value],
                         //srcSize = IntSize(frames[frameIndex.value].width*1, frames[frameIndex.value].height*1),
@@ -112,7 +157,7 @@ class Animation(
 
         if (!isPlaying) return
         if (System.currentTimeMillis() - lastFrame > frameTime * 1000) {
-            Log.i("animating", frames[frameIndex.value].toString())
+            //Log.i("animating", frames[frameIndex.value].toString())
             frameIndex.value++
             frameIndex.value = if (frameIndex.value >= frames.size) 0 else frameIndex.value
             lastFrame = System.currentTimeMillis()
