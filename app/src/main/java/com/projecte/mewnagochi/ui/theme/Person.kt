@@ -1,5 +1,7 @@
 package com.projecte.mewnagochi.ui.theme
 
+import android.graphics.Bitmap
+import android.graphics.Matrix
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
@@ -8,11 +10,14 @@ import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.offset
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.asAndroidBitmap
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.unit.IntOffset
@@ -34,13 +39,35 @@ class Person {
     private lateinit var idleAnimation : Animation
     private lateinit var jumpAnimation : Animation
     @Composable
-    fun getWalkingMaps() : Array<ImageBitmap>{
+    fun getWalkingMapsR() : Array<ImageBitmap>{
         return arrayOf(
             ImageBitmap.imageResource(id = R.drawable.run0),
             ImageBitmap.imageResource(id = R.drawable.run1),
             ImageBitmap.imageResource(id = R.drawable.run2),
             ImageBitmap.imageResource(id = R.drawable.run3),
             ImageBitmap.imageResource(id = R.drawable.run4)
+        )
+    }
+    fun flipImageBitmap(imageBitmap: ImageBitmap): ImageBitmap {
+        // Convert ImageBitmap to Bitmap
+        val bitmap = imageBitmap.asAndroidBitmap()
+
+        // Flip the Bitmap
+        val matrix = Matrix()
+        matrix.preScale(-1f, 1f) // Flip horizontally
+        val flippedBitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true)
+
+        // Convert back to ImageBitmap
+        return flippedBitmap.asImageBitmap()
+    }
+    @Composable
+    fun getWalkingMapsL() : Array<ImageBitmap>{
+        return arrayOf(
+            flipImageBitmap(ImageBitmap.imageResource(id = R.drawable.run0)),
+            flipImageBitmap(ImageBitmap.imageResource(id = R.drawable.run1)),
+                flipImageBitmap(ImageBitmap.imageResource(id = R.drawable.run2)),
+                    flipImageBitmap(ImageBitmap.imageResource(id = R.drawable.run3)),
+                        flipImageBitmap(ImageBitmap.imageResource(id = R.drawable.run4))
         )
     }
     @Composable
@@ -65,16 +92,53 @@ class Person {
             ImageBitmap.imageResource(id= R.drawable.advnt_full)
         )
     }
+
+
+
     @Composable
     fun buildSprite() : Array<Animation>{
 
     return arrayOf(
         Animation(getIdleMaps(),animTime = 1F),
-        Animation(getWalkingMaps(), animTime =8F),
+        Animation(getWalkingMapsL(), animTime =8F),
         Animation(getJumpMaps(), animTime = 2F),
-        Animation(getFallMaps(), animTime = 3F,freezLastFrame = true),)
+        Animation(getFallMaps(), animTime = 3F,freezLastFrame = true),
+        Animation(getWalkingMapsR(), animTime =8F),
+        )
 
     }
+    var offsetX = mutableFloatStateOf(0F)
+    fun returnToCenter(offsetY: Float){
+        //TODO: FER QUE QUAN ESTA DRAGGING PARI DE MOURE'S
+        val scope = CoroutineScope(Dispatchers.Main)
+        if(offsetX.floatValue != 0F && offsetY==0F){
+
+            Log.i("offset",offsetX.floatValue.toString())
+            if(offsetX.floatValue > 0){
+                aniManager.playAnim(1)
+                scope.launch {
+                    while (offsetX.floatValue >= 10F) {
+                        offsetX.floatValue -= 1F
+                        delay(10)
+                    }
+                    offsetX.floatValue = 0F
+                    aniManager.playAnim(0)
+                }
+            }
+            else{
+                aniManager.playAnim(4)
+                scope.launch {
+                    while (offsetX.value <= 10F) {
+                        offsetX.value += 1F
+                        delay(10)
+                    }
+                    offsetX.value = 0F
+                    aniManager.playAnim(0)
+                }
+            }
+        }
+    }
+
     var playing = mutableStateOf(true)
     lateinit var  aniManager: AnimationManager
     @Composable
@@ -84,14 +148,14 @@ class Person {
         var dragging by remember {
             mutableStateOf(true)
         }
-        var offsetX by remember { mutableStateOf(0f) }
+        //var offsetX by remember { mutableStateOf(0f) }
         var offsetY by remember { mutableStateOf(0f) }
         Log.i("dragg","regeen")
-        aniManager.playAnim(1)
+        aniManager.playAnim(0)
         aniManager.Draw(modifier = Modifier
             .offset {
                 IntOffset(
-                    offsetX.roundToInt(),
+                    offsetX.value.roundToInt(),
                     if (offsetY.roundToInt() <= 0) offsetY.roundToInt() else 0
                 )
             }
@@ -114,7 +178,7 @@ class Person {
                                 // For example, update offsetY
                                 reps++
                                 offsetY += 10F + reps// Example decrement of offsetY
-                                offsetX += 1F
+                                offsetX.value += 1F
 
                                 // Delay for 1 second before the next iteration
                                 delay(10)
@@ -123,13 +187,15 @@ class Person {
 
                             aniManager.playAnim(3)
 
-                            delay(3000)
+                            delay(2000)
 
                             //TODO: FICAR ALGUN RANDOM DE TIPO PUGUI AIXECAR-SE MOLT RAPID O LENT
                             //TODO: FALTA ANIMACIÓ DE AIXECAR-SE
 
 
-                            if (!dragging) aniManager.playAnim(1)
+                            returnToCenter(offsetY)
+
+                            //if (!dragging) aniManager.playAnim(0)
                             // Loop finished
                             // You can perform any cleanup or finalization here
 
@@ -138,7 +204,7 @@ class Person {
                 ) { change, dragAmount ->
                     change.consume()
 
-                    offsetX += dragAmount.x
+                    offsetX.value += dragAmount.x
                     offsetY += dragAmount.y
 
 
