@@ -1,6 +1,8 @@
 package com.projecte.mewnagochi.ui
 
+import android.content.Context
 import android.util.Log
+import androidx.annotation.RestrictTo
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.Interaction
@@ -23,6 +25,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
+import androidx.health.connect.client.HealthConnectClient
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
@@ -32,6 +35,8 @@ import androidx.navigation.compose.rememberNavController
 import com.projecte.mewnagochi.LabeledIcon
 import com.projecte.mewnagochi.MyViewModel
 import com.projecte.mewnagochi.R
+import com.projecte.mewnagochi.health_connect.HealthConnectManager
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.selects.select
 
 val homeScreen: @Composable () -> Unit = {
@@ -43,10 +48,13 @@ val homeScreen: @Composable () -> Unit = {
 fun MainScreen(
     myViewModel : MyViewModel = viewModel(),
     navController : NavHostController = rememberNavController(),
+    context: Context,
+    scope: CoroutineScope,
     navigationBarItems : List<LabeledIcon> =listOf(
         LabeledIcon("Home", Icons.Filled.Home){ HomeScreen()},
         LabeledIcon("Activities",  ImageVector.vectorResource(id = R.drawable.baseline_directions_run_24)) { ActivitiesScreen() },
         LabeledIcon("Chats",ImageVector.vectorResource(id = R.drawable.baseline_forum_24)) { ChatScreen() },
+        LabeledIcon("Stats",ImageVector.vectorResource(id = R.drawable.baseline_directions_run_24)) { StatisticsScreen(context, scope) },
     )
 ) {
     @Composable
@@ -111,7 +119,6 @@ fun MainScreen(
     }
 
 
-
 @Composable
 fun HomeScreen(){
     Log.i("gooffy","whaaaa")
@@ -124,4 +131,11 @@ fun ActivitiesScreen(){
 @Composable
 fun ChatScreen(){
     Text(text = "CHAT")
+}
+@Composable
+fun StatisticsScreen(context: Context, scope: CoroutineScope){
+    val healthConnectManager by lazy {
+        HealthConnectManager(context)
+    }
+    StatsScreen(context = context, healthConnectManager = healthConnectManager, scope = scope)
 }
