@@ -1,7 +1,9 @@
 package com.projecte.mewnagochi.ui
 
+import android.content.ContentValues
 import android.content.Context
 import android.util.Log
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.annotation.RestrictTo
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -21,11 +23,16 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
 import androidx.health.connect.client.HealthConnectClient
+import androidx.health.connect.client.permission.HealthPermission
+import androidx.health.connect.client.records.StepsRecord
+import androidx.health.connect.client.request.ReadRecordsRequest
+import androidx.health.connect.client.time.TimeRangeFilter
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
@@ -35,9 +42,12 @@ import androidx.navigation.compose.rememberNavController
 import com.projecte.mewnagochi.LabeledIcon
 import com.projecte.mewnagochi.MyViewModel
 import com.projecte.mewnagochi.R
+import com.projecte.mewnagochi.StatsViewModel
 import com.projecte.mewnagochi.health_connect.HealthConnectManager
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.selects.select
+import java.time.LocalDateTime
 
 val homeScreen: @Composable () -> Unit = {
     HomeScreen()
@@ -137,5 +147,31 @@ fun StatisticsScreen(context: Context, scope: CoroutineScope){
     val healthConnectManager by lazy {
         HealthConnectManager(context)
     }
+    val myViewModel = StatsViewModel()
+    myViewModel.healthPermissionLauncher = rememberLauncherForActivityResult(
+        contract = healthConnectManager.requestPermissionsActivityContract()
+    ) { grantedPermissions: Set<String> ->
+        if (grantedPermissions.contains(HealthPermission.getReadPermission(StepsRecord::class))) {
+            Log.i(ContentValues.TAG, "Permission granted")
+            scope.launch {
+                myViewModel.response = healthConnectManager.healthConnectClient.readRecords(
+                    request = ReadRecordsRequest<StepsRecord>(
+                        timeRangeFilter = TimeRangeFilter.between(LocalDateTime.of(2024, 3, 1, 0,0,0), LocalDateTime.now())
+                    )
+                )
+            }
+        } else {
+            Log.i(ContentValues.TAG, "Permission not granted")
+            Log.i(ContentValues.TAG, "Requesting permission again")
+            myViewModel.healthPermissionLauncher.launch(setOf(HealthPermission.getReadPermission(StepsRecord::class)))
+        }
+    }
     StatsScreen(context = context, healthConnectManager = healthConnectManager, scope = scope)
+    myViewModel.healthPermissionLauncher.launch(
+        setOf(
+            HealthPermission.getReadPermission(
+                StepsRecord::class
+            )
+        )
+    )
 }
