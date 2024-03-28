@@ -42,6 +42,7 @@ import androidx.navigation.compose.rememberNavController
 import com.projecte.mewnagochi.LabeledIcon
 import com.projecte.mewnagochi.MyViewModel
 import com.projecte.mewnagochi.R
+import com.projecte.mewnagochi.ui.theme.Person
 import com.projecte.mewnagochi.StatsViewModel
 import com.projecte.mewnagochi.health_connect.HealthConnectManager
 import kotlinx.coroutines.CoroutineScope
@@ -50,10 +51,10 @@ import kotlinx.coroutines.selects.select
 import java.time.LocalDateTime
 
 val homeScreen: @Composable () -> Unit = {
-    HomeScreen()
+    Person().Draw()
 }
 
-
+val person1 = Person()
 @Composable
 fun MainScreen(
     myViewModel : MyViewModel = viewModel(),
@@ -61,7 +62,9 @@ fun MainScreen(
     context: Context,
     scope: CoroutineScope,
     navigationBarItems : List<LabeledIcon> =listOf(
-        LabeledIcon("Home", Icons.Filled.Home){ HomeScreen()},
+        LabeledIcon("Home", Icons.Filled.Home){
+
+            person1.Draw()},
         LabeledIcon("Activities",  ImageVector.vectorResource(id = R.drawable.baseline_directions_run_24)) { ActivitiesScreen() },
         LabeledIcon("Chats",ImageVector.vectorResource(id = R.drawable.baseline_forum_24)) { ChatScreen() },
         LabeledIcon("Stats",ImageVector.vectorResource(id = R.drawable.baseline_directions_run_24)) { StatisticsScreen(context, scope) },
@@ -129,11 +132,8 @@ fun MainScreen(
     }
 
 
-@Composable
-fun HomeScreen(){
-    Log.i("gooffy","whaaaa")
-    Text(text = "HOME")
-}
+
+
 @Composable
 fun ActivitiesScreen(){
     Text(text = "ACTIVITIES")

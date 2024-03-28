@@ -10,6 +10,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.lifecycleScope
 import com.projecte.mewnagochi.ui.MainScreen
+import com.projecte.mewnagochi.ui.animation.Animation
 import com.projecte.mewnagochi.ui.theme.MewnagochiTheme
 
 class MainActivity : ComponentActivity() {
