@@ -35,8 +35,8 @@ import androidx.navigation.compose.rememberNavController
 import com.projecte.mewnagochi.LabeledIcon
 import com.projecte.mewnagochi.MyViewModel
 import com.projecte.mewnagochi.R
-import com.projecte.mewnagochi.StatsViewModel
-import com.projecte.mewnagochi.health_connect.HealthConnectManager
+import com.projecte.mewnagochi.stats.StatsViewModel
+import com.projecte.mewnagochi.stats.HealthConnectManager
 import com.projecte.mewnagochi.ui.theme.Person
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch

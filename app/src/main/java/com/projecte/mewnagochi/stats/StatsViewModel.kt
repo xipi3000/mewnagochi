@@ -1,4 +1,4 @@
-package com.projecte.mewnagochi
+package com.projecte.mewnagochi.stats
 
 import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.health.connect.client.records.StepsRecord

@@ -1,4 +1,4 @@
-package com.projecte.mewnagochi.health_connect
+package com.projecte.mewnagochi.stats
 
 import androidx.health.connect.client.records.HeartRateRecord
 import androidx.health.connect.client.records.SpeedRecord

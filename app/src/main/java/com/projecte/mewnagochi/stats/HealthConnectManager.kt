@@ -1,4 +1,4 @@
-package com.projecte.mewnagochi.health_connect
+package com.projecte.mewnagochi.stats
 
 import android.content.Context
 import android.os.Build

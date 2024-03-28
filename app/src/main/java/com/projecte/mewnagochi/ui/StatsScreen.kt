@@ -10,8 +10,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.projecte.mewnagochi.StatsViewModel
-import com.projecte.mewnagochi.health_connect.HealthConnectManager
+import com.projecte.mewnagochi.stats.StatsViewModel
+import com.projecte.mewnagochi.stats.HealthConnectManager
 import kotlinx.coroutines.CoroutineScope
 
 @Composable
