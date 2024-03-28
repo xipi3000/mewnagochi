@@ -165,11 +165,12 @@ fun StatisticsScreen(context: Context, scope: CoroutineScope) {
         }
     }
     StatsScreen(context = context, healthConnectManager = healthConnectManager, scope = scope)
-    myViewModel.healthPermissionLauncher.launch(
-        setOf(
-            HealthPermission.getReadPermission(
-                StepsRecord::class
-            )
-        )
+    val permissions = setOf(
+        HealthPermission.getReadPermission(StepsRecord::class),
     )
+    scope.launch {
+        if (!healthConnectManager.hasAllPermissions(permissions)){
+            myViewModel.healthPermissionLauncher.launch(permissions)
+        }
+    }
 }

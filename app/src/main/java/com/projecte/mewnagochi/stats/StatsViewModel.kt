@@ -1,13 +1,13 @@
 package com.projecte.mewnagochi.stats
 
+import android.content.Context
 import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.health.connect.client.records.StepsRecord
 import androidx.health.connect.client.response.ReadRecordsResponse
 import androidx.lifecycle.ViewModel
 
-class StatsViewModel : ViewModel(
+class StatsViewModel() : ViewModel() {
 
-){
     lateinit var healthPermissionLauncher: ManagedActivityResultLauncher<Set<String>, Set<String>>
     lateinit var response: ReadRecordsResponse<StepsRecord>
 

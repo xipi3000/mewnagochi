@@ -27,14 +27,12 @@ fun StatsScreen(
         Column(
             modifier = Modifier.padding(scaffoldPadding)
         ) {
-            Log.i(ContentValues.TAG, "Requesting permission")
-
-            val response = if (myViewModel.isResponseInitialized()) {
-                myViewModel.response.toString()
-            } else {
-                "No data"
-            }
-            Text("Steps: ${response}")
+//            val response = if (myViewModel.isResponseInitialized()) {
+//                myViewModel.response.toString()
+//            } else {
+//                "No data"
+//            }
+//            Text("Steps: ${response}")
         }
     }
 }

@@ -61,10 +61,6 @@ class HealthConnectManager(private val context: Context) {
      * [PermissionController.createRequestPermissionResultContract].
      */
 
-    val permissions = setOf(
-        HealthPermission.getReadPermission(WeightRecord::class),
-        HealthPermission.getWritePermission(WeightRecord::class),
-    )
     suspend fun hasAllPermissions(permissions: Set<String>): Boolean {
         return healthConnectClient.permissionController.getGrantedPermissions().containsAll(permissions)
     }
