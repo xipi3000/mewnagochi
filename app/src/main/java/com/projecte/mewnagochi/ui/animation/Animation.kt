@@ -2,6 +2,7 @@ package com.projecte.mewnagochi.ui.animation
 
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -14,7 +15,11 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -28,9 +33,10 @@ import androidx.compose.ui.unit.IntSize
 class Animation(
     private val frames :  Array<ImageBitmap>,
     private val frameIndex :MutableState<Int> = mutableIntStateOf(0),
-    private val animTime : Int,
-    private var frameTime:Float = (animTime/frames.size).toFloat(),
-    private var lastFrame: Long = System.currentTimeMillis()
+    private val animTime : Float,
+    private val frameTime:Float = animTime/frames.size,
+    private var lastFrame: MutableState<Long> = mutableLongStateOf(System.currentTimeMillis()),
+    private var freezLastFrame : Boolean = false
 ) {
 
     var isPlaying : Boolean = false
@@ -38,6 +44,7 @@ class Animation(
 
     fun play(){
         isPlaying=true
+        frameIndex.value=0
     }
     fun stop(){
         isPlaying=false
@@ -55,13 +62,13 @@ class Animation(
         Column(
             modifier = Modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.SpaceAround) {
-            Text(text = frameIndex.value.toString())
-            val handler = Handler(Looper.getMainLooper())
+            verticalArrangement = Arrangement.Bottom) {
+
             Canvas(
 
                 modifier = modifier
-                    .size(Dp(100F))
+                    .width(Dp(100F))
+                    .height(Dp(210f))
 
                     .background(Color.Red)
 
@@ -81,11 +88,13 @@ class Animation(
     fun update() {
 
         if (!isPlaying) return
-        if (System.currentTimeMillis() - lastFrame > frameTime * 1000) {
-            //Log.i("animating", frames[frameIndex.value].toString())
-            frameIndex.value++
-            frameIndex.value = if (frameIndex.value >= frames.size) 0 else frameIndex.value
-            lastFrame = System.currentTimeMillis()
+        if(!freezLastFrame || frameIndex.value != frames.size-1) {
+            if (System.currentTimeMillis() - lastFrame.value > frameTime * 100) {
+
+                frameIndex.value++
+                frameIndex.value = if (frameIndex.value >= frames.size) 0 else frameIndex.value
+                lastFrame.value = System.currentTimeMillis()
+            }
         }
     }
 

@@ -28,6 +28,8 @@ import java.lang.Thread.sleep
 import kotlin.math.roundToInt
 
 class Person {
+    private val mainScope = CoroutineScope(Dispatchers.Main)
+
     private lateinit var walkingAnimation : Animation
     private lateinit var idleAnimation : Animation
     private lateinit var jumpAnimation : Animation
@@ -67,32 +69,47 @@ class Person {
     fun buildSprite() : Array<Animation>{
 
     return arrayOf(
-        Animation(getIdleMaps(),animTime = 1),
-        Animation(getWalkingMaps(), animTime = 1),
-        Animation(getJumpMaps(), animTime = 1),
-        Animation(getFallMaps(), animTime = 1),)
+        Animation(getIdleMaps(),animTime = 1F),
+        Animation(getWalkingMaps(), animTime =8F),
+        Animation(getJumpMaps(), animTime = 2F),
+        Animation(getFallMaps(), animTime = 3F,freezLastFrame = true),)
 
     }
-
+    var playing = mutableStateOf(true)
+    lateinit var  aniManager: AnimationManager
     @Composable
     fun Draw(){
-        var playing by remember { mutableStateOf(true) }
-        val aniManager = AnimationManager(buildSprite())
+
+        aniManager = AnimationManager(buildSprite())
+        var dragging by remember {
+            mutableStateOf(true)
+        }
         var offsetX by remember { mutableStateOf(0f) }
         var offsetY by remember { mutableStateOf(0f) }
+        Log.i("dragg","regeen")
         aniManager.playAnim(1)
-        aniManager.Draw(modifier = Modifier.offset { IntOffset(offsetX.roundToInt(), offsetY.roundToInt()) }
+        aniManager.Draw(modifier = Modifier
+            .offset {
+                IntOffset(
+                    offsetX.roundToInt(),
+                    if (offsetY.roundToInt() <= 0) offsetY.roundToInt() else 0
+                )
+            }
             .pointerInput(Unit) {
                 detectDragGestures(
                     onDragStart = {
+                        dragging=true
                         aniManager.playAnim(2)
                     },
                     onDragEnd = {
+                        dragging=false
+                        Log.i("dragg", "stopped")
+                        aniManager.playAnim(2)
                         val scope = CoroutineScope(Dispatchers.Main)
                         scope.launch {
                             var reps = 0F
                             // Loop until offsetY < 0F
-                            while (offsetY <= 0F) {
+                            while (offsetY <= 10F) {
                                 // Your loop code here
                                 // For example, update offsetY
                                 reps++
@@ -102,37 +119,45 @@ class Person {
                                 // Delay for 1 second before the next iteration
                                 delay(10)
                             }
+                            offsetY = 0F
+
                             aniManager.playAnim(3)
-                            delay(200)
-                            playing=false
-                            delay(2000)
-                            //TODO: FALTA ALGO PER FREEZ EL FRAME FINAL, S'HA DE FER AMB UN CUSTOM ANIMATION UPDATE
-                            playing=true
-                            aniManager.playAnim(1)
+
+                            delay(3000)
+
+                            //TODO: FICAR ALGUN RANDOM DE TIPO PUGUI AIXECAR-SE MOLT RAPID O LENT
+                            //TODO: FALTA ANIMACIÓ DE AIXECAR-SE
+
+
+                            if (!dragging) aniManager.playAnim(1)
                             // Loop finished
                             // You can perform any cleanup or finalization here
 
                         }
                     },
-                    ) { change, dragAmount ->
+                ) { change, dragAmount ->
                     change.consume()
-                    Log.i("offset",offsetY.toString())
+
                     offsetX += dragAmount.x
                     offsetY += dragAmount.y
+
 
                 }
 
             })
-
         val handler = Handler(Looper.getMainLooper())
         handler.post(object : Runnable {
             override fun run() {
 
-                if(playing)
+                if(playing.value)
                     aniManager.update()
-                handler.postDelayed(this, 150) // Execute every 1000 milliseconds (1 second)
+                handler.postDelayed(this, 50) // Execute every 1000 milliseconds (1 second)
             }
         })
 
+
     }
+
+
+
 }

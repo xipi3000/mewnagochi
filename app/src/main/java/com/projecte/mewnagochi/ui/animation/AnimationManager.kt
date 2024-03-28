@@ -20,6 +20,7 @@ class AnimationManager(private val animations: Array<Animation>) {
             } else animations[i].stop()
         }
         animationIndex.value = index
+
     }
 
     @Composable

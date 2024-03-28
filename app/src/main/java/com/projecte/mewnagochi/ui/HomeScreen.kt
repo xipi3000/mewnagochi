@@ -20,8 +20,8 @@ fun HomeScreen(){
     val run2 = ImageBitmap.imageResource(id = R.drawable.run2)
     val run3 = ImageBitmap.imageResource(id = R.drawable.run3)
     val run4 = ImageBitmap.imageResource(id = R.drawable.run4)
-    val idleAnim = Animation(arrayOf(idle), animTime = 1)
-    val running = Animation(arrayOf(run0,run1,run2,run3,run4), animTime = 1)
+    val idleAnim = Animation(arrayOf(idle), animTime = 1F)
+    val running = Animation(arrayOf(run0,run1,run2,run3,run4), animTime = 1F)
     val aniManager = AnimationManager(arrayOf( idleAnim,running))
 
     aniManager.playAnim(1)
