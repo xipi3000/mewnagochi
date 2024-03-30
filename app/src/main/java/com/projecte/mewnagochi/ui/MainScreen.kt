@@ -35,19 +35,15 @@ import com.projecte.mewnagochi.R
 import com.projecte.mewnagochi.ui.theme.Person
 import kotlinx.coroutines.selects.select
 
-val homeScreen: @Composable () -> Unit = {
-    Person().Draw()
-}
 
-val person1 = Person()
+
 @Composable
 fun MainScreen(
     myViewModel : MyViewModel = viewModel(),
     navController : NavHostController = rememberNavController(),
     navigationBarItems : List<LabeledIcon> =listOf(
         LabeledIcon("Home", Icons.Filled.Home){
-
-            person1.Draw()},
+            HomeScreen()},
         LabeledIcon("Activities",  ImageVector.vectorResource(id = R.drawable.baseline_directions_run_24)) { ActivitiesScreen() },
         LabeledIcon("Chats",ImageVector.vectorResource(id = R.drawable.baseline_forum_24)) { ChatScreen() },
     )

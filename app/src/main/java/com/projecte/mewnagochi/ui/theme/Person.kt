@@ -5,10 +5,11 @@ import android.graphics.Matrix
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
-import androidx.compose.foundation.clickable
+import androidx.activity.ComponentActivity
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.offset
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -21,6 +22,9 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.unit.IntOffset
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.projecte.mewnagochi.MyViewModel
+import com.projecte.mewnagochi.PersonViewModel
 
 import com.projecte.mewnagochi.R
 import com.projecte.mewnagochi.ui.animation.Animation
@@ -29,15 +33,13 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import java.lang.Thread.sleep
 import kotlin.math.roundToInt
+import androidx.activity.viewModels
+import androidx.compose.runtime.LaunchedEffect
+import androidx.lifecycle.ViewModelProvider
 
-class Person {
-    private val mainScope = CoroutineScope(Dispatchers.Main)
+class Person ( ) {
 
-    private lateinit var walkingAnimation : Animation
-    private lateinit var idleAnimation : Animation
-    private lateinit var jumpAnimation : Animation
     @Composable
     fun getWalkingMapsR() : Array<ImageBitmap>{
         return arrayOf(
@@ -96,55 +98,68 @@ class Person {
 
 
     @Composable
-    fun buildSprite() : Array<Animation>{
+    fun BuildSprite(){
 
-    return arrayOf(
+        aniManager = AnimationManager(arrayOf(
         Animation(getIdleMaps(),animTime = 1F),
         Animation(getWalkingMapsL(), animTime =8F),
         Animation(getJumpMaps(), animTime = 2F),
         Animation(getFallMaps(), animTime = 3F,freezLastFrame = true),
         Animation(getWalkingMapsR(), animTime =8F),
-        )
+        ))
 
     }
-    var offsetX = mutableFloatStateOf(0F)
-    fun returnToCenter(offsetY: Float){
-        //TODO: FER QUE QUAN ESTA DRAGGING PARI DE MOURE'S
-        val scope = CoroutineScope(Dispatchers.Main)
-        if(offsetX.floatValue != 0F && offsetY==0F){
 
-            Log.i("offset",offsetX.floatValue.toString())
-            if(offsetX.floatValue > 0){
+//TODO: VALE POTSER FICAR AQUESTA FUNCIO DINS DEL MODIFFIER COM A TAL PERQUE ELL SI QUE POT OBTENIR ELS ELEMENTS DE VIEWMODEL
+    fun returnToCenter(
+
+        offsetX: Float,
+        offsetY: Float,
+        personViewModel : PersonViewModel,){
+        //TODO: FER QUE QUAN ESTA DRAGGING PARI DE MOURE'S
+
+        var staticOffsetx = offsetX
+        val scope = CoroutineScope(Dispatchers.Main)
+        if(staticOffsetx != 0F && offsetY==0F){
+
+            Log.i("offset",staticOffsetx.toString())
+            if(staticOffsetx > 0){
                 aniManager.playAnim(1)
                 scope.launch {
-                    while (offsetX.floatValue >= 10F) {
-                        offsetX.floatValue -= 1F
+                    while (staticOffsetx >= 10F) {
+                        personViewModel.setOffsetX( staticOffsetx- 1F)
+                        staticOffsetx -= 1F
                         delay(10)
                     }
-                    offsetX.floatValue = 0F
+                    personViewModel.setOffsetX(0F)
                     aniManager.playAnim(0)
                 }
             }
             else{
                 aniManager.playAnim(4)
                 scope.launch {
-                    while (offsetX.value <= 10F) {
-                        offsetX.value += 1F
+                    while (staticOffsetx <= 10F) {
+                        personViewModel.setOffsetX( staticOffsetx +1F)
+                        staticOffsetx += 1F
                         delay(10)
+
                     }
-                    offsetX.value = 0F
+                    personViewModel.setOffsetX(0F)
                     aniManager.playAnim(0)
                 }
             }
         }
     }
 
-    var playing = mutableStateOf(true)
+
+
     lateinit var  aniManager: AnimationManager
     @Composable
-    fun Draw(){
+    fun Draw(personViewModel : PersonViewModel = viewModel()
+    ){
 
-        aniManager = AnimationManager(buildSprite())
+        val offsetX  by personViewModel.offsetX.collectAsState()
+
         var dragging by remember {
             mutableStateOf(true)
         }
@@ -155,18 +170,18 @@ class Person {
         aniManager.Draw(modifier = Modifier
             .offset {
                 IntOffset(
-                    offsetX.value.roundToInt(),
+                    offsetX.roundToInt(),
                     if (offsetY.roundToInt() <= 0) offsetY.roundToInt() else 0
                 )
             }
             .pointerInput(Unit) {
                 detectDragGestures(
                     onDragStart = {
-                        dragging=true
+                        dragging = true
                         aniManager.playAnim(2)
                     },
                     onDragEnd = {
-                        dragging=false
+                        dragging = false
                         Log.i("dragg", "stopped")
                         aniManager.playAnim(2)
                         val scope = CoroutineScope(Dispatchers.Main)
@@ -178,7 +193,7 @@ class Person {
                                 // For example, update offsetY
                                 reps++
                                 offsetY += 10F + reps// Example decrement of offsetY
-                                offsetX.value += 1F
+                                personViewModel.setOffsetX(offsetX + 1F)
 
                                 // Delay for 1 second before the next iteration
                                 delay(10)
@@ -193,7 +208,7 @@ class Person {
                             //TODO: FALTA ANIMACIÓ DE AIXECAR-SE
 
 
-                            returnToCenter(offsetY)
+                            returnToCenter(offsetX = offsetX,offsetY =  offsetY, personViewModel)
 
                             //if (!dragging) aniManager.playAnim(0)
                             // Loop finished
@@ -204,7 +219,7 @@ class Person {
                 ) { change, dragAmount ->
                     change.consume()
 
-                    offsetX.value += dragAmount.x
+                    personViewModel.setOffsetX(offsetX + dragAmount.x)
                     offsetY += dragAmount.y
 
 
@@ -214,9 +229,7 @@ class Person {
         val handler = Handler(Looper.getMainLooper())
         handler.post(object : Runnable {
             override fun run() {
-
-                if(playing.value)
-                    aniManager.update()
+                aniManager.update()
                 handler.postDelayed(this, 50) // Execute every 1000 milliseconds (1 second)
             }
         })

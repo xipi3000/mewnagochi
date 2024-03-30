@@ -15,4 +15,5 @@ class MyViewModel(
     fun setNewSelected(index: Int) {
         savedStateHandle["navigationBarSelected"] = index
     }
+
 }
