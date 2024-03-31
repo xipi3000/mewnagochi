@@ -5,5 +5,7 @@ enum class PersonState {
     BEING_DRAGED,
     FALLING,
     RET_TO_CENTER,
+    CLICKED,
+    RISING,
 
 }

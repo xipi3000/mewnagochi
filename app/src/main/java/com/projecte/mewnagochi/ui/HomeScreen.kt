@@ -15,10 +15,11 @@ import com.projecte.mewnagochi.MyViewModel
 import com.projecte.mewnagochi.PersonViewModel
 import com.projecte.mewnagochi.R
 import com.projecte.mewnagochi.ui.theme.Person
+import com.projecte.mewnagochi.ui.theme.Person1
 
 @Composable
 fun HomeScreen(){
-    val person1 = Person()
+    val person1 = Person1()
     Image(
         painter = painterResource(id = R.drawable.phone_backgrounds),
         contentDescription = "Background",
