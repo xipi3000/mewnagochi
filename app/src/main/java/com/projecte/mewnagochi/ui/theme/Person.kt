@@ -41,8 +41,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.lifecycle.ViewModelProvider
 
 //TODO: FER QUE ES MOGUI RANDOM
-//TODO: FER QUE ES MOGUI SI S'ACLICA
-//TODO: FICAR FONDO
+
 class Person ( ) {
 
     @Composable
