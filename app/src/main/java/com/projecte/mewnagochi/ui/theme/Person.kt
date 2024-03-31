@@ -35,9 +35,14 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 import androidx.activity.viewModels
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.runtime.LaunchedEffect
 import androidx.lifecycle.ViewModelProvider
 
+//TODO: FER QUE ES MOGUI RANDOM
+//TODO: FER QUE ES MOGUI SI S'ACLICA
+//TODO: FICAR FONDO
 class Person ( ) {
 
     @Composable
@@ -73,6 +78,15 @@ class Person ( ) {
         )
     }
     @Composable
+    fun getUpMaps() : Array<ImageBitmap>{
+        return arrayOf(
+            ImageBitmap.imageResource(id = R.drawable.up1),
+            ImageBitmap.imageResource(id = R.drawable.up2),
+            ImageBitmap.imageResource(id = R.drawable.up3),
+            ImageBitmap.imageResource(id = R.drawable.up4),
+        )
+    }
+    @Composable
     fun getFallMaps() : Array<ImageBitmap>{
         return arrayOf(
             ImageBitmap.imageResource(id = R.drawable.fall1),
@@ -91,7 +105,13 @@ class Person ( ) {
     @Composable
     fun getIdleMaps() : Array<ImageBitmap>{
         return  arrayOf(
-            ImageBitmap.imageResource(id= R.drawable.advnt_full)
+            ImageBitmap.imageResource(id= R.drawable.idle)
+        )
+    }
+    @Composable
+    fun getClickedMaps() : Array<ImageBitmap>{
+        return  arrayOf(
+            ImageBitmap.imageResource(id= R.drawable.clicked)
         )
     }
 
@@ -106,18 +126,18 @@ class Person ( ) {
         Animation(getJumpMaps(), animTime = 2F),
         Animation(getFallMaps(), animTime = 3F,freezLastFrame = true),
         Animation(getWalkingMapsR(), animTime =8F),
+        Animation(getUpMaps(), animTime =10F),
+        Animation(getClickedMaps(), animTime =1F),
         ))
 
     }
 
-//TODO: VALE POTSER FICAR AQUESTA FUNCIO DINS DEL MODIFFIER COM A TAL PERQUE ELL SI QUE POT OBTENIR ELS ELEMENTS DE VIEWMODEL
     fun returnToCenter(
 
         offsetX: Float,
         offsetY: Float,
         personViewModel : PersonViewModel,){
-        //TODO: FER QUE QUAN ESTA DRAGGING PARI DE MOURE'S
-
+        personState=PersonState.RET_TO_CENTER
         var staticOffsetx = offsetX
         val scope = CoroutineScope(Dispatchers.Main)
         if(staticOffsetx != 0F && offsetY==0F){
@@ -127,6 +147,7 @@ class Person ( ) {
                 aniManager.playAnim(1)
                 scope.launch {
                     while (staticOffsetx >= 10F) {
+                        if(personState!=PersonState.RET_TO_CENTER) return@launch
                         personViewModel.setOffsetX( staticOffsetx- 1F)
                         staticOffsetx -= 1F
                         delay(10)
@@ -139,6 +160,7 @@ class Person ( ) {
                 aniManager.playAnim(4)
                 scope.launch {
                     while (staticOffsetx <= 10F) {
+                        if(personState!=PersonState.RET_TO_CENTER) return@launch
                         personViewModel.setOffsetX( staticOffsetx +1F)
                         staticOffsetx += 1F
                         delay(10)
@@ -151,7 +173,7 @@ class Person ( ) {
         }
     }
 
-
+    var personState : PersonState = PersonState.IDLE
 
     lateinit var  aniManager: AnimationManager
     @Composable
@@ -167,7 +189,19 @@ class Person ( ) {
         var offsetY by remember { mutableStateOf(0f) }
         Log.i("dragg","regeen")
         aniManager.playAnim(0)
+        val interactionSource = remember { MutableInteractionSource() }
         aniManager.Draw(modifier = Modifier
+            .clickable(
+                interactionSource = interactionSource,
+                indication = null
+            ) {
+                val scope = CoroutineScope(Dispatchers.Main)
+                scope.launch {
+                    aniManager.playAnim(6)
+                    delay(100)
+                    aniManager.playAnim(0)
+                }
+                 }
             .offset {
                 IntOffset(
                     offsetX.roundToInt(),
@@ -177,6 +211,7 @@ class Person ( ) {
             .pointerInput(Unit) {
                 detectDragGestures(
                     onDragStart = {
+                        personState=PersonState.BEING_DRAGED
                         dragging = true
                         aniManager.playAnim(2)
                     },
@@ -203,7 +238,8 @@ class Person ( ) {
                             aniManager.playAnim(3)
 
                             delay(2000)
-
+                            aniManager.playAnim(5)
+                            delay(700)
                             //TODO: FICAR ALGUN RANDOM DE TIPO PUGUI AIXECAR-SE MOLT RAPID O LENT
                             //TODO: FALTA ANIMACIÓ DE AIXECAR-SE
 
