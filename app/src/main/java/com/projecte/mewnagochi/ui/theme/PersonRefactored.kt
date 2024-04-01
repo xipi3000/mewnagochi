@@ -249,33 +249,22 @@ class Person1 ( ) {
             .pointerInput(Unit) {
                 detectDragGestures(
                     onDragStart = {
-
                         personViewModel.setState(PersonState.BEING_DRAGED)
-
                     },
                     onDragEnd = {
-
                         personViewModel.setState(PersonState.FALLING)
                         val scope = CoroutineScope(Dispatchers.Main)
-
-                        //if (!dragging) aniManager.playAnim(0)
-                        // Loop finished
-                        // You can perform any cleanup or finalization here
-
-
                     },
                 ) { change, dragAmount ->
                     change.consume()
 
                     personViewModel.setOffsetX(offsetX + dragAmount.x)
                     offsetY += dragAmount.y
-
-
                 }
-
             }
             .clickable(
-
+                interactionSource = interactionSource,
+                indication = null,
             ) {
                 if (personState != PersonState.CLICKED) {
                     personViewModel.setState(PersonState.CLICKED)
