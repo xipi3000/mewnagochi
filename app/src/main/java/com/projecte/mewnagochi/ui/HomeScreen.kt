@@ -81,6 +81,7 @@ fun HomeScreen(homeScreenViewModel: HomeScreenViewModel = viewModel()){
                 },
         )
         noteList.forEach { note ->
+
             note.Draw()
 
         }

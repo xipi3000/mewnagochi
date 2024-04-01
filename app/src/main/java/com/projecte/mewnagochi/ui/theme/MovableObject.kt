@@ -12,6 +12,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -41,8 +42,8 @@ import kotlin.math.roundToInt
 class MovableObject (
     val id: String,
     val res: Int,
-    private val x: Int = 0,
-    private val y : Int= 0
+    private var x: Float = 0F,
+    private var y : Float= 0F
 ) {
 
 
@@ -52,10 +53,13 @@ class MovableObject (
     fun Draw(viewModel: HomeScreenViewModel = viewModel(),
 
     ){
-        var offsetX  by remember { mutableStateOf(0f) }
-        var offsetY by remember { mutableStateOf(0f) }
+        var offsetX  by remember { mutableFloatStateOf(0F) }
+        var offsetY by remember { mutableFloatStateOf(0F) }
+        offsetX=x
+        offsetY=y
         var personState  by remember { mutableStateOf(PersonState.IDLE) }
         val selectedId by viewModel.selectedFurnitureId.collectAsState()
+
         if(selectedId!=id){
             personState = PersonState.IDLE
         }
@@ -75,6 +79,10 @@ class MovableObject (
                             if (personState == PersonState.CLICKED)
                                 personState = PersonState.BEING_DRAGED
                         },
+                        onDragEnd = {
+                            x = offsetX
+                            y = offsetY
+                        }
                     ) { change, dragAmount ->
                         if (personState == PersonState.BEING_DRAGED) {
                             change.consume()
