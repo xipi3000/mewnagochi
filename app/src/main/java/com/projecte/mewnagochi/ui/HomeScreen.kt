@@ -10,6 +10,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.scrollable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -27,6 +28,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -39,9 +41,11 @@ import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.datastore.dataStoreFile
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.projecte.mewnagochi.HomeScreenViewModel
 
@@ -49,12 +53,10 @@ import com.projecte.mewnagochi.R
 import com.projecte.mewnagochi.ui.theme.MovableObject
 import com.projecte.mewnagochi.ui.theme.Person1
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.launch
 import java.util.UUID
 
-enum class ItemTypes{
-    TORCH,
-    DOOR
-}
+
 
 
 class Location(var x: Float, var y: Float)
@@ -68,8 +70,15 @@ fun Door(){
 }
 @Composable
 fun ListOfItems(furniture: MutableMap<Int, MutableState<Boolean>>) {
-    if(furniture[R.drawable.window]?.value   == true)Torch()
-    if(furniture[R.drawable.ic_launcher_background]?.value == true)Door()
+
+    //val move = MovableObject(id = UUID.randomUUID().toString(),res = R.drawable.window, fileName = "torch.json")
+    //(furniture[R.drawable.window]?.value == true) LaunchedEffect(Unit) {
+    //    launch { move.show() }
+    //}
+    //Torch()
+    //Torch()
+    //if(furniture[R.drawable.ic_launcher_background]?.value == true)
+    Door()
     //Door()
     //Window()
     //Chest()
@@ -86,7 +95,7 @@ fun HomeScreen(homeScreenViewModel: HomeScreenViewModel = viewModel()) {
     val isAnyFurnitureSelected by homeScreenViewModel.isAnyFurnitureSelected.collectAsState()
     val selectedFurnitureId by homeScreenViewModel.selectedFurnitureId.collectAsState()
     val furnitures by homeScreenViewModel.furnitures.collectAsState()
-    val isAddingFurniture by remember { mutableStateOf(false)}
+    var isAddingFurniture by remember { mutableStateOf(false)}
 
     val furniture = remember {
         mutableMapOf(
@@ -111,9 +120,12 @@ fun HomeScreen(homeScreenViewModel: HomeScreenViewModel = viewModel()) {
             ) else null,
             modifier = Modifier
                 .fillMaxSize()
-                .clickable {
-
-                    homeScreenViewModel.stopEditing()
+                .clickable(
+                    interactionSource = MutableInteractionSource(),
+                    indication = null
+                ) {
+                    if (isAddingFurniture) isAddingFurniture = false
+                    else homeScreenViewModel.stopEditing()
                 },
         )
 /*        noteList.forEach { note ->
@@ -149,27 +161,45 @@ fun HomeScreen(homeScreenViewModel: HomeScreenViewModel = viewModel()) {
         }
         AnimatedVisibility(
             modifier = Modifier.align(Alignment.TopEnd),
-            visible = isEditingFurniture,
+            visible = !isAddingFurniture && isEditingFurniture,
             enter = fadeIn(),
             exit = fadeOut(),
         ) {
-            Column {
+            FilledIconButton(
+                colors = IconButtonDefaults.filledIconButtonColors(
+                    containerColor = MaterialTheme.colorScheme.onPrimary,
 
-
+                    ),
+                modifier = Modifier
+                    .padding(30.dp)
+                    .size(60.dp),
+                onClick = { isAddingFurniture = true }) {
+                Icon(Icons.Filled.Add, contentDescription = "add furniture")
+            }
+            AnimatedVisibility(
+                visible = isAnyFurnitureSelected,
+                enter = fadeIn(),
+                exit = fadeOut(),
+            ) {
                 FilledIconButton(
                     colors = IconButtonDefaults.filledIconButtonColors(
-                        containerColor = MaterialTheme.colorScheme.onPrimary,
-
-                        ),
+                        contentColor = MaterialTheme.colorScheme.error,
+                        containerColor = MaterialTheme.colorScheme.onError,
+                    ),
                     modifier = Modifier
                         .padding(30.dp)
                         .size(60.dp),
-                    onClick = { homeScreenViewModel.startEditing() }) {
-                    Icon(Icons.Filled.Create, contentDescription = "edit background")
+                    onClick = {
+                        homeScreenViewModel.deleteSelected()
+                        homeScreenViewModel.deleteObject(selectedFurnitureId)
+                        furniture[selectedFurnitureId]?.value=false
+
+
+                    }) {
+                    Icon(Icons.Filled.Delete, contentDescription = "delete furniture")
                 }
-
-
             }
+
         }
 
         AnimatedVisibility(
@@ -201,11 +231,16 @@ fun HomeScreen(homeScreenViewModel: HomeScreenViewModel = viewModel()) {
                             Image(
                                 modifier = Modifier.clickable {
                                     //   homeScreenViewModel.stopEditing()
-                                    furniture[furnitureId]?.value=!isShown.value
-
+                                    homeScreenViewModel.addObject(furnitureId)
+                                    furniture[furnitureId]?.value=true
+                                    isAddingFurniture = false
 
                                 },
-                                painter = painterResource(id = furnitureId), contentDescription = ""
+                                painter = painterResource(id = furnitureId), contentDescription = "",
+                                colorFilter = if (furniture[furnitureId]?.value==true) ColorFilter.tint(
+                                    Color.DarkGray,
+                                    BlendMode.Color
+                                ) else null,
                             )
                         }
                     }

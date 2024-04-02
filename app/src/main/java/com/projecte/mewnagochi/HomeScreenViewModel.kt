@@ -9,12 +9,19 @@ import com.projecte.mewnagochi.ui.theme.PersonState
 class HomeScreenViewModel (
     private val savedStateHandle : SavedStateHandle
 ) : ViewModel() {
-
+    val addedObject = savedStateHandle.getStateFlow("addedObject",0)
+    val deletedObject = savedStateHandle.getStateFlow("deletedObject",0)
     val selectedFurnitureId = savedStateHandle.getStateFlow("selectedFurnitureId",0)
     val isEditingFurniture = savedStateHandle.getStateFlow("isEditingFurniture",false)
     val isAnyFurnitureSelected = savedStateHandle.getStateFlow("isAnyFurnitureSelected",false)
     val  furnitures = savedStateHandle.getStateFlow("furnitures", mapOf<String,MovableObject?>())
 
+    fun addObject(id: Int){
+        savedStateHandle["addedObject"] = id
+    }
+    fun deleteObject(id: Int){
+        savedStateHandle["deletedObject"] = id
+    }
     fun startEditing(){
         savedStateHandle["isEditingFurniture"] = true
     }
@@ -35,14 +42,10 @@ class HomeScreenViewModel (
     }
 
 
-    fun deleteSelected(id:String) {
-        savedStateHandle["selectedFurnitureId"] = ""
-        val map = furnitures.value.toMutableMap()
-        map.remove(id)
-        val newMap = map.toMap()
+    fun deleteSelected() {
+        savedStateHandle["selectedFurnitureId"] = 0
         savedStateHandle["isAnyFurnitureSelected"] = false
-        savedStateHandle["deletedId"] = id
-        savedStateHandle["furnitures"] = newMap
+
     }
 
 }
