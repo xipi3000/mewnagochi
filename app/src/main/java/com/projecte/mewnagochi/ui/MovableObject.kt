@@ -37,7 +37,7 @@ import com.projecte.mewnagochi.ui.theme.PersonState
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
-val Context.dataStore by dataStore("move.json", MovableObjectSerializer)
+
 
 open class MovableObject (
     val id: String,

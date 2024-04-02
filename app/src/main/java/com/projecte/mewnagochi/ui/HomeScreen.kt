@@ -56,11 +56,19 @@ import java.util.UUID
 class Location(var x: Float, var y: Float)
 @Composable
 fun Torch(){
-    Torch(id = UUID.randomUUID().toString(),res = R.drawable.window).Draw()
+    Torch(id = UUID.randomUUID().toString(),res = R.drawable.torch).Draw()
 }
 @Composable
 fun Door(){
-    MovableObject(id = UUID.randomUUID().toString(),res = R.drawable.ic_launcher_background).Draw()
+    Door(id = UUID.randomUUID().toString(),res = R.drawable.door).Draw()
+}
+@Composable
+fun Chest(){
+    Chest(id = UUID.randomUUID().toString(),res = R.drawable.chest).Draw()
+}
+@Composable
+fun Window(){
+    Window(id = UUID.randomUUID().toString(),res = R.drawable.window).Draw()
 }
 @Composable
 fun ListOfItems(furniture: MutableMap<Int, MutableState<Boolean>>) {
@@ -70,6 +78,8 @@ fun ListOfItems(furniture: MutableMap<Int, MutableState<Boolean>>) {
     //    launch { move.show() }
     //}
     Torch()
+    Window()
+    Chest()
     //Torch()
     //if(furniture[R.drawable.ic_launcher_background]?.value == true)
     Door()
@@ -94,7 +104,9 @@ fun HomeScreen(homeScreenViewModel: HomeScreenViewModel = viewModel()) {
     val furniture = remember {
         mutableMapOf(
             R.drawable.window to mutableStateOf(false),
-            R.drawable.ic_launcher_background to mutableStateOf(false),
+            R.drawable.chest to mutableStateOf(false),
+            R.drawable.door to mutableStateOf(false),
+            R.drawable.torch to mutableStateOf(false),
         )
     }
 

@@ -37,7 +37,7 @@ import com.projecte.mewnagochi.ui.theme.PersonState
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
-class Torch(
+class Window(
     id: String,
     res: Int,
     x: Float = 0F,
@@ -45,28 +45,28 @@ class Torch(
 ) : MovableObject(id, res){
     @Composable
     override fun getAppSeting() : MovableObjectState{
-        return context.torchDataStore.data.collectAsState(
+        return context.windowDataStore.data.collectAsState(
             initial = MovableObjectState()
         ).value
     }
     override suspend fun setX(x: Float,y:Float) {
-        context.torchDataStore.updateData {
+        context.windowDataStore.updateData {
             it.copy(x = x,y=y)
         }
     }
     override suspend fun setY(y: Float) {
 
-        context.torchDataStore.updateData {
+        context.windowDataStore.updateData {
             it.copy(y = y)
         }
     }
     override suspend fun show() {
-        context.torchDataStore.updateData {
+        context.windowDataStore.updateData {
             it.copy(show=true)
         }
     }
     override suspend fun hide() {
-        context.torchDataStore.updateData {
+        context.windowDataStore.updateData {
             it.copy(show=false)
         }
     }
