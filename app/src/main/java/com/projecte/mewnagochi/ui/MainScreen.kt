@@ -1,10 +1,6 @@
 package com.projecte.mewnagochi.ui
 
-import android.util.Log
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.Interaction
-import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -24,7 +20,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -32,9 +27,6 @@ import androidx.navigation.compose.rememberNavController
 import com.projecte.mewnagochi.LabeledIcon
 import com.projecte.mewnagochi.MyViewModel
 import com.projecte.mewnagochi.R
-import com.projecte.mewnagochi.ui.theme.Person
-import kotlinx.coroutines.selects.select
-
 
 
 @Composable

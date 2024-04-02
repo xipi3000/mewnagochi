@@ -13,7 +13,7 @@ class AnimationManager(private val animations: Array<Animation>) {
             if (i == index) {
 
                 if (!animations[index].isPlaying) {
-                    Log.i("anim",index.toString())
+                    //Log.i("anim",index.toString())
                     animations[i].play()
 
 

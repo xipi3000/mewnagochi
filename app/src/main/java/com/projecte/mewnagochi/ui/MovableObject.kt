@@ -150,6 +150,7 @@ open class MovableObject (
                                                 personState = PersonState.BEING_DRAGED
                                         },
                                         onDragEnd = {
+                                            viewModel.deselectFurniture()
                                             personState = PersonState.FALLING
                                             x = offsetX
                                             y = offsetY

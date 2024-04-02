@@ -46,7 +46,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.projecte.mewnagochi.HomeScreenViewModel
 
 import com.projecte.mewnagochi.R
-import com.projecte.mewnagochi.ui.theme.Person1
+import com.projecte.mewnagochi.ui.theme.Person
 import kotlinx.coroutines.flow.MutableStateFlow
 import java.util.UUID
 
@@ -111,9 +111,9 @@ fun HomeScreen(homeScreenViewModel: HomeScreenViewModel = viewModel()) {
     }
 
 
-    val person1 = Person1()
+    val person = Person()
 
-    person1.BuildSprite()
+    person.BuildSprite()
 
     Box {
         Image(
@@ -260,7 +260,7 @@ fun HomeScreen(homeScreenViewModel: HomeScreenViewModel = viewModel()) {
 
 
         if (!isEditingFurniture) {
-            person1.Draw()
+            person.Draw()
         }
 
     }
