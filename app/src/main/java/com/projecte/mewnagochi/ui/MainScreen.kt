@@ -17,6 +17,7 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -35,13 +36,11 @@ import androidx.navigation.compose.rememberNavController
 import com.projecte.mewnagochi.LabeledIcon
 import com.projecte.mewnagochi.MyViewModel
 import com.projecte.mewnagochi.R
-import com.projecte.mewnagochi.stats.StatsViewModel
 import com.projecte.mewnagochi.stats.HealthConnectManager
-import com.projecte.mewnagochi.ui.theme.Person
+import com.projecte.mewnagochi.stats.StatsViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
-
 
 
 @Composable
@@ -50,12 +49,19 @@ fun MainScreen(
     navController: NavHostController = rememberNavController(),
     context: Context,
     scope: CoroutineScope,
-    navigationBarItems : List<LabeledIcon> =listOf(
-        LabeledIcon("Home", Icons.Filled.Home){
-            HomeScreen()},
-        LabeledIcon("Activities",  ImageVector.vectorResource(id = R.drawable.baseline_directions_run_24)) { ActivitiesScreen() },
-        LabeledIcon("Chats",ImageVector.vectorResource(id = R.drawable.baseline_forum_24)) { ChatScreen() },
-        LabeledIcon("Stats",ImageVector.vectorResource(id = R.drawable.baseline_directions_run_24)) { StatisticsScreen(context, scope) },
+    navigationBarItems: List<LabeledIcon> = listOf(
+        LabeledIcon("Home", Icons.Filled.Home) {
+            HomeScreen()
+        },
+        LabeledIcon(
+            "Activities", ImageVector.vectorResource(id = R.drawable.baseline_directions_run_24)
+        ) { ActivitiesScreen() },
+        LabeledIcon(
+            "Chats", ImageVector.vectorResource(id = R.drawable.baseline_forum_24)
+        ) { ChatScreen() },
+        LabeledIcon(
+            "Stats", ImageVector.vectorResource(id = R.drawable.baseline_directions_run_24)
+        ) { StatisticsScreen(context, scope) },
     )
 ) {
     @Composable
@@ -93,27 +99,18 @@ fun MainScreen(
         Column(
             modifier = Modifier.padding(scaffoldPadding)
         ) {
-
-
-
             NavHost(
                 navController = navController, startDestination = "Home"
             ) {
-
-
                 navigationBarItems.forEach { item ->
                     composable(item.label) {
                         item.screen()
                     }
                 }
             }
-
         }
     }
-
 }
-
-
 
 
 @Composable
@@ -164,9 +161,11 @@ fun StatisticsScreen(context: Context, scope: CoroutineScope) {
     val permissions = setOf(
         HealthPermission.getReadPermission(StepsRecord::class),
     )
-    scope.launch {
-        if (!healthConnectManager.hasAllPermissions(permissions)){
-            myViewModel.healthPermissionLauncher.launch(permissions)
+    LaunchedEffect(scope) {
+        scope.launch {
+            if (!healthConnectManager.hasAllPermissions(permissions)) {
+                myViewModel.healthPermissionLauncher.launch(permissions)
+            }
         }
     }
 }
