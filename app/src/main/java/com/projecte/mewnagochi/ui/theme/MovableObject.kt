@@ -28,6 +28,7 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.projecte.mewnagochi.HomeScreenViewModel
+import com.projecte.mewnagochi.MovableObjectViewModel
 import com.projecte.mewnagochi.PersonViewModel
 import com.projecte.mewnagochi.R
 import com.projecte.mewnagochi.ui.Location
@@ -53,21 +54,18 @@ class MovableObject (
     @Composable
     fun Draw(viewModel: HomeScreenViewModel = viewModel(),
 
+
     ){
         var offsetX  by remember { mutableFloatStateOf(0F) }
         var offsetY by remember { mutableFloatStateOf(0F) }
-
-
         var personState  by remember { mutableStateOf(PersonState.IDLE) }
         val selectedId by viewModel.selectedFurnitureId.collectAsState()
         val funr by viewModel.furnitures.collectAsState()
-        if(selectedId!=id){
+        if(selectedId!=res){
             personState = PersonState.IDLE
         }
-        offsetX = funr.get(id)?.x!!
-        offsetY =        funr.get(id)?.y!!
+
         var setted = false
-        Log.i("asdf", funr.get(id)?.x.toString())
 
         Image(
             painter = painterResource(id = res),
@@ -116,8 +114,8 @@ class MovableObject (
                 }
                 .clickable {
                     personState = if (personState != PersonState.CLICKED) {
-                        viewModel.selectFurniture(id)
-                        Log.i("selected", id)
+                        viewModel.selectFurniture(res)
+                        Log.i("selected", res.toString())
                         PersonState.CLICKED
                     } else {
 

@@ -16,8 +16,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -29,10 +27,9 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -54,24 +51,49 @@ import com.projecte.mewnagochi.ui.theme.Person1
 import kotlinx.coroutines.flow.MutableStateFlow
 import java.util.UUID
 
-val furniture = listOf(
-    R.drawable.window
-)
+enum class ItemTypes{
+    TORCH,
+    DOOR
+}
+
 
 class Location(var x: Float, var y: Float)
+@Composable
+fun Torch(){
+    MovableObject(id = UUID.randomUUID().toString(),res = R.drawable.window).Draw()
+}
+@Composable
+fun Door(){
+    MovableObject(id = UUID.randomUUID().toString(),res = R.drawable.ic_launcher_background).Draw()
+}
+@Composable
+fun ListOfItems(furniture: MutableMap<Int, MutableState<Boolean>>) {
+    if(furniture[R.drawable.window]?.value   == true)Torch()
+    if(furniture[R.drawable.ic_launcher_background]?.value == true)Door()
+    //Door()
+    //Window()
+    //Chest()
+}
+
 
 
 @Composable
 fun HomeScreen(homeScreenViewModel: HomeScreenViewModel = viewModel()) {
-    var isEditing by remember { mutableStateOf(false) }
-    var isEditingFurniture by remember { mutableStateOf(false) }
+
+    val isEditingFurniture by homeScreenViewModel.isEditingFurniture.collectAsState()
     val _noteList = remember { MutableStateFlow(listOf<MovableObject>()) }
     val noteList by remember { _noteList }.collectAsState()
     val isAnyFurnitureSelected by homeScreenViewModel.isAnyFurnitureSelected.collectAsState()
     val selectedFurnitureId by homeScreenViewModel.selectedFurnitureId.collectAsState()
     val furnitures by homeScreenViewModel.furnitures.collectAsState()
-    val deltedId by homeScreenViewModel.deletedId.collectAsState()
 
+
+    val furniture = remember {
+        mutableMapOf(
+            R.drawable.window to mutableStateOf(false),
+            R.drawable.ic_launcher_background to mutableStateOf(false),
+        )
+    }
 
 
     val person1 = Person1()
@@ -83,31 +105,27 @@ fun HomeScreen(homeScreenViewModel: HomeScreenViewModel = viewModel()) {
             painter = painterResource(id = R.drawable.phone_backgrounds),
             contentDescription = "Background",
             contentScale = ContentScale.FillBounds,
-            colorFilter = if (isEditing) ColorFilter.tint(
+            colorFilter = if (isEditingFurniture) ColorFilter.tint(
                 Color.DarkGray,
                 BlendMode.Hardlight
             ) else null,
             modifier = Modifier
                 .fillMaxSize()
                 .clickable {
-                    isEditing = false
-                    isEditingFurniture = false
+
+                    homeScreenViewModel.stopEditing()
                 },
         )
 /*        noteList.forEach { note ->
 
             (if(furnitures[note.id]==null) Location(0F,0F) else furnitures[note.id])?.let { note.Draw(location = it) }
         }*/
-        furnitures.forEach { (id,note) ->
-            Log.i("delete",deltedId)
-                if(note!=null)
-                    note.Draw()
 
-        }
+        ListOfItems(furniture)
         val density = LocalDensity.current
         AnimatedVisibility(
             modifier = Modifier.align(Alignment.TopEnd),
-            visible = !isEditing,
+            visible = !isEditingFurniture,
             enter = fadeIn(),
             exit = fadeOut(),
         ) {
@@ -122,68 +140,14 @@ fun HomeScreen(homeScreenViewModel: HomeScreenViewModel = viewModel()) {
                     modifier = Modifier
                         .padding(30.dp)
                         .size(60.dp),
-                    onClick = { isEditing = true }) {
+                    onClick = { homeScreenViewModel.startEditing() }) {
                     Icon(Icons.Filled.Create, contentDescription = "edit background")
                 }
 
 
             }
         }
-        AnimatedVisibility(
-            modifier = Modifier.align(Alignment.TopEnd),
-            visible = isEditing && !isEditingFurniture,
-            enter = fadeIn(),
-            exit = fadeOut(),
-        ) {
-            FilledIconButton(
-                colors = IconButtonDefaults.filledIconButtonColors(
-                    containerColor = MaterialTheme.colorScheme.onPrimary,
-
-                    ),
-                modifier = Modifier
-                    .padding(30.dp)
-                    .size(60.dp),
-                onClick = { isEditingFurniture = true }) {
-                Icon(Icons.Filled.Add, contentDescription = "add furniture")
-            }
-            AnimatedVisibility(
-                visible = isAnyFurnitureSelected,
-                enter = fadeIn(),
-                exit = fadeOut(),
-            ) {
-                FilledIconButton(
-                    colors = IconButtonDefaults.filledIconButtonColors(
-                        contentColor = MaterialTheme.colorScheme.error,
-                        containerColor = MaterialTheme.colorScheme.onError,
-                    ),
-                    modifier = Modifier
-                        .padding(30.dp)
-                        .size(60.dp),
-                    onClick = {
-                        //homeScreenViewModel.deleteSelected(selectedFurnitureId)
-
-                        noteList.forEachIndexed { index, furniture ->
-                            if (furniture.id == selectedFurnitureId) {
-                                val newList = ArrayList(noteList)
-                                Log.i("removing", furniture.id)
-                                newList.removeAt(index)
-                                _noteList.value = newList
-
-
-                                homeScreenViewModel.deselectFurniture()
-                            }
-
-                        }
-
-                        homeScreenViewModel.updateItem(selectedFurnitureId, null)
-                    }) {
-                    Icon(Icons.Filled.Delete, contentDescription = "delete furniture")
-                }
-            }
-
-        }
-
-        AnimatedVisibility(
+                AnimatedVisibility(
             modifier = Modifier.align(Alignment.TopEnd),
             visible = isEditingFurniture,
             enter = slideInHorizontally {
@@ -199,28 +163,6 @@ fun HomeScreen(homeScreenViewModel: HomeScreenViewModel = viewModel()) {
                 horizontalAlignment = Alignment.End
             ) {
 
-                /*FilledIconButton(
-                    colors = IconButtonDefaults.filledIconButtonColors(
-                        contentColor =  MaterialTheme.colorScheme.primary,
-                        containerColor =  MaterialTheme.colorScheme.primaryContainer,
-                    ),
-                    modifier = Modifier
-                        .padding(vertical = 10.dp)
-                        .size(60.dp),
-                    onClick = {isEditingFurniture = false}) {
-                    Icon(Icons.Filled.Done,contentDescription = "Close")
-                }
-                FilledIconButton(
-                    colors = IconButtonDefaults.filledIconButtonColors(
-                        contentColor =  MaterialTheme.colorScheme.error,
-                        containerColor =  MaterialTheme.colorScheme.onError,
-                    ),
-                    modifier = Modifier
-                        .padding(vertical = 10.dp)
-                        .size(60.dp),
-                    onClick = {isEditingFurniture = false}) {
-                    Icon(Icons.Filled.Clear,contentDescription = "Close")
-                }*/
                 Card(
                     modifier = Modifier
                         .padding(vertical = 10.dp)
@@ -230,23 +172,12 @@ fun HomeScreen(homeScreenViewModel: HomeScreenViewModel = viewModel()) {
                             .scrollable(rememberScrollState(), orientation = Orientation.Vertical)
                             .width(100.dp)
                     ) {
-                        furniture.forEach { furnitureId ->
+                        furniture.forEach { (furnitureId, isShown)  ->
                             Image(
                                 modifier = Modifier.clickable {
-                                    val newList = ArrayList(noteList)
+                                    homeScreenViewModel.stopEditing()
+                                    furniture[furnitureId]?.value=!isShown.value
 
-                                    newList.add(
-                                        MovableObject(
-                                            UUID.randomUUID().toString(),
-                                            furnitureId
-                                        )
-                                    )
-                                    val id = UUID.randomUUID().toString()
-                                    homeScreenViewModel.updateItem(id, MovableObject( id = id, res =  furnitureId,0F,0F))
-
-                                    Log.i("id", newList.last().id)
-                                    _noteList.value = newList
-                                    isEditingFurniture = false
 
                                 },
                                 painter = painterResource(id = furnitureId), contentDescription = ""
@@ -262,7 +193,7 @@ fun HomeScreen(homeScreenViewModel: HomeScreenViewModel = viewModel()) {
 
 
 
-        if (!isEditing) {
+        if (!isEditingFurniture) {
             person1.Draw()
         }
 

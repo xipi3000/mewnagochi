@@ -10,12 +10,18 @@ class HomeScreenViewModel (
     private val savedStateHandle : SavedStateHandle
 ) : ViewModel() {
 
-    val selectedFurnitureId = savedStateHandle.getStateFlow("selectedFurnitureId","")
-    val deletedId = savedStateHandle.getStateFlow("deletedId","")
+    val selectedFurnitureId = savedStateHandle.getStateFlow("selectedFurnitureId",0)
+    val isEditingFurniture = savedStateHandle.getStateFlow("isEditingFurniture",false)
     val isAnyFurnitureSelected = savedStateHandle.getStateFlow("isAnyFurnitureSelected",false)
     val  furnitures = savedStateHandle.getStateFlow("furnitures", mapOf<String,MovableObject?>())
 
-    fun selectFurniture(id : String) {
+    fun startEditing(){
+        savedStateHandle["isEditingFurniture"] = true
+    }
+    fun stopEditing(){
+        savedStateHandle["isEditingFurniture"] = false
+    }
+    fun selectFurniture(id : Int) {
         savedStateHandle["selectedFurnitureId"] = id
         savedStateHandle["isAnyFurnitureSelected"] = true
     }
@@ -27,6 +33,7 @@ class HomeScreenViewModel (
 
         savedStateHandle["furnitures"] = furnitures.value + (id to  obj )
     }
+
 
     fun deleteSelected(id:String) {
         savedStateHandle["selectedFurnitureId"] = ""
