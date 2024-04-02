@@ -118,47 +118,55 @@ open class MovableObject (
                 lifecycleOwner.lifecycle.removeObserver(observer)
             }
         })
-        if(appSettings.show)
-        Image(
-            painter = painterResource(id = res),
-            contentDescription = "",
-            modifier = Modifier
-                .offset {
+        if(appSettings.show) {
+            Image(
+                painter = painterResource(id = res),
+                contentDescription = "",
+                modifier = Modifier
+                    .offset {
+                        if (personState == PersonState.BEING_DRAGED) {
+                            IntOffset(
+                                offsetX.roundToInt(),
+                                offsetY.roundToInt()
+                            )
 
-                    IntOffset(
+                        }
+                        else{
+                            IntOffset(
+                                appSettings.x.roundToInt(),
+                                appSettings.y.roundToInt()
+                            )
+                        }
 
-                        appSettings.x.roundToInt(),
-                        appSettings.y.roundToInt()
-                    )
+                    }
+                    .then(
+                        if (isEditingFurniture) {
+                            Modifier
+                                .pointerInput(Unit) {
+                                    detectDragGestures(
+                                        onDragStart = {
 
-                }
-                .then(
-                    if (isEditingFurniture) {
-                        Modifier
-                            .pointerInput(Unit) {
-                                detectDragGestures(
-                                    onDragStart = {
+                                            if (personState == PersonState.CLICKED)
+                                                personState = PersonState.BEING_DRAGED
+                                        },
+                                        onDragEnd = {
+                                            personState = PersonState.FALLING
+                                            x = offsetX
+                                            y = offsetY
+                                            scope.launch {
+                                                Log.i("offset", offsetX.toString())
+                                                Log.i("saved", appSettings.x.toString())
+                                                val increment = offsetX + appSettings.x
+                                                Log.i("inc", increment.toString())
 
-                                        if (personState == PersonState.CLICKED)
-                                            personState = PersonState.BEING_DRAGED
-                                    },
-                                    onDragEnd = {
-                                        x = offsetX
-                                        y = offsetY
-                                        scope.launch {
-                                            Log.i("offset", offsetX.toString())
-                                            Log.i("saved", appSettings.x.toString())
-                                            val increment = offsetX + appSettings.x
-                                            Log.i("inc", increment.toString())
+                                                setX(offsetX, offsetY)
 
-                                            setX(offsetX, offsetY)
+                                                //setY(offsetY)
+                                                //Log.i("saved",appSettings.x.toString())
+                                            }
 
-                                            //setY(offsetY)
-                                            //Log.i("saved",appSettings.x.toString())
-                                        }
-
-                                        //viewModel.deleteSelected(id)
-                                        /* viewModel.updateItem(
+                                            //viewModel.deleteSelected(id)
+                                            /* viewModel.updateItem(
                                             id,
                                             MovableObject(
                                                 x = offsetX,
@@ -168,49 +176,50 @@ open class MovableObject (
                                                 fileName = ""
                                             )
                                         )*/
-                                        Log.i("huh", funr.size.toString())
-                                        //viewModel.deselectFurniture()
-                                        //personState = PersonState.IDLE
+                                            Log.i("huh", funr.size.toString())
+                                            //viewModel.deselectFurniture()
+                                            //personState = PersonState.IDLE
+                                        }
+                                    ) { change, dragAmount ->
+                                        if (personState == PersonState.BEING_DRAGED) {
+                                            change.consume()
+                                            Log.i("log", dragAmount.x.toString())
+
+
+                                            offsetX += dragAmount.x
+                                            offsetY += dragAmount.y
+
+                                            x = offsetX
+                                            y = offsetY
+                                        }
                                     }
-                                ) { change, dragAmount ->
-                                    if (personState == PersonState.BEING_DRAGED) {
-                                        change.consume()
-                                        Log.i("log", dragAmount.x.toString())
-
-
-                                        offsetX += dragAmount.x
-                                        offsetY += dragAmount.y
+                                }
+                                .clickable(
+                                    interactionSource = MutableInteractionSource(),
+                                    indication = null
+                                ) {
+                                    personState = if (personState != PersonState.CLICKED) {
+                                        viewModel.selectFurniture(res)
+                                        Log.i("selected", res.toString())
+                                        PersonState.CLICKED
+                                    } else {
 
                                         x = offsetX
                                         y = offsetY
+                                        viewModel.deselectFurniture()
+                                        PersonState.IDLE
                                     }
                                 }
-                            }
-                            .clickable(
-                                interactionSource = MutableInteractionSource(),
-                                indication = null
-                            ) {
-                                personState = if (personState != PersonState.CLICKED) {
-                                    viewModel.selectFurniture(res)
-                                    Log.i("selected", res.toString())
-                                    PersonState.CLICKED
-                                } else {
-
-                                    x = offsetX
-                                    y = offsetY
-                                    viewModel.deselectFurniture()
-                                    PersonState.IDLE
-                                }
-                            }
-                            .then(
-                                if (personState == PersonState.CLICKED || personState == PersonState.BEING_DRAGED) Modifier.border(
-                                    2.dp,
-                                    Color.Yellow
-                                ) else Modifier
-                            )
-                    } else Modifier
-                )
-        )
+                                .then(
+                                    if (personState == PersonState.CLICKED || personState == PersonState.BEING_DRAGED) Modifier.border(
+                                        2.dp,
+                                        Color.Yellow
+                                    ) else Modifier
+                                )
+                        } else Modifier
+                    )
+            )
+        }
     }
      open suspend fun setX(x: Float, y:Float) {
         context.dataStore.updateData {
