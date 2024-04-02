@@ -86,7 +86,7 @@ fun HomeScreen(homeScreenViewModel: HomeScreenViewModel = viewModel()) {
     val isAnyFurnitureSelected by homeScreenViewModel.isAnyFurnitureSelected.collectAsState()
     val selectedFurnitureId by homeScreenViewModel.selectedFurnitureId.collectAsState()
     val furnitures by homeScreenViewModel.furnitures.collectAsState()
-
+    val isAddingFurniture by remember { mutableStateOf(false)}
 
     val furniture = remember {
         mutableMapOf(
@@ -147,9 +147,34 @@ fun HomeScreen(homeScreenViewModel: HomeScreenViewModel = viewModel()) {
 
             }
         }
-                AnimatedVisibility(
+        AnimatedVisibility(
             modifier = Modifier.align(Alignment.TopEnd),
             visible = isEditingFurniture,
+            enter = fadeIn(),
+            exit = fadeOut(),
+        ) {
+            Column {
+
+
+                FilledIconButton(
+                    colors = IconButtonDefaults.filledIconButtonColors(
+                        containerColor = MaterialTheme.colorScheme.onPrimary,
+
+                        ),
+                    modifier = Modifier
+                        .padding(30.dp)
+                        .size(60.dp),
+                    onClick = { homeScreenViewModel.startEditing() }) {
+                    Icon(Icons.Filled.Create, contentDescription = "edit background")
+                }
+
+
+            }
+        }
+
+        AnimatedVisibility(
+            modifier = Modifier.align(Alignment.TopEnd),
+            visible = isAddingFurniture,
             enter = slideInHorizontally {
                 with(density) { +40.dp.roundToPx() }
             },
@@ -175,7 +200,7 @@ fun HomeScreen(homeScreenViewModel: HomeScreenViewModel = viewModel()) {
                         furniture.forEach { (furnitureId, isShown)  ->
                             Image(
                                 modifier = Modifier.clickable {
-                                    homeScreenViewModel.stopEditing()
+                                    //   homeScreenViewModel.stopEditing()
                                     furniture[furnitureId]?.value=!isShown.value
 
 
