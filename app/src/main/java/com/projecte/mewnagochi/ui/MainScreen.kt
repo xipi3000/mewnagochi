@@ -42,11 +42,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 
-val homeScreen: @Composable () -> Unit = {
-    Person().Draw()
-}
 
-val person1 = Person()
+
 @Composable
 fun MainScreen(
     myViewModel: MyViewModel = viewModel(),
@@ -55,8 +52,7 @@ fun MainScreen(
     scope: CoroutineScope,
     navigationBarItems : List<LabeledIcon> =listOf(
         LabeledIcon("Home", Icons.Filled.Home){
-
-            person1.Draw()},
+            HomeScreen()},
         LabeledIcon("Activities",  ImageVector.vectorResource(id = R.drawable.baseline_directions_run_24)) { ActivitiesScreen() },
         LabeledIcon("Chats",ImageVector.vectorResource(id = R.drawable.baseline_forum_24)) { ChatScreen() },
         LabeledIcon("Stats",ImageVector.vectorResource(id = R.drawable.baseline_directions_run_24)) { StatisticsScreen(context, scope) },

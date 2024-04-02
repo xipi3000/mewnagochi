@@ -3,6 +3,7 @@ package com.projecte.mewnagochi.ui.animation
 import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableIntStateOf
+import com.projecte.mewnagochi.ui.theme.PersonState
 import java.lang.reflect.Modifier
 
 class AnimationManager(private val animations: Array<Animation>) {
@@ -22,6 +23,7 @@ class AnimationManager(private val animations: Array<Animation>) {
         animationIndex.value = index
 
     }
+
 
     @Composable
     fun Draw(modifier: androidx.compose.ui.Modifier) {
