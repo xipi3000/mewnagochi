@@ -39,11 +39,13 @@ import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.projecte.mewnagochi.HomeScreenViewModel
+import com.projecte.mewnagochi.MovableObjectState
 
 import com.projecte.mewnagochi.R
 import com.projecte.mewnagochi.ui.theme.Person
@@ -68,6 +70,7 @@ fun Chest(){
 }
 @Composable
 fun Window(){
+   
     Window(id = UUID.randomUUID().toString(),res = R.drawable.window).Draw()
 }
 @Composable
@@ -100,13 +103,21 @@ fun HomeScreen(homeScreenViewModel: HomeScreenViewModel = viewModel()) {
     val selectedFurnitureId by homeScreenViewModel.selectedFurnitureId.collectAsState()
     val furnitures by homeScreenViewModel.furnitures.collectAsState()
     var isAddingFurniture by remember { mutableStateOf(false)}
+    val torchOn = LocalContext.current.torchDataStore.data.collectAsState( initial = MovableObjectState()
+    ).value.show
+    val windowOn = LocalContext.current.windowDataStore.data.collectAsState( initial = MovableObjectState()
+    ).value.show
+    val doorOn = LocalContext.current.doorDataStore.data.collectAsState( initial = MovableObjectState()
+    ).value.show
+    val chestOn = LocalContext.current.chestDataStore.data.collectAsState( initial = MovableObjectState()
+    ).value.show
 
     val furniture = remember {
         mutableMapOf(
-            R.drawable.window to mutableStateOf(false),
-            R.drawable.chest to mutableStateOf(false),
-            R.drawable.door to mutableStateOf(false),
-            R.drawable.torch to mutableStateOf(false),
+            R.drawable.window to mutableStateOf(!windowOn),
+            R.drawable.chest to mutableStateOf(!chestOn),
+            R.drawable.door to mutableStateOf(!doorOn),
+            R.drawable.torch to mutableStateOf(!torchOn),
         )
     }
 

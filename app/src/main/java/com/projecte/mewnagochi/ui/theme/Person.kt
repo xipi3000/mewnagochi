@@ -208,8 +208,9 @@ class Person ( ) {
                         aniManager.playAnim(3)
 
                         delay(2000)
-                        if(personState==PersonState.BEING_DRAGED) return@launch
-                        personViewModel.setState(PersonState.RISING)
+                        if(personState==PersonState.FALLING) {
+                            personViewModel.setState(PersonState.RISING)
+                        }
                         //TODO: FICAR ALGUN RANDOM DE TIPO PUGUI AIXECAR-SE MOLT RAPID O LENT
 
                     }
@@ -230,13 +231,14 @@ class Person ( ) {
 
             }
             PersonState.RISING -> {
+
                 LaunchedEffect(Unit) {
-                    scope.launch {
-                        aniManager.playAnim(5)
-                        delay(700)
-                    }
+                    Log.i("anim","rise")
+                    aniManager.playAnim(5)
+                    delay(700)
+                    personViewModel.setState(PersonState.RET_TO_CENTER)
                 }
-                personViewModel.setState(PersonState.RET_TO_CENTER)
+
             }
         }
         aniManager.Draw(modifier = Modifier
@@ -251,11 +253,11 @@ class Person ( ) {
             .pointerInput(Unit) {
                 detectDragGestures(
                     onDragStart = {
-                        Log.i("drag","start")
+                        Log.i("drag", "start")
                         personViewModel.setState(PersonState.BEING_DRAGED)
                     },
                     onDragEnd = {
-                        Log.i("drag","ended")
+                        Log.i("drag", "ended")
                         personViewModel.setState(PersonState.FALLING)
                         val scope = CoroutineScope(Dispatchers.Main)
                     },
