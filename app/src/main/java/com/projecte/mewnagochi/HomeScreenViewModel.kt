@@ -2,9 +2,7 @@ package com.projecte.mewnagochi
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
-import com.projecte.mewnagochi.ui.Location
-import com.projecte.mewnagochi.ui.theme.MovableObject
-import com.projecte.mewnagochi.ui.theme.PersonState
+import com.projecte.mewnagochi.ui.MovableObject
 
 class HomeScreenViewModel (
     private val savedStateHandle : SavedStateHandle
@@ -14,7 +12,7 @@ class HomeScreenViewModel (
     val selectedFurnitureId = savedStateHandle.getStateFlow("selectedFurnitureId",0)
     val isEditingFurniture = savedStateHandle.getStateFlow("isEditingFurniture",false)
     val isAnyFurnitureSelected = savedStateHandle.getStateFlow("isAnyFurnitureSelected",false)
-    val  furnitures = savedStateHandle.getStateFlow("furnitures", mapOf<String,MovableObject?>())
+    val  furnitures = savedStateHandle.getStateFlow("furnitures", mapOf<String, MovableObject?>())
 
     fun addObject(id: Int){
         savedStateHandle["addedObject"] = id

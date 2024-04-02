@@ -1,6 +1,5 @@
 package com.projecte.mewnagochi.ui
 
-import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -28,7 +27,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -41,19 +39,15 @@ import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import androidx.datastore.dataStoreFile
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.projecte.mewnagochi.HomeScreenViewModel
 
 import com.projecte.mewnagochi.R
-import com.projecte.mewnagochi.ui.theme.MovableObject
 import com.projecte.mewnagochi.ui.theme.Person1
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.launch
 import java.util.UUID
 
 
@@ -62,7 +56,7 @@ import java.util.UUID
 class Location(var x: Float, var y: Float)
 @Composable
 fun Torch(){
-    MovableObject(id = UUID.randomUUID().toString(),res = R.drawable.window).Draw()
+    Torch(id = UUID.randomUUID().toString(),res = R.drawable.window).Draw()
 }
 @Composable
 fun Door(){
@@ -75,7 +69,7 @@ fun ListOfItems(furniture: MutableMap<Int, MutableState<Boolean>>) {
     //(furniture[R.drawable.window]?.value == true) LaunchedEffect(Unit) {
     //    launch { move.show() }
     //}
-    //Torch()
+    Torch()
     //Torch()
     //if(furniture[R.drawable.ic_launcher_background]?.value == true)
     Door()

@@ -1,8 +1,6 @@
-package com.projecte.mewnagochi.ui.theme
+package com.projecte.mewnagochi.ui
 
 import android.content.Context
-import android.graphics.Bitmap
-import android.graphics.Matrix
 import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
@@ -22,59 +20,47 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.graphics.asAndroidBitmap
-import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
-import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
-import androidx.datastore.core.DataStore
 import androidx.datastore.dataStore
-import androidx.datastore.preferences.core.intPreferencesKey
-import androidx.datastore.preferences.preferencesDataStore
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
-import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.projecte.mewnagochi.HomeScreenViewModel
 import com.projecte.mewnagochi.MovableObjectSerializer
 import com.projecte.mewnagochi.MovableObjectState
-import com.projecte.mewnagochi.MovableObjectViewModel
-import com.projecte.mewnagochi.PersonViewModel
-import com.projecte.mewnagochi.R
-import com.projecte.mewnagochi.ui.Location
-import com.projecte.mewnagochi.ui.animation.Animation
-import com.projecte.mewnagochi.ui.animation.AnimationManager
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.Flow
+import com.projecte.mewnagochi.ui.theme.PersonState
 import kotlinx.coroutines.launch
-import java.util.prefs.Preferences
 import kotlin.math.roundToInt
 
+val Context.dataStore by dataStore("move.json", MovableObjectSerializer)
 
-class MovableObject (
+open class MovableObject (
     val id: String,
     val res: Int,
     private var x: Float = 0F,
     private var y : Float= 0F,
+
 ) {
-    private val Context.dataStore by dataStore("fileName", MovableObjectSerializer)
+
 
     lateinit var  context : Context
+    @Composable
+    open fun getAppSeting() : MovableObjectState{
+        return context.dataStore.data.collectAsState(
+            initial = MovableObjectState()
+        ).value
+    }
 
     @Composable
     fun Draw(viewModel: HomeScreenViewModel = viewModel(),
     ){
         context = LocalContext.current
-        val appSettings = context.dataStore.data.collectAsState(
-            initial = MovableObjectState()
-        ).value
+        val appSettings = getAppSeting()
         Log.i("show",appSettings.show.toString())
         var offsetX  by remember { mutableFloatStateOf(appSettings.x) }
         var offsetY by remember { mutableFloatStateOf(appSettings.y) }
@@ -87,18 +73,29 @@ class MovableObject (
         var visible by remember {
             mutableStateOf(false)
         }
+
         val scope = rememberCoroutineScope()
         if(addedObject==res) {
-            visible = true
+
+            LaunchedEffect(Unit){
+                show()
+                visible = true
+            }
+
             viewModel.addObject(0)
         }
         if(deletedObject ==res) {
-            visible = false
+
+            LaunchedEffect(Unit){
+                hide()
+                visible = false
+            }
             viewModel.deleteObject(0)
         }
         if(selectedId!=res){
             personState = PersonState.IDLE
         }
+        visible = appSettings.show
         offsetX = appSettings.x
         offsetY = appSettings.y
         val lifecycleOwner = LocalLifecycleOwner.current
@@ -121,7 +118,7 @@ class MovableObject (
                 lifecycleOwner.lifecycle.removeObserver(observer)
             }
         })
-        if(visible)
+        if(appSettings.show)
         Image(
             painter = painterResource(id = res),
             contentDescription = "",
@@ -215,21 +212,26 @@ class MovableObject (
                 )
         )
     }
-    private suspend fun setX(x: Float,y:Float) {
+     open suspend fun setX(x: Float, y:Float) {
         context.dataStore.updateData {
             it.copy(x = x,y=y)
         }
     }
-    private suspend fun setY(y: Float) {
+     open suspend fun setY(y: Float) {
 
         context.dataStore.updateData {
             it.copy(y = y)
         }
     }
 
-    suspend fun show() {
+    open suspend fun show() {
         context.dataStore.updateData {
             it.copy(show=true)
+        }
+    }
+    open suspend fun hide() {
+        context.dataStore.updateData {
+            it.copy(show=false)
         }
     }
 }

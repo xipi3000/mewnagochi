@@ -1,7 +1,6 @@
 package com.projecte.mewnagochi
 
 import androidx.datastore.core.Serializer
-import com.projecte.mewnagochi.ui.theme.MovableObject
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
 import java.io.InputStream
