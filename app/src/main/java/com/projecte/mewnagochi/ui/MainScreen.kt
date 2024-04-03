@@ -1,9 +1,6 @@
 package com.projecte.mewnagochi.ui
 
-import android.content.ContentValues
 import android.content.Context
-import android.util.Log
-import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -17,17 +14,12 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
-import androidx.health.connect.client.permission.HealthPermission
-import androidx.health.connect.client.records.StepsRecord
-import androidx.health.connect.client.request.ReadRecordsRequest
-import androidx.health.connect.client.time.TimeRangeFilter
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -39,8 +31,6 @@ import com.projecte.mewnagochi.R
 import com.projecte.mewnagochi.stats.HealthConnectManager
 import com.projecte.mewnagochi.stats.StatsViewModel
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
-import java.time.LocalDateTime
 
 
 @Composable
@@ -129,43 +119,8 @@ fun StatisticsScreen(context: Context, scope: CoroutineScope) {
         HealthConnectManager(context)
     }
     val myViewModel = StatsViewModel()
-    myViewModel.healthPermissionLauncher = rememberLauncherForActivityResult(
-        contract = healthConnectManager.requestPermissionsActivityContract()
-    ) { grantedPermissions: Set<String> ->
-        if (grantedPermissions.contains(HealthPermission.getReadPermission(StepsRecord::class))) {
-            Log.i(ContentValues.TAG, "Permission granted")
-            scope.launch {
-                myViewModel.response = healthConnectManager.healthConnectClient.readRecords(
-                    request = ReadRecordsRequest<StepsRecord>(
-                        timeRangeFilter = TimeRangeFilter.between(
-                            LocalDateTime.of(
-                                2024, 3, 1, 0, 0, 0
-                            ), LocalDateTime.now()
-                        )
-                    )
-                )
-            }
-        } else {
-            Log.i(ContentValues.TAG, "Permission not granted")
-            Log.i(ContentValues.TAG, "Requesting permission again")
-            myViewModel.healthPermissionLauncher.launch(
-                setOf(
-                    HealthPermission.getReadPermission(
-                        StepsRecord::class
-                    )
-                )
-            )
-        }
+    if (!myViewModel.checkPermissions(context)){
+        myViewModel.requestPermissions(healthConnectManager = healthConnectManager, scope = scope)
     }
-    StatsScreen(context = context, healthConnectManager = healthConnectManager, scope = scope)
-    val permissions = setOf(
-        HealthPermission.getReadPermission(StepsRecord::class),
-    )
-    LaunchedEffect(scope) {
-        scope.launch {
-            if (!healthConnectManager.hasAllPermissions(permissions)) {
-                myViewModel.healthPermissionLauncher.launch(permissions)
-            }
-        }
-    }
+    StatsScreen(statsViewModel = myViewModel)
 }
