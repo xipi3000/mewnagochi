@@ -20,7 +20,7 @@ class MainActivity : ComponentActivity() {
                 Surface(
                     modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background
                 ) {
-                    MainScreen(context = this, scope = this.lifecycleScope)
+                    MainScreen(context = this, activity = this, scope = this.lifecycleScope)
                 }
             }
         }

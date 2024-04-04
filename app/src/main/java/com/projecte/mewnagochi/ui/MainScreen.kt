@@ -1,6 +1,9 @@
 package com.projecte.mewnagochi.ui
 
+import android.app.Activity
 import android.content.Context
+import android.util.Log
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -12,8 +15,10 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -38,6 +43,7 @@ fun MainScreen(
     myViewModel: MyViewModel = viewModel(),
     navController: NavHostController = rememberNavController(),
     context: Context,
+    activity: Activity,
     scope: CoroutineScope,
     navigationBarItems: List<LabeledIcon> = listOf(
         LabeledIcon("Home", Icons.Filled.Home) {
@@ -51,7 +57,7 @@ fun MainScreen(
         ) { ChatScreen() },
         LabeledIcon(
             "Stats", ImageVector.vectorResource(id = R.drawable.baseline_directions_run_24)
-        ) { StatisticsScreen(context, scope) },
+        ) { StatisticsScreen(context, scope, activity) },
     )
 ) {
     @Composable
@@ -114,13 +120,28 @@ fun ChatScreen() {
 }
 
 @Composable
-fun StatisticsScreen(context: Context, scope: CoroutineScope) {
+fun StatisticsScreen(context: Context, scope: CoroutineScope, activity: Activity) {
     val healthConnectManager by lazy {
         HealthConnectManager(context)
     }
-    val myViewModel = StatsViewModel()
-    if (!myViewModel.checkPermissions(context)){
-        myViewModel.requestPermissions(healthConnectManager = healthConnectManager, scope = scope)
+    val statsViewModel = StatsViewModel()
+    val snackbarHostState = SnackbarHostState()
+
+    //initialization of healthPermissionLauncher
+    statsViewModel.healthPermissionLauncher =
+        rememberLauncherForActivityResult(
+            contract = healthConnectManager.requestPermissionsActivityContract(),
+            onResult = { grantedPermissions : Set<String> ->
+                statsViewModel.onPermissionResult(healthConnectManager, scope, context, grantedPermissions, snackbarHostState, activity)
+            }
+        )
+
+    StatsScreen(statsViewModel = statsViewModel, snackbarHostState)
+    LaunchedEffect(true){
+        //when it gets here, healthPermissionLauncher is not initialized somehow
+        if (!statsViewModel.checkPermissions(context)) {
+            Log.i("permission", "first request")
+            statsViewModel.requestPermissions(context = context)
+        }
     }
-    StatsScreen(statsViewModel = myViewModel)
 }
