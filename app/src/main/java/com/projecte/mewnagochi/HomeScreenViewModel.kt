@@ -12,8 +12,7 @@ class HomeScreenViewModel (
     val selectedFurnitureId = savedStateHandle.getStateFlow("selectedFurnitureId",0)
     val isEditingFurniture = savedStateHandle.getStateFlow("isEditingFurniture",false)
     val isAnyFurnitureSelected = savedStateHandle.getStateFlow("isAnyFurnitureSelected",false)
-    val  furnitures = savedStateHandle.getStateFlow("furnitures", mapOf<String, MovableObject?>())
-
+    val  furnitures = savedStateHandle.getStateFlow("furnitures", mutableListOf<Int>(0))
     fun addObject(id: Int){
         savedStateHandle["addedObject"] = id
     }
@@ -34,9 +33,19 @@ class HomeScreenViewModel (
 
         savedStateHandle["isAnyFurnitureSelected"] = false
     }
-    fun updateItem( id: String, obj : MovableObject?){
-
-        savedStateHandle["furnitures"] = furnitures.value + (id to  obj )
+    fun addItem( id: Int){
+        val list = furnitures.value
+        if(!list.contains(id)) {
+            list.add(id)
+            savedStateHandle["furnitures"] = list
+        }
+    }
+    fun removeItem( id: Int){
+        val list = furnitures.value
+        if(list.contains(id)) {
+            list.remove(id)
+            savedStateHandle["furnitures"] = list
+        }
     }
 
 

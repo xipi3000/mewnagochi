@@ -56,6 +56,7 @@ open class MovableObject (
         ).value
     }
 
+
     @Composable
     fun Draw(viewModel: HomeScreenViewModel = viewModel(),
     ){
@@ -80,17 +81,20 @@ open class MovableObject (
             LaunchedEffect(Unit){
                 show()
                 visible = true
+                viewModel.addObject(0)
             }
 
-            viewModel.addObject(0)
+
         }
         if(deletedObject ==res) {
-
+            Log.i("deleting",res.toString())
             LaunchedEffect(Unit){
                 hide()
                 visible = false
+                viewModel.deleteObject(0)
+                viewModel.removeItem(res)
             }
-            viewModel.deleteObject(0)
+
         }
         if(selectedId!=res){
             personState = PersonState.IDLE
@@ -100,8 +104,10 @@ open class MovableObject (
         offsetY = appSettings.y
         val lifecycleOwner = LocalLifecycleOwner.current
         DisposableEffect(key1 = lifecycleOwner, effect = {
+
             val observer = LifecycleEventObserver { _, event ->
                 if (event == Lifecycle.Event.ON_RESUME) {
+
                     Log.i("asdf",appSettings.x.toString())
                     Log.i("asdf",appSettings.y.toString())
                     offsetX = appSettings.x
@@ -119,6 +125,7 @@ open class MovableObject (
             }
         })
         if(appSettings.show) {
+            viewModel.addItem(res)
             Image(
                 painter = painterResource(id = res),
                 contentDescription = "",

@@ -1,5 +1,6 @@
 package com.projecte.mewnagochi.ui
 
+import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -111,6 +112,7 @@ fun HomeScreen(homeScreenViewModel: HomeScreenViewModel = viewModel()) {
     ).value.show
     val chestOn = LocalContext.current.chestDataStore.data.collectAsState( initial = MovableObjectState()
     ).value.show
+    Log.i("asdf",furnitures.toString())
 
     val furniture = remember {
         mutableMapOf(
@@ -210,6 +212,7 @@ fun HomeScreen(homeScreenViewModel: HomeScreenViewModel = viewModel()) {
                         homeScreenViewModel.deleteSelected()
                         homeScreenViewModel.deleteObject(selectedFurnitureId)
                         furniture[selectedFurnitureId]?.value=false
+                        Log.i("isSel","delete")
 
 
                     }) {
@@ -254,7 +257,7 @@ fun HomeScreen(homeScreenViewModel: HomeScreenViewModel = viewModel()) {
 
                                 },
                                 painter = painterResource(id = furnitureId), contentDescription = "",
-                                colorFilter = if (furniture[furnitureId]?.value==true) ColorFilter.tint(
+                                colorFilter = if (furnitures.contains(furnitureId)) ColorFilter.tint(
                                     Color.DarkGray,
                                     BlendMode.Color
                                 ) else null,
