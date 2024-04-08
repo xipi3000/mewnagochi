@@ -1,7 +1,7 @@
 package com.projecte.mewnagochi.ui.furniture
 
 import android.content.Context
-import android.util.Log
+
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -80,7 +80,7 @@ open class MovableObject(
             }
         }
         if (deletedObject == res) {
-            Log.i("deleting", res.toString())
+
             LaunchedEffect(Unit) {
                 hide()
                 visible = false
@@ -139,14 +139,12 @@ open class MovableObject(
                                             viewModel.deselectFurniture()
                                             personState = PersonState.IDLE
                                             scope.launch {
-                                                val increment = offsetX + appSettings.x
                                                 setX(offsetX, offsetY)
                                             }
                                         }
                                     ) { change, dragAmount ->
                                         if (personState == PersonState.BEING_DRAGED) {
                                             change.consume()
-                                            Log.i("log", dragAmount.x.toString())
                                             offsetX += dragAmount.x
                                             offsetY += dragAmount.y
                                         }
@@ -158,7 +156,7 @@ open class MovableObject(
                                 ) {
                                     personState = if (personState != PersonState.CLICKED) {
                                         viewModel.selectFurniture(res)
-                                        Log.i("selected", res.toString())
+
                                         PersonState.CLICKED
                                     } else {
                                         viewModel.deselectFurniture()
