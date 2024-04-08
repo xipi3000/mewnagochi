@@ -1,4 +1,4 @@
-package com.projecte.mewnagochi.ui
+package com.projecte.mewnagochi.ui.furniture
 
 import android.content.Context
 import androidx.datastore.dataStore
