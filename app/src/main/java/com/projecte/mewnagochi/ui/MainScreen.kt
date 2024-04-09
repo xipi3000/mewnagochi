@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -23,8 +24,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.res.vectorResource
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -32,7 +31,6 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.projecte.mewnagochi.LabeledIcon
 import com.projecte.mewnagochi.MyViewModel
-import com.projecte.mewnagochi.R
 import com.projecte.mewnagochi.stats.HealthConnectManager
 import com.projecte.mewnagochi.stats.StatsViewModel
 import kotlinx.coroutines.CoroutineScope
@@ -49,15 +47,15 @@ fun MainScreen(
         LabeledIcon("Home", Icons.Filled.Home) {
             HomeScreen()
         },
-        LabeledIcon(
-            "Activities", ImageVector.vectorResource(id = R.drawable.baseline_directions_run_24)
-        ) { ActivitiesScreen() },
-        LabeledIcon(
-            "Chats", ImageVector.vectorResource(id = R.drawable.baseline_forum_24)
-        ) { ChatScreen() },
-        LabeledIcon(
-            "Stats", ImageVector.vectorResource(id = R.drawable.baseline_directions_run_24)
-        ) { StatisticsScreen(context, scope, activity) },
+//        LabeledIcon(
+//            "Activities", ImageVector.vectorResource(id = R.drawable.baseline_directions_run_24)
+//        ) { ActivitiesScreen() },
+//        LabeledIcon(
+//            "Chats", ImageVector.vectorResource(id = R.drawable.baseline_forum_24)
+//        ) { ChatScreen() },
+        LabeledIcon("Stats", Icons.Filled.Info) {
+            StatisticsScreen(context, scope, activity)
+        },
     )
 ) {
     @Composable
@@ -131,17 +129,27 @@ fun StatisticsScreen(context: Context, scope: CoroutineScope, activity: Activity
     statsViewModel.healthPermissionLauncher =
         rememberLauncherForActivityResult(
             contract = healthConnectManager.requestPermissionsActivityContract(),
-            onResult = { grantedPermissions : Set<String> ->
-                statsViewModel.onPermissionResult(healthConnectManager, scope, context, grantedPermissions, snackbarHostState, activity)
+            onResult = { grantedPermissions: Set<String> ->
+                statsViewModel.onPermissionResult(
+                    healthConnectManager,
+                    scope,
+                    context,
+                    grantedPermissions,
+                    snackbarHostState,
+                    activity
+                )
             }
         )
-
-    StatsScreen(statsViewModel = statsViewModel, snackbarHostState)
-    LaunchedEffect(true){
-        //when it gets here, healthPermissionLauncher is not initialized somehow
+    StatsScreen(statsViewModel = statsViewModel, snackbarHostState, scope, healthConnectManager)
+    LaunchedEffect(true) {
+        //if no permisions -> request
         if (!statsViewModel.checkPermissions(context)) {
             Log.i("permission", "first request")
             statsViewModel.requestPermissions(context = context)
+        } else {
+            statsViewModel.getData(scope, healthConnectManager)
         }
     }
 }
+
+

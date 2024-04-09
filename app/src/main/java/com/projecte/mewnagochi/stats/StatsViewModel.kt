@@ -34,11 +34,10 @@ class StatsViewModel() : ViewModel() {
     val uiState: StateFlow<StatsUiState> = _uiState.asStateFlow()
 
     lateinit var healthPermissionLauncher: ActivityResultLauncher<Set<String>>
-//    init {
-//        createHealthConnectRequest()
-//        createHealthConnectCallback()
-//        buildHealthConnectSettingsRequest()
-//    }
+    lateinit var myHealthConnectManager: HealthConnectManager
+    lateinit var myScope: CoroutineScope
+    lateinit var myContext: Context
+
 
     fun showSnackbar(
         mainText: String,
@@ -56,6 +55,7 @@ class StatsViewModel() : ViewModel() {
                 SnackbarResult.Dismissed -> {
                     Log.i(ContentValues.TAG, "SnackbarIgnored")
                 }
+
                 SnackbarResult.ActionPerformed -> {
                     Log.i(ContentValues.TAG, "SnackbarAction")
                     //Each snackbar will have it's own action defined below it
@@ -65,7 +65,17 @@ class StatsViewModel() : ViewModel() {
         }
     }
 
-    fun onPermissionResult(healthConnectManager: HealthConnectManager, scope: CoroutineScope, context: Context, grantedPermissions : Set<String>, snackbarHostState: SnackbarHostState, activity: Activity){
+    fun onPermissionResult(
+        healthConnectManager: HealthConnectManager,
+        scope: CoroutineScope,
+        context: Context,
+        grantedPermissions: Set<String>,
+        snackbarHostState: SnackbarHostState,
+        activity: Activity
+    ) {
+        myScope = scope
+        myHealthConnectManager = healthConnectManager
+        myContext = context
         Log.i("permission", "entered onResult")
         val permissions = setOf(
             HealthPermission.getReadPermission(StepsRecord::class),
@@ -75,7 +85,7 @@ class StatsViewModel() : ViewModel() {
         )
         if (grantedPermissions.containsAll(permissions)) {
             Log.i("permission", "Permissions already granted")
-            getInitialData(scope, healthConnectManager)
+            getData(scope, healthConnectManager)
         } else {
             val shouldProvideRationale = ActivityCompat.shouldShowRequestPermissionRationale(
                 activity, HealthPermission.getReadPermission(StepsRecord::class)
@@ -86,7 +96,7 @@ class StatsViewModel() : ViewModel() {
             ) || ActivityCompat.shouldShowRequestPermissionRationale(
                 activity, HealthPermission.getReadPermission(ExerciseSessionRecord::class)
             )
-            if (!shouldProvideRationale){
+            if (!shouldProvideRationale) {
                 // 2 cops -> snackbar explicant que sense permisos no es pot accedir a les dades -> accés a ajustes
                 Log.i("permission", "Can't request again, going to settings")
                 showSnackbar(
@@ -95,20 +105,21 @@ class StatsViewModel() : ViewModel() {
                     snackbarHostState = snackbarHostState,
                     scope
                 ) {
-                    val intent = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-                        Intent(android.health.connect.HealthConnectManager.ACTION_MANAGE_HEALTH_PERMISSIONS)
-                            .putExtra(
-                                Intent.EXTRA_PACKAGE_NAME,
-                                context.packageName
+                    val intent =
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                            Intent(android.health.connect.HealthConnectManager.ACTION_MANAGE_HEALTH_PERMISSIONS)
+                                .putExtra(
+                                    Intent.EXTRA_PACKAGE_NAME,
+                                    context.packageName
+                                )
+                        } else {
+                            Intent(
+                                HealthConnectClient.ACTION_HEALTH_CONNECT_SETTINGS
                             )
-                    } else {
-                        Intent(
-                            HealthConnectClient.ACTION_HEALTH_CONNECT_SETTINGS
-                        )
-                    }
+                        }
                     startActivity(context, intent, null)
                 }
-            }else{
+            } else {
                 // 1 cop -> snackbar explicant que es necessari -> tornar a demanar permisos
                 Log.i("permission", "Requesting permissions again")
                 showSnackbar(
@@ -129,7 +140,8 @@ class StatsViewModel() : ViewModel() {
 
 
     fun requestPermissions(context: Context) {
-        if (!checkPermissions(context)){
+        myContext = context
+        if (!checkPermissions(context)) {
             healthPermissionLauncher.launch(
                 setOf(
                     HealthPermission.getReadPermission(StepsRecord::class),
@@ -141,50 +153,72 @@ class StatsViewModel() : ViewModel() {
         }
     }
 
-    fun getInitialData(scope: CoroutineScope, healthConnectManager: HealthConnectManager) {
+    fun getData(scope: CoroutineScope, healthConnectManager: HealthConnectManager) {
+        //In this method, we'll see first the data requests, and then the parsing of the queries
         scope.launch {
-            //Read all the records
+            /** STEP 1: Launch all queries **/
+            //Request steps record (only the ones recorded today)
             val stepsResponse = healthConnectManager.healthConnectClient.readRecords(
                 request = ReadRecordsRequest<StepsRecord>(
+                    //today: between 00:00 and now
                     timeRangeFilter = TimeRangeFilter.between(
-                        LocalDateTime.of(
-                            2024, 3, 1, 0, 0, 0
-                        ), LocalDateTime.now()
+                        LocalDateTime.now().withHour(0).withMinute(0).withSecond(0),
+                        LocalDateTime.now()
                     )
                 )
             )
-            val weightResponse = healthConnectManager.healthConnectClient.readRecords(
-                request = ReadRecordsRequest<WeightRecord>(
-                    timeRangeFilter = TimeRangeFilter.between(
-                        LocalDateTime.of(
-                            2024, 3, 1, 0, 0, 0
-                        ), LocalDateTime.now()
+            //Request weight records (keep requesting until finding a record)
+            lateinit var weightResponse: androidx.health.connect.client.response.ReadRecordsResponse<WeightRecord>
+            var rightNow = LocalDateTime.now()
+            var at00 = rightNow.withHour(0).withMinute(0).withSecond(0)
+            do {
+                weightResponse = healthConnectManager.healthConnectClient.readRecords(
+                    request = ReadRecordsRequest<WeightRecord>(
+                        timeRangeFilter = TimeRangeFilter.between(at00, rightNow)
                     )
                 )
-            )
-            val heartRateResponse = healthConnectManager.healthConnectClient.readRecords(
-                request = ReadRecordsRequest<HeartRateRecord>(
-                    timeRangeFilter = TimeRangeFilter.between(
-                        LocalDateTime.of(
-                            2024, 3, 1, 0, 0, 0
-                        ), LocalDateTime.now()
+                rightNow = at00
+                at00 = at00.minusDays(1)
+            } while(weightResponse.records.isEmpty())
+            //Request heart rate records (keep requesting until finding a record)
+            lateinit var heartRateResponse: androidx.health.connect.client.response.ReadRecordsResponse<HeartRateRecord>
+            rightNow = LocalDateTime.now()
+            at00 = rightNow.withHour(0).withMinute(0).withSecond(0)
+            do{
+                heartRateResponse = healthConnectManager.healthConnectClient.readRecords(
+                    request = ReadRecordsRequest<HeartRateRecord>(
+                        timeRangeFilter = TimeRangeFilter.between(at00, rightNow))
+                )
+                rightNow = at00
+                at00 = at00.minusDays(1)
+            } while(heartRateResponse.records.isEmpty())
+            //Request exercise session records (we'll just need the most recent one)
+            lateinit var ExerciseSessionResponse: androidx.health.connect.client.response.ReadRecordsResponse<ExerciseSessionRecord>
+            rightNow = LocalDateTime.now()
+            at00 = rightNow.withHour(0).withMinute(0).withSecond(0)
+            do {
+                ExerciseSessionResponse = healthConnectManager.healthConnectClient.readRecords(
+                    request = ReadRecordsRequest<ExerciseSessionRecord>(
+                        timeRangeFilter = TimeRangeFilter.between(at00, rightNow)
                     )
                 )
-            )
-            val ExerciseSessionResponse = healthConnectManager.healthConnectClient.readRecords(
-                request = ReadRecordsRequest<ExerciseSessionRecord>(
-                    timeRangeFilter = TimeRangeFilter.between(
-                        LocalDateTime.of(
-                            2024, 3, 1, 0, 0, 0
-                        ), LocalDateTime.now()
-                    )
-                )
-            )
-            //With all records, extract the last record of each type
-            val steps = stepsResponse.records.last().count
+                rightNow = at00
+                at00 = at00.minusDays(1)
+            }while (ExerciseSessionResponse.records.isEmpty())
+            /** STEP 2: Parse from all queries the info we need **/
+            //Since we made a good query, we just need to sum all steps, no need to check for day
+            var steps = 0L
+            for (record in stepsResponse.records) {
+                steps += record.count
+            }
+            //For the weight, we just need the most recent record
             val weight = weightResponse.records.last().weight.inKilograms
+            //Same for the heart rate
             val heartRate = heartRateResponse.records.last().samples.last().beatsPerMinute
-            val lastExerciseSession = ExerciseSessionResponse.records.last().endTime.toString()
+            //For the exercise session, we just need the most recent one
+            val lastExerciseSession = parseLastExerciseSession(ExerciseSessionResponse.records.last().endTime.toString())
+
+            /** STEP 3: Update data holders **/
             //Update the UI state accordingly
             _uiState.update { currentState ->
                 currentState.copy(
@@ -195,6 +229,15 @@ class StatsViewModel() : ViewModel() {
                 )
             }
         }
+    }
+
+    private fun parseLastExerciseSession(lastSession: String): String {
+        val year = lastSession.substring(0, 4)
+        val month = lastSession.substring(5, 7)
+        val day = lastSession.substring(8, 10)
+        val hour = lastSession.substring(11, 13)
+        val minute = lastSession.substring(14, 16)
+        return "$hour:$minute at $day/$month/${year.substring(2, 4)}"
     }
 
     fun checkPermissions(context: Context): Boolean {
