@@ -4,10 +4,7 @@ import android.app.Activity
 import android.content.Context
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
@@ -23,7 +20,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -31,6 +27,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.projecte.mewnagochi.LabeledIcon
 import com.projecte.mewnagochi.MyViewModel
+import com.projecte.mewnagochi.stats.HealthConnectAvailability
 import com.projecte.mewnagochi.stats.HealthConnectManager
 import com.projecte.mewnagochi.stats.StatsViewModel
 import kotlinx.coroutines.CoroutineScope
@@ -47,34 +44,12 @@ fun MainScreen(
         LabeledIcon("Home", Icons.Filled.Home) {
             HomeScreen()
         },
-//        LabeledIcon(
-//            "Activities", ImageVector.vectorResource(id = R.drawable.baseline_directions_run_24)
-//        ) { ActivitiesScreen() },
-//        LabeledIcon(
-//            "Chats", ImageVector.vectorResource(id = R.drawable.baseline_forum_24)
-//        ) { ChatScreen() },
         LabeledIcon("Stats", Icons.Filled.Info) {
             StatisticsScreen(context, scope, activity)
         },
     )
 ) {
-    @Composable
-    fun MyBox() {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(Color.Blue)
-        )
-    }
-
-// Define a variable of type @Composable () -> Unit
-    var myComposable: @Composable () -> Unit = { }
-
-// Assign your Box composable to the variable
-    myComposable = { MyBox() }
-
     val selectedItem by myViewModel.navigationBarSelected.collectAsState()
-
     Scaffold(bottomBar = {
         NavigationBar {
             navigationBarItems.forEachIndexed { index, item ->
@@ -106,17 +81,6 @@ fun MainScreen(
     }
 }
 
-
-@Composable
-fun ActivitiesScreen() {
-    Text(text = "ACTIVITIES")
-}
-
-@Composable
-fun ChatScreen() {
-    Text(text = "CHAT")
-}
-
 @Composable
 fun StatisticsScreen(context: Context, scope: CoroutineScope, activity: Activity) {
     val healthConnectManager by lazy {
@@ -127,8 +91,7 @@ fun StatisticsScreen(context: Context, scope: CoroutineScope, activity: Activity
 
     //initialization of healthPermissionLauncher
     statsViewModel.healthPermissionLauncher =
-        rememberLauncherForActivityResult(
-            contract = healthConnectManager.requestPermissionsActivityContract(),
+        rememberLauncherForActivityResult(contract = healthConnectManager.requestPermissionsActivityContract(),
             onResult = { grantedPermissions: Set<String> ->
                 statsViewModel.onPermissionResult(
                     healthConnectManager,
@@ -138,15 +101,16 @@ fun StatisticsScreen(context: Context, scope: CoroutineScope, activity: Activity
                     snackbarHostState,
                     activity
                 )
-            }
-        )
+            })
     StatsScreen(statsViewModel = statsViewModel, snackbarHostState, scope, healthConnectManager)
     LaunchedEffect(true) {
         //if no permisions -> request
-        if (!statsViewModel.checkPermissions(context)) {
+        if (!statsViewModel.checkPermissions(context) && !(healthConnectManager.availability.value == HealthConnectAvailability.NOT_SUPPORTED ||
+                    healthConnectManager.availability.value == HealthConnectAvailability.NOT_INSTALLED)) {
             Log.i("permission", "first request")
             statsViewModel.requestPermissions(context = context)
-        } else {
+        } else if (!(healthConnectManager.availability.value == HealthConnectAvailability.NOT_SUPPORTED ||
+                    healthConnectManager.availability.value == HealthConnectAvailability.NOT_INSTALLED)){
             statsViewModel.getData(scope, healthConnectManager)
         }
     }

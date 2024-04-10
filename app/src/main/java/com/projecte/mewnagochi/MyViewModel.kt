@@ -1,8 +1,7 @@
 package com.projecte.mewnagochi
 
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.ViewModel
 
 class MyViewModel(
     private val savedStateHandle : SavedStateHandle

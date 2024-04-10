@@ -43,11 +43,9 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.projecte.mewnagochi.HomeScreenViewModel
-
 import com.projecte.mewnagochi.R
 import com.projecte.mewnagochi.ui.theme.Person
 import java.util.UUID
-
 
 
 @Composable
@@ -114,7 +112,7 @@ fun HomeScreen(homeScreenViewModel: HomeScreenViewModel = viewModel()) {
     val person = Person()
     person.BuildSprite()
 
-    Box {
+    Box () {
         Image(
             painter = painterResource(id = R.drawable.phone_backgrounds),
             contentDescription = "Background",
@@ -187,7 +185,6 @@ fun HomeScreen(homeScreenViewModel: HomeScreenViewModel = viewModel()) {
                         .padding(30.dp)
                         .size(60.dp),
                     onClick = {
-                       // homeScreenViewModel.deleteSelected()
                         homeScreenViewModel.deleteObject(selectedFurnitureId)
                     }) {
                     Icon(Icons.Filled.Delete, contentDescription = "delete furniture")

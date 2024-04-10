@@ -21,6 +21,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.projecte.mewnagochi.stats.HealthConnectAvailability
 import com.projecte.mewnagochi.stats.HealthConnectManager
 import com.projecte.mewnagochi.stats.StatsViewModel
 import kotlinx.coroutines.CoroutineScope
@@ -36,6 +37,15 @@ fun StatsScreen(
         modifier = Modifier
             .fillMaxSize()
     ) { scaffoldPadding ->
+
+        if (healthConnectMannager.availability.value == HealthConnectAvailability.NOT_SUPPORTED ||
+            healthConnectMannager.availability.value == HealthConnectAvailability.NOT_INSTALLED) {
+            Text(
+                text = "HealthConnect is not working for this device.",
+                modifier = Modifier.padding(16.dp)
+            )
+            return@Scaffold
+        }
         Column(
             modifier = Modifier
                 .padding(8.dp)

@@ -35,7 +35,7 @@ import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
 
-class Person ( ) {
+class Person() {
 
     @Composable
     fun getWalkingMapsR(): Array<ImageBitmap> {
@@ -114,7 +114,8 @@ class Person ( ) {
         )
     }
 
-    lateinit var  aniManager: AnimationManager
+    lateinit var aniManager: AnimationManager
+
     @Composable
     fun BuildSprite() {
         aniManager = AnimationManager(
@@ -130,38 +131,37 @@ class Person ( ) {
         )
 
     }
+
     @Composable
     fun returnToCenter(
         offsetX: Float,
         offsetY: Float,
-        personViewModel : PersonViewModel,){
+        personViewModel: PersonViewModel,
+    ) {
         var staticOffsetx = offsetX
         val scope = CoroutineScope(Dispatchers.Main)
         val personState by personViewModel.personState.collectAsState()
-        if(staticOffsetx != 0F && offsetY==0F){
-
-            //Log.i("offset",staticOffsetx.toString())
-            if(staticOffsetx > 0){
+        if (staticOffsetx != 0F && offsetY == 0F) {
+            if (staticOffsetx > 0) {
                 aniManager.playAnim(1)
                 LaunchedEffect(Unit) {
-                scope.launch {
-                    while (staticOffsetx >= 10F) {
-                        if(personState!=PersonState.RET_TO_CENTER) return@launch
-                        personViewModel.setOffsetX( staticOffsetx- 1F)
-                        staticOffsetx -= 1F
-                        delay(10)
+                    scope.launch {
+                        while (staticOffsetx >= 10F) {
+                            if (personState != PersonState.RET_TO_CENTER) return@launch
+                            personViewModel.setOffsetX(staticOffsetx - 1F)
+                            staticOffsetx -= 1F
+                            delay(10)
+                        }
+                        personViewModel.setOffsetX(0F)
+                        aniManager.playAnim(0)
                     }
-                    personViewModel.setOffsetX(0F)
-                    aniManager.playAnim(0)
                 }
-                    }
-            }
-            else{
+            } else {
                 aniManager.playAnim(4)
                 LaunchedEffect(Unit) {
                     scope.launch {
-                        while (staticOffsetx <= 10F ) {
-                            if(personState!=PersonState.RET_TO_CENTER) return@launch
+                        while (staticOffsetx <= 10F) {
+                            if (personState != PersonState.RET_TO_CENTER) return@launch
                             personViewModel.setOffsetX(staticOffsetx + 1F)
                             staticOffsetx += 1F
                             delay(10)
@@ -176,17 +176,17 @@ class Person ( ) {
     }
 
     @Composable
-    fun Draw(personViewModel : PersonViewModel = viewModel()
-    ){
-        val offsetX  by personViewModel.offsetX.collectAsState()
+    fun Draw(
+        personViewModel: PersonViewModel = viewModel()
+    ) {
+        val offsetX by personViewModel.offsetX.collectAsState()
         var offsetY by remember { mutableStateOf(0f) }
-        val personState  by personViewModel.personState.collectAsState()
+        val personState by personViewModel.personState.collectAsState()
         val interactionSource = remember { MutableInteractionSource() }
         val scope = CoroutineScope(Dispatchers.Main)
-        when(personState) {
+        when (personState) {
             PersonState.IDLE -> {
                 aniManager.playAnim(0)
-
             }
 
             PersonState.BEING_DRAGED -> {
@@ -208,7 +208,7 @@ class Person ( ) {
                         aniManager.playAnim(3)
 
                         delay(2000)
-                        if(personState==PersonState.FALLING) {
+                        if (personState == PersonState.FALLING) {
                             personViewModel.setState(PersonState.RISING)
                         }
                         //TODO: FICAR ALGUN RANDOM DE TIPO PUGUI AIXECAR-SE MOLT RAPID O LENT
@@ -216,10 +216,11 @@ class Person ( ) {
                     }
                 }
             }
+
             PersonState.RET_TO_CENTER -> {
                 returnToCenter(offsetX = offsetX, offsetY = offsetY, personViewModel)
-
             }
+
             PersonState.CLICKED -> {
                 LaunchedEffect(Unit) {
                     launch {
@@ -228,22 +229,18 @@ class Person ( ) {
                         personViewModel.setState(PersonState.IDLE)
                     }
                 }
-
             }
-            PersonState.RISING -> {
 
+            PersonState.RISING -> {
                 LaunchedEffect(Unit) {
-                    Log.i("anim","rise")
+                    Log.i("anim", "rise")
                     aniManager.playAnim(5)
                     delay(700)
                     personViewModel.setState(PersonState.RET_TO_CENTER)
                 }
-
             }
         }
         aniManager.Draw(modifier = Modifier
-
-
             .offset {
                 IntOffset(
                     offsetX.roundToInt(),
@@ -276,13 +273,14 @@ class Person ( ) {
                     personViewModel.setState(PersonState.CLICKED)
                 }
             })
-    val handler = Handler(Looper.getMainLooper())
-    handler.post(object : Runnable {
-        override fun run() {
-            aniManager.update()
-            handler.postDelayed(this, 50) // Execute every 1000 milliseconds (1 second)
-        }
-    })
+
+        val handler = Handler(Looper.getMainLooper())
+        handler.post(object : Runnable {
+            override fun run() {
+                aniManager.update()
+                handler.postDelayed(this, 50) // Execute every 1000 milliseconds (1 second)
+            }
+        })
     }
 
 }
