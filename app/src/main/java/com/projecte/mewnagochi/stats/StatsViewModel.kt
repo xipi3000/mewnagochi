@@ -170,41 +170,41 @@ class StatsViewModel() : ViewModel() {
             //Request weight records (keep requesting until finding a record)
             lateinit var weightResponse: androidx.health.connect.client.response.ReadRecordsResponse<WeightRecord>
             var rightNow = LocalDateTime.now()
-            var at00 = rightNow.withHour(0).withMinute(0).withSecond(0)
+            var firstOfTheMonth = rightNow.withHour(0).withMinute(0).withSecond(0).withDayOfMonth(1)
             do {
                 weightResponse = healthConnectManager.healthConnectClient.readRecords(
                     request = ReadRecordsRequest<WeightRecord>(
-                        timeRangeFilter = TimeRangeFilter.between(at00, rightNow)
+                        timeRangeFilter = TimeRangeFilter.between(firstOfTheMonth, rightNow)
                     )
                 )
-                rightNow = at00
-                at00 = at00.minusDays(1)
-            } while(weightResponse.records.isEmpty())
+                rightNow = firstOfTheMonth
+                firstOfTheMonth = firstOfTheMonth.minusMonths(1)
+            } while (weightResponse.records.isEmpty() && firstOfTheMonth.year > 2020)
             //Request heart rate records (keep requesting until finding a record)
             lateinit var heartRateResponse: androidx.health.connect.client.response.ReadRecordsResponse<HeartRateRecord>
             rightNow = LocalDateTime.now()
-            at00 = rightNow.withHour(0).withMinute(0).withSecond(0)
+            firstOfTheMonth = rightNow.withHour(0).withMinute(0).withSecond(0).withDayOfMonth(1)
             do{
                 heartRateResponse = healthConnectManager.healthConnectClient.readRecords(
                     request = ReadRecordsRequest<HeartRateRecord>(
-                        timeRangeFilter = TimeRangeFilter.between(at00, rightNow))
+                        timeRangeFilter = TimeRangeFilter.between(firstOfTheMonth, rightNow))
                 )
-                rightNow = at00
-                at00 = at00.minusDays(1)
-            } while(heartRateResponse.records.isEmpty())
+                rightNow = firstOfTheMonth
+                firstOfTheMonth = firstOfTheMonth.minusMonths(1)
+            } while(heartRateResponse.records.isEmpty() && firstOfTheMonth.year > 2020)
             //Request exercise session records (we'll just need the most recent one)
             lateinit var ExerciseSessionResponse: androidx.health.connect.client.response.ReadRecordsResponse<ExerciseSessionRecord>
             rightNow = LocalDateTime.now()
-            at00 = rightNow.withHour(0).withMinute(0).withSecond(0)
+            firstOfTheMonth = rightNow.withHour(0).withMinute(0).withSecond(0)
             do {
                 ExerciseSessionResponse = healthConnectManager.healthConnectClient.readRecords(
                     request = ReadRecordsRequest<ExerciseSessionRecord>(
-                        timeRangeFilter = TimeRangeFilter.between(at00, rightNow)
+                        timeRangeFilter = TimeRangeFilter.between(firstOfTheMonth, rightNow)
                     )
                 )
-                rightNow = at00
-                at00 = at00.minusDays(1)
-            }while (ExerciseSessionResponse.records.isEmpty())
+                rightNow = firstOfTheMonth
+                firstOfTheMonth = firstOfTheMonth.minusMonths(1)
+            }while (ExerciseSessionResponse.records.isEmpty() && firstOfTheMonth.year > 2020)
             /** STEP 2: Parse from all queries the info we need **/
             //Since we made a good query, we just need to sum all steps, no need to check for day
             var steps = 0L
