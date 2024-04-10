@@ -156,7 +156,7 @@ class StatsViewModel() : ViewModel() {
     fun getData(scope: CoroutineScope, healthConnectManager: HealthConnectManager) {
         //In this method, we'll see first the data requests, and then the parsing of the queries
         scope.launch {
-            /** STEP 1: Launch all queries **/
+            /** STEP 1: Obtain steps info **/
             //Request steps record (only the ones recorded today)
             val stepsResponse = healthConnectManager.healthConnectClient.readRecords(
                 request = ReadRecordsRequest<StepsRecord>(
@@ -167,6 +167,13 @@ class StatsViewModel() : ViewModel() {
                     )
                 )
             )
+            //Since we made a good query, we just need to sum all steps, no need to check for day
+            var steps = 0L
+            for (record in stepsResponse.records) {
+                steps += record.count
+            }
+
+            /** STEP 2: Obtain weight info **/
             //Request weight records (keep requesting until finding a record)
             lateinit var weightResponse: androidx.health.connect.client.response.ReadRecordsResponse<WeightRecord>
             var rightNow = LocalDateTime.now()
@@ -180,6 +187,10 @@ class StatsViewModel() : ViewModel() {
                 rightNow = firstOfTheMonth
                 firstOfTheMonth = firstOfTheMonth.minusMonths(1)
             } while (weightResponse.records.isEmpty() && firstOfTheMonth.year > 2020)
+            //For the weight, we just need the most recent record (if any has been found)
+            val weight = if (weightResponse.records.isNotEmpty()) weightResponse.records.last().weight.inKilograms else 0.0
+
+            /** STEP 3: Obtain HeartBeat info **/
             //Request heart rate records (keep requesting until finding a record)
             lateinit var heartRateResponse: androidx.health.connect.client.response.ReadRecordsResponse<HeartRateRecord>
             rightNow = LocalDateTime.now()
@@ -192,6 +203,10 @@ class StatsViewModel() : ViewModel() {
                 rightNow = firstOfTheMonth
                 firstOfTheMonth = firstOfTheMonth.minusMonths(1)
             } while(heartRateResponse.records.isEmpty() && firstOfTheMonth.year > 2020)
+            //Same for the heart rate (if any has been found)
+            val heartRate = if (heartRateResponse.records.isNotEmpty()) heartRateResponse.records.last().samples.last().beatsPerMinute else 0L
+
+            /** STEP 4: Obtain last ExerciseSession info **/
             //Request exercise session records (we'll just need the most recent one)
             lateinit var ExerciseSessionResponse: androidx.health.connect.client.response.ReadRecordsResponse<ExerciseSessionRecord>
             rightNow = LocalDateTime.now()
@@ -205,20 +220,10 @@ class StatsViewModel() : ViewModel() {
                 rightNow = firstOfTheMonth
                 firstOfTheMonth = firstOfTheMonth.minusMonths(1)
             }while (ExerciseSessionResponse.records.isEmpty() && firstOfTheMonth.year > 2020)
-            /** STEP 2: Parse from all queries the info we need **/
-            //Since we made a good query, we just need to sum all steps, no need to check for day
-            var steps = 0L
-            for (record in stepsResponse.records) {
-                steps += record.count
-            }
-            //For the weight, we just need the most recent record
-            val weight = weightResponse.records.last().weight.inKilograms
-            //Same for the heart rate
-            val heartRate = heartRateResponse.records.last().samples.last().beatsPerMinute
             //For the exercise session, we just need the most recent one
-            val lastExerciseSession = parseLastExerciseSession(ExerciseSessionResponse.records.last().endTime.toString())
+            val lastExerciseSession = if (ExerciseSessionResponse.records.isNotEmpty()) parseLastExerciseSession(ExerciseSessionResponse.records.last().endTime.toString()) else "No exercise sessions found"
 
-            /** STEP 3: Update data holders **/
+            /** STEP 5: Update data holders **/
             //Update the UI state accordingly
             _uiState.update { currentState ->
                 currentState.copy(
