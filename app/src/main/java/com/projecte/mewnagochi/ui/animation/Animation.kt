@@ -70,7 +70,7 @@ class Animation(
                     .width(Dp(100F))
                     .height(Dp(210f))
 
-                    .background(Color.Red)
+                    //.background(Color.Red)
 
 
             ) {

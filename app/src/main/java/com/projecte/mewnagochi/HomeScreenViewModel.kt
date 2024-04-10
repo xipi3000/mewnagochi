@@ -2,7 +2,6 @@ package com.projecte.mewnagochi
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
-import com.projecte.mewnagochi.ui.MovableObject
 
 class HomeScreenViewModel (
     private val savedStateHandle : SavedStateHandle
@@ -12,13 +11,14 @@ class HomeScreenViewModel (
     val selectedFurnitureId = savedStateHandle.getStateFlow("selectedFurnitureId",0)
     val isEditingFurniture = savedStateHandle.getStateFlow("isEditingFurniture",false)
     val isAnyFurnitureSelected = savedStateHandle.getStateFlow("isAnyFurnitureSelected",false)
-    val  furnitures = savedStateHandle.getStateFlow("furnitures", mapOf<String, MovableObject?>())
-
+    val  furniture = savedStateHandle.getStateFlow("furniture", mutableListOf<Int>())
     fun addObject(id: Int){
         savedStateHandle["addedObject"] = id
     }
     fun deleteObject(id: Int){
         savedStateHandle["deletedObject"] = id
+        savedStateHandle["selectedFurnitureId"] = 0
+        savedStateHandle["isAnyFurnitureSelected"] = false
     }
     fun startEditing(){
         savedStateHandle["isEditingFurniture"] = true
@@ -31,19 +31,23 @@ class HomeScreenViewModel (
         savedStateHandle["isAnyFurnitureSelected"] = true
     }
     fun deselectFurniture(){
-
         savedStateHandle["isAnyFurnitureSelected"] = false
     }
-    fun updateItem( id: String, obj : MovableObject?){
-
-        savedStateHandle["furnitures"] = furnitures.value + (id to  obj )
+    fun addItem( id: Int){
+        val list = furniture.value
+        if(!list.contains(id)) {
+            list.add(id)
+            savedStateHandle["furniture"] = list
+        }
+    }
+    fun removeItem( id: Int){
+        val list = furniture.value
+        if(list.contains(id)) {
+            list.remove(id)
+            savedStateHandle["furniture"] = list
+        }
     }
 
 
-    fun deleteSelected() {
-        savedStateHandle["selectedFurnitureId"] = 0
-        savedStateHandle["isAnyFurnitureSelected"] = false
-
-    }
 
 }
