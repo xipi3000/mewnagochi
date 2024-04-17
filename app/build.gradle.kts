@@ -65,7 +65,8 @@ dependencies {
     implementation("androidx.health.connect:connect-client:1.1.0-alpha07")
     implementation(libs.androidx.appcompat)
     implementation(libs.androidx.datastore.core)
-
+    implementation(libs.androidx.constraintlayout)
+    implementation ("androidx.constraintlayout:constraintlayout-compose:1.0.1")
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

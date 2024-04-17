@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -30,6 +31,7 @@ import com.projecte.mewnagochi.MyViewModel
 import com.projecte.mewnagochi.stats.HealthConnectAvailability
 import com.projecte.mewnagochi.stats.HealthConnectManager
 import com.projecte.mewnagochi.stats.StatsViewModel
+import com.projecte.mewnagochi.ui.theme.store.StoreScreen
 import kotlinx.coroutines.CoroutineScope
 
 
@@ -46,6 +48,9 @@ fun MainScreen(
         },
         LabeledIcon("Stats", Icons.Filled.Info) {
             StatisticsScreen(context, scope, activity)
+        },
+        LabeledIcon("Store", Icons.Filled.ShoppingCart) {
+            StoreScreen()
         },
     )
 ) {
