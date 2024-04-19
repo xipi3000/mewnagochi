@@ -1,6 +1,7 @@
 package com.projecte.mewnagochi.ui.theme.store
 
-import android.graphics.fonts.FontStyle
+
+import android.util.Log
 import androidx.compose.animation.core.Easing
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
@@ -9,99 +10,118 @@ import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.gestures.Orientation
-import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardColors
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ElevatedCard
 
 import androidx.compose.material3.MaterialTheme
 
 import androidx.compose.material3.OutlinedCard
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithContent
-import androidx.compose.ui.focus.FocusRequester.Companion.createRefs
-import androidx.compose.ui.geometry.CornerRadius
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.drawscope.rotate
-import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.lerp
 import androidx.compose.ui.unit.sp
-import androidx.constraintlayout.compose.ChainStyle
 import androidx.constraintlayout.compose.ConstraintLayout
-import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.lifecycle.viewmodel.compose.viewModel
 
 import com.projecte.mewnagochi.R
+import com.projecte.mewnagochi.StoreItem
+import com.projecte.mewnagochi.StoreScreenViewModel
+import com.projecte.mewnagochi.UserItem
+import com.projecte.mewnagochi.UserViewModel
+
 
 @Composable
-fun StoreScreen(){
+fun StoreScreen(
+    storeViewModel: StoreScreenViewModel = viewModel(),
+    userViewModel: UserViewModel = viewModel()
+
+){
+    val items by  storeViewModel.items.collectAsState()
     Column(
+
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.SpaceAround,
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier
+            .fillMaxSize()
             .verticalScroll(rememberScrollState())
+            .background(MaterialTheme.colorScheme.onBackground)
     ) {
-        NewStoreItem(itemName = "FINESTRA",modifier = Modifier.padding(30.dp))
-        StoreItem(itemName = "FINESTRA", modifier = Modifier.padding(30.dp))
-        StoreItem(itemName = "FINESTRA", modifier = Modifier.padding(30.dp))
+        for (item in items){
+            if(userViewModel.hasItem(item.id)){
+                storeViewModel.buyItem(item.id)
+            }
+            Row(){
+                StoreItem(item)
+
+            }
+
+        }
+        Row(){
+
+        }
+
     }
 
 }
 
 @Composable
-fun StoreItem(modifier: Modifier = Modifier,
-              itemName: String,
+fun StoreItem(
+    item : StoreItem
+)
+{
+    if(item.isNew) NewStoreItemContainer(item = item)
+    else StoreItemContainer(item = item)
+}
+
+@Composable
+fun StoreItemContainer(modifier: Modifier = Modifier,
+               item: StoreItem,
               colors: CardColors = CardDefaults.outlinedCardColors(
                   containerColor = Color.White,
                   contentColor = Color.Black
               ),
-              border: BorderStroke = BorderStroke(1.dp, Color.Black)
+              border: BorderStroke = BorderStroke(1.dp, Color.Black),
+                      storeViewModel: StoreScreenViewModel = viewModel(),
+                      userViewModel: UserViewModel = viewModel()
               ) {
-
+        val userViewModel : UserViewModel = viewModel()
         OutlinedCard(
             modifier = modifier
                 .wrapContentSize(),
@@ -117,25 +137,37 @@ fun StoreItem(modifier: Modifier = Modifier,
 
             ) {
                 Text(
-                    text = itemName,
+                    text = item.name,
                     fontSize = 40.sp,
                     fontWeight = FontWeight.Bold,
                     fontFamily = FontFamily.SansSerif,
 
                     )
-                Item(modifier = Modifier.padding(10.dp))
-                PucharseButton()
+                Item(modifier = Modifier.padding(10.dp),res = item.id)
+
+                if(item.isPurchased){
+                    Text(text = "Already bought",
+                        fontSize = 25.sp
+                        )
+                }
+                else {
+                    PucharseButton(
+                    ) {
+                        storeViewModel.buyItem(item.id)
+                        userViewModel.addItem(UserItem(item.id, item.name))
+                    }
+                }
 
 
             }
         }
-
-
 }
 
+
+
 @Composable
-fun NewStoreItem(
-    itemName: String,
+fun NewStoreItemContainer(
+    item: StoreItem,
     modifier: Modifier = Modifier
     ) {
         ConstraintLayout(
@@ -144,7 +176,7 @@ fun NewStoreItem(
 
             val (storeItem, descriptionText) = createRefs()
 
-            StoreItem(
+            StoreItemContainer(
                 //border = BorderStroke(6.dp, borderGradient),
                 modifier = Modifier
                     .constrainAs(storeItem) {
@@ -160,7 +192,7 @@ fun NewStoreItem(
                     )
 
                 ,
-                itemName = itemName
+                item = item
             )
             Card(
                 colors = CardDefaults.cardColors(
@@ -188,7 +220,9 @@ fun NewStoreItem(
 
 
 @Composable
-fun Item(modifier: Modifier = Modifier){
+fun Item(modifier: Modifier = Modifier,
+         res : Int
+         ){
     Card(
         modifier = modifier.padding(bottom = 10.dp, top = 10.dp),
         colors = CardDefaults.cardColors(
@@ -197,20 +231,28 @@ fun Item(modifier: Modifier = Modifier){
 
     ) {
         Image(
-            modifier = Modifier.padding(10.dp),
-            painter = painterResource(id = R.drawable.window), contentDescription = "Window"
+
+            modifier = Modifier
+                .padding(10.dp)
+                .size(120.dp)
+            ,
+            painter = painterResource(id = res), contentDescription = "Window"
         )
     }
 }
 @Composable
-fun PucharseButton(modifier: Modifier = Modifier){
+fun PucharseButton(
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    onClick: () -> Unit,
+                   ){
     Button(
-        colors = ButtonDefaults.buttonColors(
-            containerColor = MaterialTheme.colorScheme.primary,
-            contentColor = Color.White
-        ),
+        enabled = enabled,
+
         modifier = modifier,
-        onClick = { /*TODO*/ }) {
+        onClick = { onClick() }
+
+        ) {
         Text(text = stringResource(R.string.purchase),
             fontSize = 20.sp
         )
@@ -256,11 +298,19 @@ fun Modifier.animatedBorder(
 @Preview
 @Composable
 fun preview() {
-    StoreItem(itemName = "FINESTRA")
+    val i = remember { mutableStateOf(false) }
+    StoreItemContainer(item= StoreItem(R.drawable.window,"window", i,false))
 }
 
 @Preview
 @Composable
 fun preview2() {
-    NewStoreItem("FINESTRA")
+    val i = remember { mutableStateOf(true) }
+    NewStoreItemContainer(item= StoreItem(R.drawable.window,"FINESTRA",i,true))
+}
+
+@Preview
+@Composable
+fun preview3(){
+    StoreScreen()
 }
