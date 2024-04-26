@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
@@ -44,7 +45,7 @@ fun MainScreen(
     scope: CoroutineScope,
     navigationBarItems: List<LabeledIcon> = listOf(
         LabeledIcon("Home", Icons.Filled.Home) {
-            HomeScreen()
+            LoginScreen()
         },
         LabeledIcon("Stats", Icons.Filled.Info) {
             StatisticsScreen(context, scope, activity)
@@ -52,6 +53,7 @@ fun MainScreen(
         LabeledIcon("Store", Icons.Filled.ShoppingCart) {
             StoreScreen()
         },
+
     )
 ) {
     val selectedItem by myViewModel.navigationBarSelected.collectAsState()
