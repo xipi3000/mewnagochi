@@ -3,6 +3,8 @@ plugins {
     alias(libs.plugins.jetbrainsKotlinAndroid)
     kotlin("plugin.serialization") version "1.9.23"
 
+    id("com.google.gms.google-services")
+
 }
 
 android {
@@ -67,6 +69,7 @@ dependencies {
     implementation(libs.androidx.datastore.core)
     implementation(libs.androidx.constraintlayout)
     implementation ("androidx.constraintlayout:constraintlayout-compose:1.0.1")
+    implementation(libs.firebase.auth)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -82,4 +85,5 @@ dependencies {
 
     // optional - RxJava3 support
     implementation("androidx.datastore:datastore-preferences-rxjava3:1.0.0")
+    implementation(platform("com.google.firebase:firebase-bom:32.8.1"))
 }

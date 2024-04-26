@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "855110736657",
+    "project_id": "mewnagochi",
+    "storage_bucket": "mewnagochi.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:855110736657:android:f352b173879c249d170ab0",
+        "android_client_info": {
+          "package_name": "com.projecte.mewnagochi"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDCDd2QUdrxXMGhsKNvJw1hbSiOBZD18tY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
