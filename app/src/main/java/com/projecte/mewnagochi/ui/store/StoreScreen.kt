@@ -1,4 +1,4 @@
-package com.projecte.mewnagochi.ui.theme.store
+package com.projecte.mewnagochi.ui.store
 
 
 import android.util.Log
