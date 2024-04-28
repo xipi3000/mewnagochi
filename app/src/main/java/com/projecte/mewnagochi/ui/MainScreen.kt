@@ -44,7 +44,7 @@ fun MainScreen(
     scope: CoroutineScope,
     navigationBarItems: List<LabeledIcon> = listOf(
         LabeledIcon("Home", Icons.Filled.Home) {
-            RegisterScreen()
+            LoginScreen()
         },
         LabeledIcon("Stats", Icons.Filled.Info) {
             StatisticsScreen(context, scope, activity)

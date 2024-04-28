@@ -2,9 +2,8 @@ package com.projecte.mewnagochi.login
 
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
-import io.reactivex.plugins.RxJavaPlugins.onError
 
-data class LoginUiState(
+data class RegisterUiState(
     val email: String = "",
     val password: String = "",
     val repeatedPassword: String ="",
@@ -12,8 +11,8 @@ data class LoginUiState(
     val errorMessage: String ="",
     val loginFinished: Boolean = false,
 )
-class LoginViewModel : ViewModel(){
-    var uiState = mutableStateOf(LoginUiState())
+class RegisterViewModel : ViewModel(){
+    var uiState = mutableStateOf(RegisterUiState())
         private set
 
     fun onEmailChange(email : String){

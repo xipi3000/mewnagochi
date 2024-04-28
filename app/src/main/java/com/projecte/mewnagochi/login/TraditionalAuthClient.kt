@@ -10,6 +10,7 @@ interface AccountService {
     fun createAccount(email: String, password: String,username: String,onResult: (Throwable?) -> Unit)
     fun authenticate(email: String, password: String, onResult: (Throwable?) -> Unit)
     fun linkAccount(email: String, password: String, onResult: (Throwable?) -> Unit)
+
 }
 
 data class UserRegisterData(
@@ -61,8 +62,13 @@ class AccountServiceImpl : AccountService {
     }
 
     override fun authenticate(email: String, password: String, onResult: (Throwable?) -> Unit) {
-        Firebase.auth.signInWithEmailAndPassword(email, password)
-            .addOnCompleteListener { onResult(it.exception) }
+        try {
+            Firebase.auth.signInWithEmailAndPassword(email, password)
+                .addOnCompleteListener { onResult(it.exception) }
+        }
+        catch (e: Exception){
+            onResult(e.cause)
+        }
     }
 
     override fun linkAccount(email: String, password: String, onResult: (Throwable?) -> Unit) {
