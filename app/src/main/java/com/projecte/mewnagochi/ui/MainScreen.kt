@@ -44,7 +44,7 @@ fun MainScreen(
     scope: CoroutineScope,
     navigationBarItems: List<LabeledIcon> = listOf(
         LabeledIcon("Home", Icons.Filled.Home) {
-            LoginScreen()
+            HomeScreen()
         },
         LabeledIcon("Stats", Icons.Filled.Info) {
             StatisticsScreen(context, scope, activity)
@@ -69,20 +69,34 @@ fun MainScreen(
                         }
                     })
             }
+
         }
     }) { scaffoldPadding ->
         Column(
             modifier = Modifier.padding(scaffoldPadding)
         ) {
             NavHost(
-                navController = navController, startDestination = "Home"
+                navController = navController, startDestination = "login"
             ) {
                 navigationBarItems.forEach { item ->
                     composable(item.label) {
                         item.screen()
                     }
                 }
+                composable("login"){
+                    LoginScreen(
+                        onLoginFinished = {navController.navigate("Home")},
+                        onRegister = {navController.navigate("register")},
+                    )
+                }
+                composable("register"){
+                    RegisterScreen()
+                    {
+                        navController.navigate("login")
+                    }
+                }
             }
+
         }
     }
 }
