@@ -31,11 +31,12 @@ class LoginViewModel : ViewModel() {
     }
 
     fun loginFinished() {
+        onErrorMessage("")
         uiState.value = uiState.value.copy(loginFinished = true)
     }
 
 
-    fun loginUser() {
+    fun loginUser() =
         if(uiState.value.email.isBlank() || uiState.value.password.isBlank()) onErrorMessage("Password or mail is empty")
         else {
             val accountService = AccountServiceImpl()
@@ -45,14 +46,16 @@ class LoginViewModel : ViewModel() {
 
                 ) { error ->
                 if (error == null) {
-                    onErrorMessage("")
-                    loginFinished()
+                    if(accountService.verifyEmail()) {
+                        loginFinished()
+                    }
+                    else{
+                        onErrorMessage("Please verify your email")
+                    }
                 } else {
                     onErrorMessage(error.message.toString())
                     // onError(error)
                 }
             }
         }
-
-    }
 }

@@ -10,6 +10,7 @@ interface AccountService {
     fun createAccount(email: String, password: String,username: String,onResult: (Throwable?) -> Unit)
     fun authenticate(email: String, password: String, onResult: (Throwable?) -> Unit)
     fun linkAccount(email: String, password: String, onResult: (Throwable?) -> Unit)
+    fun verifyEmail() : Boolean
 
 }
 
@@ -76,5 +77,12 @@ class AccountServiceImpl : AccountService {
 
         Firebase.auth.currentUser!!.linkWithCredential(credential)
             .addOnCompleteListener { onResult(it.exception) }
+    }
+    override fun verifyEmail() : Boolean{
+
+
+          return  Firebase.auth.currentUser!!.isEmailVerified
+
+
     }
 }

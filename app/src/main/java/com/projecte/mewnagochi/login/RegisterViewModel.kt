@@ -46,7 +46,12 @@ class RegisterViewModel : ViewModel(){
                     onErrorMessage("")
                     loginFinished()
                 } else {
-                    onErrorMessage(error.cause?.message!!)
+                    try {
+                        onErrorMessage(error.cause?.message!!)
+                    }
+                    catch (e : Exception){
+                        onErrorMessage(error.message!!)
+                    }
                     // onError(error)
                 }
             }

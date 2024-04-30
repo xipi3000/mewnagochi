@@ -3,7 +3,6 @@ package com.projecte.mewnagochi.ui
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
@@ -26,15 +25,14 @@ import androidx.compose.ui.unit.dp
 import com.projecte.mewnagochi.login.RegisterViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.projecte.mewnagochi.R
 
-@Preview
+
 @Composable
 fun RegisterFinished(
-    navController: NavHostController = rememberNavController()
+    onRegisterFinished: () -> Unit
+
 ) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -51,23 +49,19 @@ fun RegisterFinished(
             tint = Color.Green,
             modifier = Modifier.size(70.dp)
         )
-        Button(onClick = { navController.navigate("login") }) {
+        Button(onClick = onRegisterFinished) {
             Text(text = "LogIn")
         }
     }
 
-    NavHost(navController = navController, startDestination = "login") {
-        // Other destinations
-        composable("login") {
-            LoginScreen(navController = navController)
-        }
-    }
 }
 @Preview
 @Composable
 fun RegisterScreen(
     viewModel: RegisterViewModel = viewModel(),
-    navController: NavHostController = rememberNavController()
+    navController: NavHostController = rememberNavController(),
+    onRegisterFinished: () -> Unit = {},
+
 ) {
     val uiState by viewModel.uiState
 
@@ -78,7 +72,9 @@ fun RegisterScreen(
     )
     {
         if (uiState.loginFinished) {
-            RegisterFinished()
+            RegisterFinished(){
+                onRegisterFinished()
+            }
         } else {
             OutlinedTextField(
                 value = uiState.email, 
@@ -107,7 +103,9 @@ fun RegisterScreen(
 @Composable
 fun LoginScreen(
     viewModel: LoginViewModel = viewModel(),
-    navController: NavHostController = rememberNavController(),
+    onRegister: () -> Unit = {},
+
+    onLoginFinished: () -> Unit = {},
 ) {
 
     val uiState by viewModel.uiState
@@ -119,7 +117,7 @@ fun LoginScreen(
     )
     {
         if (uiState.loginFinished) {
-            HomeScreen()
+            onLoginFinished()
         } else {
             OutlinedTextField(
                 value = uiState.email,
@@ -140,7 +138,7 @@ fun LoginScreen(
             Row(horizontalArrangement = Arrangement.SpaceBetween,
                 modifier = Modifier.fillMaxSize()
                 ){
-                OutlinedButton(onClick = { navController.navigate("Home") }) {
+                OutlinedButton(onClick = onRegister ){
                     Text("Create\naccount")
                 }
                 Button(onClick = viewModel::loginUser) {
