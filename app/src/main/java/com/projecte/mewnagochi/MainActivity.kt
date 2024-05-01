@@ -26,8 +26,9 @@ import com.projecte.mewnagochi.ui.RegisterScreen
 import com.projecte.mewnagochi.ui.StatisticsScreen
 import com.projecte.mewnagochi.ui.store.StoreScreen
 import com.projecte.mewnagochi.ui.theme.MewnagochiTheme
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
-
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

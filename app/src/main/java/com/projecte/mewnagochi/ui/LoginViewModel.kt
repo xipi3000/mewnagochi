@@ -12,6 +12,7 @@ data class LoginUiState(
     val password: String = "",
     val errorMessage: String = "",
     val loginFinished: Boolean = false,
+
 )
 
 class LoginViewModel : ViewModel() {

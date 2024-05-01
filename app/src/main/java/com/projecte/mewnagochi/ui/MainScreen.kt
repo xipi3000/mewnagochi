@@ -10,12 +10,14 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.ShoppingCart
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -35,8 +37,10 @@ import com.projecte.mewnagochi.ui.store.StoreScreen
 import kotlinx.coroutines.CoroutineScope
 
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen(
+    loginViewModel: LoginViewModel = viewModel(),
     myViewModel: MyViewModel = viewModel(),
     navController: NavHostController = rememberNavController(),
     context: Context,
@@ -55,8 +59,16 @@ fun MainScreen(
 
     )
 ) {
+    val loggedUser by loginViewModel.uiState
     val selectedItem by myViewModel.navigationBarSelected.collectAsState()
-    Scaffold(bottomBar = {
+    Scaffold(
+        topBar = {
+                 TopAppBar(title = {
+                     Text(text = loggedUser.email)
+                 })
+        },
+
+        bottomBar = {
         NavigationBar {
             navigationBarItems.forEachIndexed { index, item ->
                 NavigationBarItem(icon = { Icon(item.icon, contentDescription = item.label) },
