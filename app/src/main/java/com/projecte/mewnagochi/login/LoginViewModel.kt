@@ -1,18 +1,22 @@
-package com.projecte.mewnagochi.ui
+package com.projecte.mewnagochi.login
 
 
-import com.projecte.mewnagochi.login.AccountServiceImpl
-
-
+import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
+import javax.inject.Inject
+
+data class User(
+    val id: String = "",
+    val isAnonymous: Boolean = true,
+    val email : String = ""
+)
 
 data class LoginUiState(
     val email: String = "",
     val password: String = "",
     val errorMessage: String = "",
     val loginFinished: Boolean = false,
-
 )
 
 class LoginViewModel : ViewModel() {
@@ -33,8 +37,11 @@ class LoginViewModel : ViewModel() {
 
     fun loginFinished() {
         onErrorMessage("")
+
         uiState.value = uiState.value.copy(loginFinished = true)
+        Log.i("ViewModel",uiState.value.loginFinished.toString())
     }
+
 
 
     fun loginUser() =

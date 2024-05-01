@@ -1,18 +1,17 @@
 package com.projecte.mewnagochi.login
 
+import android.util.Log
 import com.google.firebase.Firebase
 import com.google.firebase.auth.EmailAuthProvider
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.auth
-import com.google.firebase.auth.oAuthCredential
 import com.google.firebase.auth.userProfileChangeRequest
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.callbackFlow
 
-interface AccountService {
-    fun createAccount(email: String, password: String,username: String,onResult: (Throwable?) -> Unit)
-    fun authenticate(email: String, password: String, onResult: (Throwable?) -> Unit)
-    fun linkAccount(email: String, password: String, onResult: (Throwable?) -> Unit)
-    fun verifyEmail() : Boolean
 
-}
+
 
 data class UserRegisterData(
     val username: String,
@@ -23,7 +22,23 @@ data class UserRegisterData(
 
 )
 
-class AccountServiceImpl : AccountService {
+class AccountServiceImpl  : AccountService {
+    override val currentEmail: String
+        get() = Firebase.auth.currentUser?.email.toString()
+    override val currentUser: Flow<User>
+        get() = callbackFlow {
+            val listener =
+                FirebaseAuth.AuthStateListener { auth ->
+                    this.trySend(auth.currentUser?.let { it.email?.let { it1 ->
+                        User(it.uid, it.isAnonymous,
+                            it1
+                        )
+                    } } ?: User())
+                }
+            Firebase.auth.addAuthStateListener(listener)
+            awaitClose { Firebase.auth.removeAuthStateListener(listener) }
+        }
+
 
     override fun createAccount(email: String, password: String,username: String, onResult: (Throwable?) -> Unit) {
         val profileUpdates = userProfileChangeRequest {
@@ -55,6 +70,7 @@ class AccountServiceImpl : AccountService {
                         onResult(task.exception)
                     }
                 }
+
         }
         catch (e: Exception){
             onResult(e)
@@ -70,6 +86,7 @@ class AccountServiceImpl : AccountService {
         catch (e: Exception){
             onResult(e.cause)
         }
+        Log.i("User",Firebase.auth.currentUser!!.email.toString())
     }
 
     override fun linkAccount(email: String, password: String, onResult: (Throwable?) -> Unit) {
@@ -85,4 +102,10 @@ class AccountServiceImpl : AccountService {
 
 
     }
+
+    override fun changePassword(email: String, onResult: (Throwable?) -> Unit ) {
+        Firebase.auth.sendPasswordResetEmail(email)
+            .addOnCompleteListener { onResult(it.exception) }
+    }
+
 }

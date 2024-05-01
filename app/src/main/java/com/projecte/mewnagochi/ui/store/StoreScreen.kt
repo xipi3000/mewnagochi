@@ -74,6 +74,7 @@ fun StoreScreen(
 
 ){
     val items by  storeViewModel.items.collectAsState()
+    val email by storeViewModel.currentUser
     Column(
 
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -83,6 +84,7 @@ fun StoreScreen(
             .verticalScroll(rememberScrollState())
             .background(MaterialTheme.colorScheme.onBackground)
     ) {
+        Text(text = email)
         for (item in items){
             if(userViewModel.hasItem(item.id)){
                 storeViewModel.buyItem(item.id)

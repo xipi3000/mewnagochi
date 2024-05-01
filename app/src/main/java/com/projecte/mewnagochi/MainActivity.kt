@@ -20,15 +20,14 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.projecte.mewnagochi.ui.HomeScreen
-import com.projecte.mewnagochi.ui.LoginScreen
+import com.projecte.mewnagochi.login.LoginScreen
 import com.projecte.mewnagochi.ui.MainScreen
-import com.projecte.mewnagochi.ui.RegisterScreen
+import com.projecte.mewnagochi.login.RegisterScreen
 import com.projecte.mewnagochi.ui.StatisticsScreen
 import com.projecte.mewnagochi.ui.store.StoreScreen
 import com.projecte.mewnagochi.ui.theme.MewnagochiTheme
-import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
-@AndroidEntryPoint
+
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

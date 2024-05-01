@@ -17,7 +17,6 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -27,9 +26,14 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.projecte.mewnagochi.LabeledIcon
 import com.projecte.mewnagochi.MyViewModel
+import com.projecte.mewnagochi.login.LoginScreen
+import com.projecte.mewnagochi.login.LoginViewModel
+import com.projecte.mewnagochi.login.RegisterScreen
+import com.projecte.mewnagochi.login.forgotPassword.ForgotPasswordScreen
 import com.projecte.mewnagochi.stats.HealthConnectAvailability
 import com.projecte.mewnagochi.stats.HealthConnectManager
 import com.projecte.mewnagochi.stats.StatsViewModel
@@ -59,30 +63,37 @@ fun MainScreen(
 
     )
 ) {
-    val loggedUser by loginViewModel.uiState
+
+    Log.i("ROUTE",navController.currentDestination.toString())
     val selectedItem by myViewModel.navigationBarSelected.collectAsState()
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentRoute = navBackStackEntry?.destination?.route
     Scaffold(
-        topBar = {
-                 TopAppBar(title = {
-                     Text(text = loggedUser.email)
-                 })
-        },
+
 
         bottomBar = {
-        NavigationBar {
-            navigationBarItems.forEachIndexed { index, item ->
-                NavigationBarItem(icon = { Icon(item.icon, contentDescription = item.label) },
-                    label = { Text(item.label) },
-                    selected = selectedItem == index,
-                    onClick = {
-                        if (selectedItem != index) {
-                            myViewModel.setNewSelected(index)
-                            navController.navigate(item.label)
-                        }
-                    })
+            if (navigationBarItems.any { it.label == currentRoute }) {
+                NavigationBar {
+                    navigationBarItems.forEachIndexed { index, item ->
+                        NavigationBarItem(icon = {
+                            Icon(
+                                item.icon,
+                                contentDescription = item.label
+                            )
+                        },
+                            label = { Text(item.label) },
+                            selected = selectedItem == index,
+                            onClick = {
+                                if (selectedItem != index) {
+                                    myViewModel.setNewSelected(index)
+                                    navController.navigate(item.label)
+                                }
+                            })
+                    }
+
+                }
             }
 
-        }
     }) { scaffoldPadding ->
         Column(
             modifier = Modifier.padding(scaffoldPadding)
@@ -99,10 +110,17 @@ fun MainScreen(
                     LoginScreen(
                         onLoginFinished = {navController.navigate("Home")},
                         onRegister = {navController.navigate("register")},
+                        onForgotPassword =  {navController.navigate("forgot_password")},
                     )
                 }
                 composable("register"){
                     RegisterScreen()
+                    {
+                        navController.navigate("login")
+                    }
+                }
+                composable("forgot_password"){
+                    ForgotPasswordScreen()
                     {
                         navController.navigate("login")
                     }
