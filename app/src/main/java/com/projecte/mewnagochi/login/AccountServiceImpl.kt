@@ -29,6 +29,7 @@ class AccountServiceImpl  : AccountService {
         get() = callbackFlow {
             val listener =
                 FirebaseAuth.AuthStateListener { auth ->
+                    Log.i("Auth",auth.currentUser.toString())
                     this.trySend(auth.currentUser?.let { it.email?.let { it1 ->
                         User(it.uid, it.isAnonymous,
                             it1
@@ -86,7 +87,7 @@ class AccountServiceImpl  : AccountService {
         catch (e: Exception){
             onResult(e.cause)
         }
-        Log.i("User",Firebase.auth.currentUser!!.email.toString())
+
     }
 
     override fun linkAccount(email: String, password: String, onResult: (Throwable?) -> Unit) {
