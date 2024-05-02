@@ -1,7 +1,5 @@
 plugins {
     kotlin("plugin.serialization") version "1.9.23"
-    id("com.google.devtools.ksp")
-    id("com.google.dagger.hilt.android")
     id("com.google.gms.google-services")
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.jetbrainsKotlinAndroid)
@@ -55,10 +53,7 @@ android {
 }
 
 dependencies {
-    implementation("com.google.dagger:hilt-android:2.47")
     implementation(libs.firebase.firestore.ktx)
-    ksp("com.google.dagger:hilt-compiler:2.47")
-    implementation("androidx.hilt:hilt-navigation-compose:1.0.0")
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
