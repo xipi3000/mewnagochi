@@ -1,7 +1,6 @@
-package com.projecte.mewnagochi.ui.store
+package com.projecte.mewnagochi.screens.store
 
 
-import android.util.Log
 import androidx.compose.animation.core.Easing
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
@@ -16,7 +15,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
@@ -24,7 +22,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardColors
 import androidx.compose.material3.CardDefaults
@@ -38,7 +35,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -61,10 +57,6 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.lifecycle.viewmodel.compose.viewModel
 
 import com.projecte.mewnagochi.R
-import com.projecte.mewnagochi.StoreItem
-import com.projecte.mewnagochi.StoreScreenViewModel
-import com.projecte.mewnagochi.UserItem
-import com.projecte.mewnagochi.UserViewModel
 
 
 @Composable
@@ -114,14 +106,14 @@ fun StoreItem(
 
 @Composable
 fun StoreItemContainer(modifier: Modifier = Modifier,
-               item: StoreItem,
-              colors: CardColors = CardDefaults.outlinedCardColors(
+                       item: StoreItem,
+                       colors: CardColors = CardDefaults.outlinedCardColors(
                   containerColor = Color.White,
                   contentColor = Color.Black
               ),
-              border: BorderStroke = BorderStroke(1.dp, Color.Black),
-                      storeViewModel: StoreScreenViewModel = viewModel(),
-                      userViewModel: UserViewModel = viewModel()
+                       border: BorderStroke = BorderStroke(1.dp, Color.Black),
+                       storeViewModel: StoreScreenViewModel = viewModel(),
+                       userViewModel: UserViewModel = viewModel()
               ) {
         val userViewModel : UserViewModel = viewModel()
         OutlinedCard(

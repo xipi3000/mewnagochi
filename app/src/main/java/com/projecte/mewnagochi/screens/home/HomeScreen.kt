@@ -1,4 +1,4 @@
-package com.projecte.mewnagochi.ui
+package com.projecte.mewnagochi.screens.home
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
@@ -42,7 +42,6 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.projecte.mewnagochi.HomeScreenViewModel
 import com.projecte.mewnagochi.R
 import com.projecte.mewnagochi.ui.theme.Person
 import java.util.UUID

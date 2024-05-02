@@ -24,7 +24,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.unit.IntOffset
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.projecte.mewnagochi.PersonViewModel
+import com.projecte.mewnagochi.screens.store.PersonViewModel
 import com.projecte.mewnagochi.R
 import com.projecte.mewnagochi.ui.animation.Animation
 import com.projecte.mewnagochi.ui.animation.AnimationManager

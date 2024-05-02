@@ -1,4 +1,4 @@
-package com.projecte.mewnagochi.login
+package com.projecte.mewnagochi.services.auth
 
 import android.util.Log
 import com.google.firebase.Firebase
@@ -6,6 +6,7 @@ import com.google.firebase.auth.EmailAuthProvider
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.auth
 import com.google.firebase.auth.userProfileChangeRequest
+import com.projecte.mewnagochi.screens.login.User
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
@@ -30,11 +31,11 @@ class AccountServiceImpl  : AccountService {
             val listener =
                 FirebaseAuth.AuthStateListener { auth ->
                     Log.i("Auth",auth.currentUser.toString())
-                    this.trySend(auth.currentUser?.let { it.email?.let { it1 ->
-                        User(it.uid, it.isAnonymous,
-                            it1
+                    this.trySend(auth.currentUser?.let {
+                        User(it.uid, it.isAnonymous, it.email!!,it.displayName!!
+
                         )
-                    } } ?: User())
+                   } ?: User())
                 }
             Firebase.auth.addAuthStateListener(listener)
             awaitClose { Firebase.auth.removeAuthStateListener(listener) }

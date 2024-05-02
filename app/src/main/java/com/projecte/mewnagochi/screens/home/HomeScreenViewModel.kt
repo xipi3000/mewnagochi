@@ -1,4 +1,4 @@
-package com.projecte.mewnagochi
+package com.projecte.mewnagochi.screens.home
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel

@@ -3,14 +3,14 @@ package com.projecte.mewnagochi.ui.furniture
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 
-import com.projecte.mewnagochi.MovableObjectState
+import com.projecte.mewnagochi.screens.home.movableObject.MovableObjectState
 
 class Chest(
     id: String,
     res: Int,
 ) : MovableObject(id, res){
     @Composable
-    override fun getAppSetting() : MovableObjectState{
+    override fun getAppSetting() : MovableObjectState {
         return context.chestDataStore.data.collectAsState(
             initial = MovableObjectState()
         ).value

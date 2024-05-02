@@ -1,7 +1,8 @@
-package com.projecte.mewnagochi.login
+package com.projecte.mewnagochi.screens.sign_up
 
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
+import com.projecte.mewnagochi.services.auth.AccountServiceImpl
 
 data class RegisterUiState(
     val email: String = "",

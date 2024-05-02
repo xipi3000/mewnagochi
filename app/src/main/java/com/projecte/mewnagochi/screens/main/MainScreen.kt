@@ -1,4 +1,4 @@
-package com.projecte.mewnagochi.ui
+package com.projecte.mewnagochi.screens.main
 
 import android.app.Activity
 import android.content.Context
@@ -8,7 +8,6 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -16,7 +15,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.ShoppingCart
-import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -41,18 +39,19 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.projecte.mewnagochi.LabeledIcon
-import com.projecte.mewnagochi.MyViewModel
+import com.projecte.mewnagochi.ui.theme.LabeledIcon
 import com.projecte.mewnagochi.R
-import com.projecte.mewnagochi.login.LoginScreen
-import com.projecte.mewnagochi.login.LoginViewModel
-import com.projecte.mewnagochi.login.RegisterScreen
-import com.projecte.mewnagochi.login.User
-import com.projecte.mewnagochi.login.forgotPassword.ForgotPasswordScreen
+import com.projecte.mewnagochi.screens.login.LoginScreen
+import com.projecte.mewnagochi.screens.login.LoginViewModel
+import com.projecte.mewnagochi.screens.sign_up.RegisterScreen
+import com.projecte.mewnagochi.screens.login.User
+import com.projecte.mewnagochi.screens.forgot_password.ForgotPasswordScreen
+import com.projecte.mewnagochi.screens.home.HomeScreen
 import com.projecte.mewnagochi.stats.HealthConnectAvailability
 import com.projecte.mewnagochi.stats.HealthConnectManager
 import com.projecte.mewnagochi.stats.StatsViewModel
-import com.projecte.mewnagochi.ui.store.StoreScreen
+import com.projecte.mewnagochi.screens.store.StoreScreen
+import com.projecte.mewnagochi.ui.StatsScreen
 import kotlinx.coroutines.CoroutineScope
 
 
@@ -89,7 +88,7 @@ fun MainScreen(
             if (navigationBarItems.any { it.label == currentRoute }) {
                 TopAppBar(title = {
                     UserAppBar(
-                        user=user.email,
+                        user=user.displayName,
                         numOfCoins = 100
                     )
                 })
@@ -157,13 +156,13 @@ fun MainScreen(
 }
 @Preview
 @Composable
-fun UserAppBar(user:String ="user@user.com", modifier: Modifier = Modifier,numOfCoins:Int=100) {
+fun UserAppBar(user:String ="user", modifier: Modifier = Modifier,numOfCoins:Int=100) {
     Row(
         modifier = modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        Text(text = user.split("@")[0],
+        Text(text = user,
             style = MaterialTheme.typography.headlineLarge)
         Row(
             verticalAlignment = Alignment.CenterVertically

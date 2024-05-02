@@ -19,12 +19,13 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.projecte.mewnagochi.ui.HomeScreen
-import com.projecte.mewnagochi.login.LoginScreen
-import com.projecte.mewnagochi.ui.MainScreen
-import com.projecte.mewnagochi.login.RegisterScreen
-import com.projecte.mewnagochi.ui.StatisticsScreen
-import com.projecte.mewnagochi.ui.store.StoreScreen
+import com.projecte.mewnagochi.screens.home.HomeScreen
+import com.projecte.mewnagochi.screens.login.LoginScreen
+import com.projecte.mewnagochi.screens.main.MainScreen
+import com.projecte.mewnagochi.screens.sign_up.RegisterScreen
+import com.projecte.mewnagochi.screens.main.StatisticsScreen
+import com.projecte.mewnagochi.screens.store.StoreScreen
+import com.projecte.mewnagochi.ui.theme.LabeledIcon
 import com.projecte.mewnagochi.ui.theme.MewnagochiTheme
 import kotlinx.coroutines.CoroutineScope
 

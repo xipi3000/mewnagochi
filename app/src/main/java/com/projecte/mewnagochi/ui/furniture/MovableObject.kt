@@ -29,8 +29,8 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.projecte.mewnagochi.HomeScreenViewModel
-import com.projecte.mewnagochi.MovableObjectState
+import com.projecte.mewnagochi.screens.home.HomeScreenViewModel
+import com.projecte.mewnagochi.screens.home.movableObject.MovableObjectState
 import com.projecte.mewnagochi.ui.theme.PersonState
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt

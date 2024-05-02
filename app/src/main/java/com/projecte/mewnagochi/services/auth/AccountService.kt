@@ -1,5 +1,6 @@
-package com.projecte.mewnagochi.login
+package com.projecte.mewnagochi.services.auth
 
+import com.projecte.mewnagochi.screens.login.User
 import kotlinx.coroutines.flow.Flow
 
 interface AccountService {

@@ -1,4 +1,4 @@
-package com.projecte.mewnagochi.login
+package com.projecte.mewnagochi.ui.theme
 
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.OutlinedTextField

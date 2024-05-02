@@ -2,7 +2,7 @@ package com.projecte.mewnagochi.ui.furniture
 
 import android.content.Context
 import androidx.datastore.dataStore
-import com.projecte.mewnagochi.MovableObjectSerializer
+import com.projecte.mewnagochi.screens.home.movableObject.MovableObjectSerializer
 
 val Context.torchDataStore by dataStore("torch.json", MovableObjectSerializer)
 val Context.doorDataStore by dataStore("door.json", MovableObjectSerializer)

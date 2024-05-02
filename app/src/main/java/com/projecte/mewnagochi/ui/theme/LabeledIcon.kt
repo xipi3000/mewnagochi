@@ -1,4 +1,4 @@
-package com.projecte.mewnagochi
+package com.projecte.mewnagochi.ui.theme
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box

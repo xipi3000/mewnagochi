@@ -1,4 +1,4 @@
-package com.projecte.mewnagochi.login
+package com.projecte.mewnagochi.screens.sign_up
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -23,6 +23,8 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.projecte.mewnagochi.ui.theme.EmailTextField
+import com.projecte.mewnagochi.ui.theme.PasswordTextField
 
 
 @Composable

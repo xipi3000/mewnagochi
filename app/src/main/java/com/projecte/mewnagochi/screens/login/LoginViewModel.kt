@@ -1,15 +1,16 @@
-package com.projecte.mewnagochi.login
+package com.projecte.mewnagochi.screens.login
 
 
 import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
-import javax.inject.Inject
+import com.projecte.mewnagochi.services.auth.AccountServiceImpl
 
 data class User(
     val id: String = "",
     val isAnonymous: Boolean = true,
-    val email : String = ""
+    val email: String = "",
+    val displayName: String = "",
 )
 
 data class LoginUiState(

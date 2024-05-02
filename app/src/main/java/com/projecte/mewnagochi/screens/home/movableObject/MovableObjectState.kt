@@ -1,4 +1,4 @@
-package com.projecte.mewnagochi
+package com.projecte.mewnagochi.screens.home.movableObject
 import kotlinx.serialization.Serializable
 
 @Serializable

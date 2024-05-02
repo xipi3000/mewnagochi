@@ -1,10 +1,10 @@
-package com.projecte.mewnagochi.login.forgotPassword
+package com.projecte.mewnagochi.screens.forgot_password
 
 import android.util.Log
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
-import com.projecte.mewnagochi.login.AccountServiceImpl
+import com.projecte.mewnagochi.services.auth.AccountServiceImpl
 
 
 class ForgotPasswordViewModel: ViewModel() {

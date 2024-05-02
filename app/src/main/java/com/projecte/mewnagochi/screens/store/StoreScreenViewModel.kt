@@ -1,10 +1,11 @@
-package com.projecte.mewnagochi
+package com.projecte.mewnagochi.screens.store
 
 import android.util.Log
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
-import com.projecte.mewnagochi.login.AccountServiceImpl
+import com.projecte.mewnagochi.R
+import com.projecte.mewnagochi.services.auth.AccountServiceImpl
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
@@ -25,7 +26,7 @@ class StoreScreenViewModel : ViewModel(){
     val items: StateFlow<MutableList<StoreItem>> = _items
 
     init {
-        Log.i("User3",AccountServiceImpl().currentEmail)
+        Log.i("User3", AccountServiceImpl().currentEmail)
         _currentUser.value = AccountServiceImpl().currentEmail
     }
 

@@ -1,4 +1,4 @@
-package com.projecte.mewnagochi.login.forgotPassword
+package com.projecte.mewnagochi.screens.forgot_password
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.Button
@@ -6,7 +6,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.projecte.mewnagochi.login.EmailTextField
+import com.projecte.mewnagochi.ui.theme.EmailTextField
 
 @Composable
 fun ForgotPasswordScreen(
