@@ -1,10 +1,10 @@
 plugins {
+    kotlin("plugin.serialization") version "1.9.23"
+    id("com.google.gms.google-services")
+    id ("kotlin-android")
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.jetbrainsKotlinAndroid)
-    kotlin("plugin.serialization") version "1.9.23"
-    //id ("com.android.application") -> line 1
-    id ("kotlin-android")
-    id ("com.google.gms.google-services")
+
 }
 
 android {
@@ -54,6 +54,7 @@ android {
 }
 
 dependencies {
+    implementation(libs.firebase.firestore.ktx)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
@@ -67,7 +68,9 @@ dependencies {
     implementation("androidx.health.connect:connect-client:1.1.0-alpha07")
     implementation(libs.androidx.appcompat)
     implementation(libs.androidx.datastore.core)
-
+    implementation(libs.androidx.constraintlayout)
+    implementation ("androidx.constraintlayout:constraintlayout-compose:1.0.1")
+    implementation(libs.firebase.auth)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -83,6 +86,8 @@ dependencies {
 
     // optional - RxJava3 support
     implementation("androidx.datastore:datastore-preferences-rxjava3:1.0.0")
+    implementation(platform("com.google.firebase:firebase-bom:32.8.1"))
+    implementation("com.google.firebase:firebase-auth")
     // Import the Firebase BoM
     implementation(platform("com.google.firebase:firebase-bom:32.8.1"))
     // When using the BoM, you don't specify versions in Firebase library dependencies
