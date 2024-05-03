@@ -31,6 +31,7 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.projecte.mewnagochi.screens.home.HomeScreenViewModel
 import com.projecte.mewnagochi.screens.home.movableObject.MovableObjectState
+import com.projecte.mewnagochi.services.storage.Item
 import com.projecte.mewnagochi.ui.theme.PersonState
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
@@ -200,3 +201,128 @@ open class MovableObject(
         }
     }
 }
+/*
+
+@Composable
+fun MovableItem(
+    viewModel: HomeScreenViewModel = viewModel(),
+    item: Item,
+) {
+
+    var offsetX by remember { mutableFloatStateOf(item.posX) }
+    var offsetY by remember { mutableFloatStateOf(item.posY) }
+    var personState by remember { mutableStateOf(PersonState.IDLE) }
+    val addedObject by viewModel.addedObject.collectAsState()
+    val deletedObject by viewModel.deletedObject.collectAsState()
+    val selectedId by viewModel.selectedFurnitureId.collectAsState()
+    val isEditingFurniture by viewModel.isEditingFurniture.collectAsState()
+    var visible by remember {
+        mutableStateOf(false)
+    }
+
+    val scope = rememberCoroutineScope()
+    if (item.visible) {
+        LaunchedEffect(Unit) {
+            //show()
+            visible = true
+            viewModel.addObject(item)
+        }
+    }
+    if (!item.visible) {
+
+        LaunchedEffect(Unit) {
+            //hide()
+            visible = false
+            viewModel.deleteObject(item)
+            //viewModel.removeItem(item)
+        }
+    }
+    if (selectedId != item.res) {
+        personState = PersonState.IDLE
+    }
+    visible = item.visible
+    offsetX = item.posX
+    offsetY = item.posY
+    val lifecycleOwner = LocalLifecycleOwner.current
+    DisposableEffect(key1 = lifecycleOwner, effect = {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) {
+                offsetX = item.posX
+                offsetY = item.posY
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
+    })
+    if (item.visible) {
+        viewModel.addItem(res)
+        Image(
+            painter = painterResource(id = res),
+            contentDescription = "",
+            modifier = Modifier
+                .offset {
+                    if (personState == PersonState.BEING_DRAGED) {
+                        IntOffset(
+                            offsetX.roundToInt(),
+                            offsetY.roundToInt()
+                        )
+                    } else {
+                        IntOffset(
+                            appSettings.x.roundToInt(),
+                            appSettings.y.roundToInt()
+                        )
+                    }
+                }
+                .then(
+                    if (isEditingFurniture) {
+                        Modifier
+                            .pointerInput(Unit) {
+                                detectDragGestures(
+                                    onDragStart = {
+                                        if (personState == PersonState.CLICKED)
+                                            personState = PersonState.BEING_DRAGED
+                                    },
+                                    onDragEnd = {
+                                        viewModel.deselectFurniture()
+                                        personState = PersonState.IDLE
+                                        scope.launch {
+                                            setX(offsetX, offsetY)
+                                        }
+                                    }
+                                ) { change, dragAmount ->
+                                    if (personState == PersonState.BEING_DRAGED) {
+                                        change.consume()
+                                        offsetX += dragAmount.x
+                                        offsetY += dragAmount.y
+                                    }
+                                }
+                            }
+                            .clickable(
+                                interactionSource = MutableInteractionSource(),
+                                indication = null
+                            ) {
+                                personState = if (personState != PersonState.CLICKED) {
+                                    viewModel.selectFurniture(res)
+
+                                    PersonState.CLICKED
+                                } else {
+                                    viewModel.deselectFurniture()
+                                    PersonState.IDLE
+                                }
+                            }
+                            .then(
+                                if (personState == PersonState.CLICKED || personState == PersonState.BEING_DRAGED) Modifier.border(
+                                    2.dp,
+                                    Color.Yellow
+                                ) else Modifier
+                            )
+                    } else Modifier
+                )
+        )
+    }
+}
+*/
+
+

@@ -36,7 +36,6 @@ class StorageServiceImpl : StorageService {
     override val items: Flow<List<Item>>
         get() =
             auth.currentUser.flatMapLatest { user ->
-
                 firestore
                     .collection(ITEM_COLLECTION)
                     .whereEqualTo(USER_ID_FIELD, user.id)
@@ -64,7 +63,11 @@ class StorageServiceImpl : StorageService {
 
 
     override fun updateItem(task: Item, onResult: (Throwable?) -> Unit) {
-        TODO("Not yet implemented")
+
+        firestore.collection(ITEM_COLLECTION).document(task.name).set(task).addOnCompleteListener {
+            if(it.isComplete){}
+            else onResult(it.exception)
+        }
     }
 
     override fun deleteItem(taskId: String, onResult: (Throwable?) -> Unit) {

@@ -16,16 +16,20 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Create
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
@@ -44,6 +48,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.projecte.mewnagochi.R
+import com.projecte.mewnagochi.services.storage.Item
 import com.projecte.mewnagochi.ui.theme.Person
 import java.util.UUID
 
@@ -89,6 +94,10 @@ fun ListOfItems() {
     Door()
 }
 
+@Composable
+fun TestItem(item: Item){
+    if(item.visible)Image(painter = painterResource(id = item.res), contentDescription = "")
+}
 
 @Composable
 fun HomeScreen(homeScreenViewModel: HomeScreenViewModel = viewModel()) {
@@ -98,15 +107,15 @@ fun HomeScreen(homeScreenViewModel: HomeScreenViewModel = viewModel()) {
     val selectedFurnitureId by homeScreenViewModel.selectedFurnitureId.collectAsState()
     val furniture by homeScreenViewModel.furniture.collectAsState()
     var isAddingFurniture by remember { mutableStateOf(false) }
-    val furnitureIds = remember {
+/*    val furnitureIds = remember {
         listOf(
             R.drawable.window,
             R.drawable.chest,
             R.drawable.door,
             R.drawable.torch,
         )
-    }
-
+    }*/
+    val userItems by homeScreenViewModel.items.collectAsState(emptyList())
 
     val person = Person()
     person.BuildSprite()
@@ -130,6 +139,16 @@ fun HomeScreen(homeScreenViewModel: HomeScreenViewModel = viewModel()) {
                     else homeScreenViewModel.stopEditing()
                 },
         )
+        LazyColumn {
+            items(userItems){
+                item ->
+                TestItem(item = item)
+
+            }
+        }
+        Button(onClick = {homeScreenViewModel.obj(userItems[0])}) {
+
+        }
 
 
         ListOfItems()
@@ -214,17 +233,18 @@ fun HomeScreen(homeScreenViewModel: HomeScreenViewModel = viewModel()) {
                             .scrollable(rememberScrollState(), orientation = Orientation.Vertical)
                             .width(100.dp)
                     ) {
-                        furnitureIds.forEach { furnitureId ->
+                        userItems.forEach { item ->
                             Image(
                                 modifier = Modifier.clickable {
 
-                                    homeScreenViewModel.addObject(furnitureId)
+                                    homeScreenViewModel.addObject(item= item)
+
                                     isAddingFurniture = false
 
                                 },
-                                painter = painterResource(id = furnitureId),
+                                painter = painterResource(id = item.res),
                                 contentDescription = "",
-                                colorFilter = if (furniture.contains(furnitureId)) ColorFilter.tint(
+                                colorFilter = if (furniture.contains(item.res)) ColorFilter.tint(
                                     Color.DarkGray,
                                     BlendMode.Color
                                 ) else null,
