@@ -12,4 +12,5 @@ interface AccountService {
     fun verifyEmail() : Boolean
     fun changePassword(email: String, onResult: (Throwable?) -> Unit)
 
+    fun getUserId(): String
 }

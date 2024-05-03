@@ -110,4 +110,8 @@ class AccountServiceImpl  : AccountService {
             .addOnCompleteListener { onResult(it.exception) }
     }
 
+    override fun getUserId(): String {
+        return Firebase.auth.currentUser!!.uid
+    }
+
 }

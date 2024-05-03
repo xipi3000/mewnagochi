@@ -27,6 +27,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -97,7 +98,6 @@ fun HomeScreen(homeScreenViewModel: HomeScreenViewModel = viewModel()) {
     val selectedFurnitureId by homeScreenViewModel.selectedFurnitureId.collectAsState()
     val furniture by homeScreenViewModel.furniture.collectAsState()
     var isAddingFurniture by remember { mutableStateOf(false) }
-
     val furnitureIds = remember {
         listOf(
             R.drawable.window,

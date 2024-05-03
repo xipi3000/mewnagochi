@@ -2,6 +2,11 @@ package com.projecte.mewnagochi.screens.home
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.projecte.mewnagochi.services.auth.AccountServiceImpl
+import com.projecte.mewnagochi.services.storage.StorageService
+import com.projecte.mewnagochi.services.storage.StorageServiceImpl
+import kotlinx.coroutines.launch
 
 class HomeScreenViewModel (
     private val savedStateHandle : SavedStateHandle
@@ -12,6 +17,8 @@ class HomeScreenViewModel (
     val isEditingFurniture = savedStateHandle.getStateFlow("isEditingFurniture",false)
     val isAnyFurnitureSelected = savedStateHandle.getStateFlow("isAnyFurnitureSelected",false)
     val  furniture = savedStateHandle.getStateFlow("furniture", mutableListOf<Int>())
+    private val storageService = StorageServiceImpl()
+    private val accountService = AccountServiceImpl()
     fun addObject(id: Int){
         savedStateHandle["addedObject"] = id
     }
@@ -47,6 +54,8 @@ class HomeScreenViewModel (
             savedStateHandle["furniture"] = list
         }
     }
+
+
 
 
 

@@ -57,6 +57,7 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.lifecycle.viewmodel.compose.viewModel
 
 import com.projecte.mewnagochi.R
+import com.projecte.mewnagochi.services.storage.Item
 
 
 @Composable
@@ -64,8 +65,9 @@ fun StoreScreen(
     storeViewModel: StoreScreenViewModel = viewModel(),
     userViewModel: UserViewModel = viewModel()
 
-){
-    val items by  storeViewModel.items.collectAsState()
+) {
+    val userItems by storeViewModel.userItems.collectAsState(emptyList())
+    val items by storeViewModel.items.collectAsState()
     val email by storeViewModel.currentUser
     Column(
 
@@ -76,18 +78,17 @@ fun StoreScreen(
             .verticalScroll(rememberScrollState())
             .background(MaterialTheme.colorScheme.onBackground)
     ) {
-        Text(text = email)
-        for (item in items){
-            if(userViewModel.hasItem(item.id)){
+        for (item in items) {
+            if (userViewModel.hasItem(item.id)) {
                 storeViewModel.buyItem(item.id)
             }
-            Row(){
-                StoreItem(item)
+            Row() {
+                StoreItem(item, storeViewModel::addItem)
 
             }
 
         }
-        Row(){
+        Row() {
 
         }
 
@@ -97,126 +98,128 @@ fun StoreScreen(
 
 @Composable
 fun StoreItem(
-    item : StoreItem
-)
-{
-    if(item.isNew) NewStoreItemContainer(item = item)
-    else StoreItemContainer(item = item)
+    item: StoreItem,
+    onClick: (Item) -> Unit
+) {
+    if (item.isNew) NewStoreItemContainer(item = item)
+    else StoreItemContainer(item = item, onClick =  onClick)
 }
 
 @Composable
-fun StoreItemContainer(modifier: Modifier = Modifier,
-                       item: StoreItem,
-                       colors: CardColors = CardDefaults.outlinedCardColors(
-                  containerColor = Color.White,
-                  contentColor = Color.Black
-              ),
-                       border: BorderStroke = BorderStroke(1.dp, Color.Black),
-                       storeViewModel: StoreScreenViewModel = viewModel(),
-                       userViewModel: UserViewModel = viewModel()
-              ) {
-        val userViewModel : UserViewModel = viewModel()
-        OutlinedCard(
-            modifier = modifier
-                .wrapContentSize(),
-            colors = colors,
-            border = border
-            ) {
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.SpaceEvenly,
-                modifier = Modifier
-                    .padding(start = 20.dp, end = 20.dp, top = 10.dp, bottom = 20.dp)
-                    .wrapContentSize(Alignment.Center)
+fun StoreItemContainer(
+    onClick: (Item) -> Unit = {},
+    modifier: Modifier = Modifier,
+    item: StoreItem,
+    colors: CardColors = CardDefaults.outlinedCardColors(
+        containerColor = Color.White,
+        contentColor = Color.Black
+    ),
+    border: BorderStroke = BorderStroke(1.dp, Color.Black),
+    storeViewModel: StoreScreenViewModel = viewModel(),
+    userViewModel: UserViewModel = viewModel()
+) {
+    val userViewModel: UserViewModel = viewModel()
+    OutlinedCard(
+        modifier = modifier
+            .wrapContentSize(),
+        colors = colors,
+        border = border
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.SpaceEvenly,
+            modifier = Modifier
+                .padding(start = 20.dp, end = 20.dp, top = 10.dp, bottom = 20.dp)
+                .wrapContentSize(Alignment.Center)
 
-            ) {
+        ) {
+            Text(
+                text = item.name,
+                fontSize = 40.sp,
+                fontWeight = FontWeight.Bold,
+                fontFamily = FontFamily.SansSerif,
+
+                )
+            Item(modifier = Modifier.padding(10.dp), res = item.id)
+
+            if (item.isPurchased) {
                 Text(
-                    text = item.name,
-                    fontSize = 40.sp,
-                    fontWeight = FontWeight.Bold,
-                    fontFamily = FontFamily.SansSerif,
+                    text = "Already bought",
+                    fontSize = 25.sp
+                )
+            } else {
+                PucharseButton(onClick = { onClick(item.toItem()) }
+                ) //{
 
-                    )
-                Item(modifier = Modifier.padding(10.dp),res = item.id)
-
-                if(item.isPurchased){
-                    Text(text = "Already bought",
-                        fontSize = 25.sp
-                        )
-                }
-                else {
-                    PucharseButton(
-                    ) {
-                        storeViewModel.buyItem(item.id)
-                        userViewModel.addItem(UserItem(item.id, item.name))
-                    }
-                }
-
-
+                    //storeViewModel.buyItem(item.id)
+                    //userViewModel.addItem(UserItem(item.id, item.name))
+                //}
             }
-        }
-}
 
+
+        }
+    }
+}
 
 
 @Composable
 fun NewStoreItemContainer(
     item: StoreItem,
     modifier: Modifier = Modifier
+) {
+    ConstraintLayout(
+        modifier = modifier
     ) {
-        ConstraintLayout(
-            modifier = modifier
-        ) {
 
-            val (storeItem, descriptionText) = createRefs()
+        val (storeItem, descriptionText) = createRefs()
 
-            StoreItemContainer(
-                //border = BorderStroke(6.dp, borderGradient),
-                modifier = Modifier
-                    .constrainAs(storeItem) {
-                        top.linkTo(parent.top)
+        StoreItemContainer(
+
+            //border = BorderStroke(6.dp, borderGradient),
+            modifier = Modifier
+                .constrainAs(storeItem) {
+                    top.linkTo(parent.top)
 
 
-                    }
-                    .animatedBorder(
-                        borderColors = listOf(Color.Magenta, Color.Cyan),
-                        backgroundColor = Color.White,
-                        shape = RoundedCornerShape(16.dp),
-                        borderWidth = 7.dp
-                    )
-
-                ,
-                item = item
-            )
-            Card(
-                colors = CardDefaults.cardColors(
-                    containerColor = Color.Red,
-                    contentColor = Color.White
-                ),
-                modifier = Modifier.constrainAs(descriptionText) {
-                    top.linkTo(storeItem.bottom, margin = (-13).dp)
-                    start.linkTo(storeItem.start)
-                    end.linkTo(storeItem.end)
                 }
-                    )
-            {
-                Text(
-                    text = "NEW",
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold,
-                    fontFamily = FontFamily.SansSerif,
-                    modifier = Modifier.padding(5.dp)
-                    )
-
+                .animatedBorder(
+                    borderColors = listOf(Color.Magenta, Color.Cyan),
+                    backgroundColor = Color.White,
+                    shape = RoundedCornerShape(16.dp),
+                    borderWidth = 7.dp
+                ),
+            item = item
+        )
+        Card(
+            colors = CardDefaults.cardColors(
+                containerColor = Color.Red,
+                contentColor = Color.White
+            ),
+            modifier = Modifier.constrainAs(descriptionText) {
+                top.linkTo(storeItem.bottom, margin = (-13).dp)
+                start.linkTo(storeItem.start)
+                end.linkTo(storeItem.end)
             }
+        )
+        {
+            Text(
+                text = "NEW",
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold,
+                fontFamily = FontFamily.SansSerif,
+                modifier = Modifier.padding(5.dp)
+            )
+
         }
     }
+}
 
 
 @Composable
-fun Item(modifier: Modifier = Modifier,
-         res : Int
-         ){
+fun Item(
+    modifier: Modifier = Modifier,
+    res: Int
+) {
     Card(
         modifier = modifier.padding(bottom = 10.dp, top = 10.dp),
         colors = CardDefaults.cardColors(
@@ -228,30 +231,32 @@ fun Item(modifier: Modifier = Modifier,
 
             modifier = Modifier
                 .padding(10.dp)
-                .size(120.dp)
-            ,
+                .size(120.dp),
             painter = painterResource(id = res), contentDescription = "Window"
         )
     }
 }
+
 @Composable
 fun PucharseButton(
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     onClick: () -> Unit,
-                   ){
+) {
     Button(
         enabled = enabled,
 
         modifier = modifier,
-        onClick = { onClick() }
+        onClick = onClick
 
-        ) {
-        Text(text = stringResource(R.string.purchase),
+    ) {
+        Text(
+            text = stringResource(R.string.purchase),
             fontSize = 20.sp
         )
     }
 }
+
 @Composable
 fun Modifier.animatedBorder(
     borderColors: List<Color>,
@@ -293,18 +298,18 @@ fun Modifier.animatedBorder(
 @Composable
 fun preview() {
     val i = remember { mutableStateOf(false) }
-    StoreItemContainer(item= StoreItem(R.drawable.window,"window", i,false))
+    StoreItemContainer(item = StoreItem(R.drawable.window, "window", i, false))
 }
 
 @Preview
 @Composable
 fun preview2() {
     val i = remember { mutableStateOf(true) }
-    NewStoreItemContainer(item= StoreItem(R.drawable.window,"FINESTRA",i,true))
+    NewStoreItemContainer(item = StoreItem(R.drawable.window, "FINESTRA", i, true))
 }
 
 @Preview
 @Composable
-fun preview3(){
+fun preview3() {
     StoreScreen()
 }
