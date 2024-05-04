@@ -66,9 +66,7 @@ fun StoreScreen(
     userViewModel: UserViewModel = viewModel()
 
 ) {
-    val userItems by storeViewModel.userItems.collectAsState(emptyList())
     val items by storeViewModel.items.collectAsState()
-    val email by storeViewModel.currentUser
     Column(
 
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -79,9 +77,7 @@ fun StoreScreen(
             .background(MaterialTheme.colorScheme.onBackground)
     ) {
         for (item in items) {
-            if (userViewModel.hasItem(item.id)) {
-                storeViewModel.buyItem(item.id)
-            }
+
             Row() {
                 StoreItem(item, storeViewModel::addItem)
 
@@ -101,7 +97,7 @@ fun StoreItem(
     item: StoreItem,
     onClick: (Item) -> Unit
 ) {
-    if (item.isNew) NewStoreItemContainer(item = item)
+    if (item.isNew) NewStoreItemContainer(item = item, onClick =  onClick)
     else StoreItemContainer(item = item, onClick =  onClick)
 }
 
@@ -164,6 +160,7 @@ fun StoreItemContainer(
 
 @Composable
 fun NewStoreItemContainer(
+    onClick: (Item) -> Unit = {},
     item: StoreItem,
     modifier: Modifier = Modifier
 ) {
@@ -174,7 +171,7 @@ fun NewStoreItemContainer(
         val (storeItem, descriptionText) = createRefs()
 
         StoreItemContainer(
-
+            onClick = onClick,
             //border = BorderStroke(6.dp, borderGradient),
             modifier = Modifier
                 .constrainAs(storeItem) {

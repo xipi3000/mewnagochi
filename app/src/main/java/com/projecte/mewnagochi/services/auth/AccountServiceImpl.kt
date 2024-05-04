@@ -30,11 +30,17 @@ class AccountServiceImpl  : AccountService {
         get() = callbackFlow {
             val listener =
                 FirebaseAuth.AuthStateListener { auth ->
-                    Log.i("Auth",auth.currentUser.toString())
-                    this.trySend(auth.currentUser?.let {
-                        User(it.uid, it.isAnonymous, it.email!!,it.displayName!!
 
-                        )
+                    this.trySend(auth.currentUser?.let {
+                        try{
+                            User(
+                                it.uid, it.isAnonymous, it.email!!, it.displayName!!
+
+                            )
+                        }
+                        catch (e:Exception){
+                            User()
+                        }
                    } ?: User())
                 }
             Firebase.auth.addAuthStateListener(listener)

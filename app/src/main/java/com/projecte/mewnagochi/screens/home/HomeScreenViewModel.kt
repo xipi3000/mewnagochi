@@ -1,72 +1,60 @@
 package com.projecte.mewnagochi.screens.home
 
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.projecte.mewnagochi.services.auth.AccountServiceImpl
 import com.projecte.mewnagochi.services.storage.Item
-import com.projecte.mewnagochi.services.storage.StorageService
 import com.projecte.mewnagochi.services.storage.StorageServiceImpl
 import kotlinx.coroutines.launch
 
+data class HomeScreenUi(
+    val selectedFurnitureId: String = "",
+    val isEditingFurniture:Boolean = false,
+    val isAnyFurnitureSelected:Boolean = false,
+)
 class HomeScreenViewModel (
     private val savedStateHandle : SavedStateHandle
 ) : ViewModel() {
     private val storageService = StorageServiceImpl()
-    private val accountService = AccountServiceImpl()
-
-    val addedObject = savedStateHandle.getStateFlow("addedObject",0)
-    val deletedObject = savedStateHandle.getStateFlow("deletedObject",0)
-    val selectedFurnitureId = savedStateHandle.getStateFlow("selectedFurnitureId",0)
-    val isEditingFurniture = savedStateHandle.getStateFlow("isEditingFurniture",false)
-    val isAnyFurnitureSelected = savedStateHandle.getStateFlow("isAnyFurnitureSelected",false)
-    val  furniture = savedStateHandle.getStateFlow("furniture", mutableListOf<Int>())
-
+    var uiState =  mutableStateOf(HomeScreenUi())
+        private set
 
     val items = storageService.items
 
 
-    fun addObject(id: Int=0,item: Item = Item()){
-        savedStateHandle["addedObject"] = item.res
-        //val updatedItem = item.copy(visible = true)
-        //storageService.updateItem(updatedItem){}
-    }
-    fun deleteObject(id: Int){
-        savedStateHandle["deletedObject"] = id
-        savedStateHandle["selectedFurnitureId"] = 0
-        savedStateHandle["isAnyFurnitureSelected"] = false
+
+    fun deleteObject(id: String){
+        viewModelScope.launch {
+            val item = storageService.getItem(id)
+            if (item != null) {
+                updateItem(item.copy(visible = false))
+                uiState.value = uiState.value.copy(isAnyFurnitureSelected=false, selectedFurnitureId = "")
+            }
+        }
     }
     fun startEditing(){
-        savedStateHandle["isEditingFurniture"] = true
+        uiState.value = uiState.value.copy(isEditingFurniture = true)
     }
     fun stopEditing(){
-        savedStateHandle["isEditingFurniture"] = false
+
+        uiState.value = uiState.value.copy(isEditingFurniture = false)
     }
-    fun selectFurniture(id : Int) {
-        savedStateHandle["selectedFurnitureId"] = id
-        savedStateHandle["isAnyFurnitureSelected"] = true
+    fun selectFurniture(id : String) {
+        uiState.value = uiState.value.copy(isAnyFurnitureSelected=true, selectedFurnitureId = id)
+
     }
     fun deselectFurniture(){
-        savedStateHandle["isAnyFurnitureSelected"] = false
+        uiState.value = uiState.value.copy(isAnyFurnitureSelected=false)
     }
-    fun addItem( id: Int){
-        val list = furniture.value
-        if(!list.contains(id)) {
-            list.add(id)
-            savedStateHandle["furniture"] = list
-        }
-    }
-    fun removeItem( id: Int){
-        val list = furniture.value
-        if(list.contains(id)) {
-            list.remove(id)
-            savedStateHandle["furniture"] = list
-        }
+    fun addItem(item: Item){
+        storageService.updateItem(item.copy(visible=true)){}
+
     }
 
-    fun obj(item: Item) {
-        val updatedItem = item.copy(visible = true)
-        storageService.updateItem(updatedItem){}
+    fun updateItem(item: Item) {
+        storageService.updateItem(item){}
     }
 
 

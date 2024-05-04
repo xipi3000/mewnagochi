@@ -29,9 +29,7 @@ import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -49,63 +47,17 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.projecte.mewnagochi.R
 import com.projecte.mewnagochi.services.storage.Item
+import com.projecte.mewnagochi.ui.furniture.MovableItem
 import com.projecte.mewnagochi.ui.theme.Person
 import java.util.UUID
 
 
-@Composable
-fun Torch() {
-    com.projecte.mewnagochi.ui.furniture.Torch(
-        id = UUID.randomUUID().toString(),
-        res = R.drawable.torch
-    ).Draw()
-}
 
-@Composable
-fun Door() {
-    com.projecte.mewnagochi.ui.furniture.Door(
-        id = UUID.randomUUID().toString(),
-        res = R.drawable.door
-    ).Draw()
-}
 
-@Composable
-fun Chest() {
-    com.projecte.mewnagochi.ui.furniture.Chest(
-        id = UUID.randomUUID().toString(),
-        res = R.drawable.chest
-    ).Draw()
-}
-
-@Composable
-fun Window() {
-
-    com.projecte.mewnagochi.ui.furniture.Window(
-        id = UUID.randomUUID().toString(),
-        res = R.drawable.window
-    ).Draw()
-}
-
-@Composable
-fun ListOfItems() {
-    Torch()
-    Window()
-    Chest()
-    Door()
-}
-
-@Composable
-fun TestItem(item: Item){
-    if(item.visible)Image(painter = painterResource(id = item.res), contentDescription = "")
-}
 
 @Composable
 fun HomeScreen(homeScreenViewModel: HomeScreenViewModel = viewModel()) {
-
-    val isEditingFurniture by homeScreenViewModel.isEditingFurniture.collectAsState()
-    val isAnyFurnitureSelected by homeScreenViewModel.isAnyFurnitureSelected.collectAsState()
-    val selectedFurnitureId by homeScreenViewModel.selectedFurnitureId.collectAsState()
-    val furniture by homeScreenViewModel.furniture.collectAsState()
+    val uiState by homeScreenViewModel.uiState
     var isAddingFurniture by remember { mutableStateOf(false) }
 /*    val furnitureIds = remember {
         listOf(
@@ -125,7 +77,7 @@ fun HomeScreen(homeScreenViewModel: HomeScreenViewModel = viewModel()) {
             painter = painterResource(id = R.drawable.phone_backgrounds),
             contentDescription = "Background",
             contentScale = ContentScale.FillBounds,
-            colorFilter = if (isEditingFurniture) ColorFilter.tint(
+            colorFilter = if (uiState.isEditingFurniture) ColorFilter.tint(
                 Color.DarkGray,
                 BlendMode.Hardlight
             ) else null,
@@ -139,23 +91,17 @@ fun HomeScreen(homeScreenViewModel: HomeScreenViewModel = viewModel()) {
                     else homeScreenViewModel.stopEditing()
                 },
         )
-        LazyColumn {
-            items(userItems){
-                item ->
-                TestItem(item = item)
 
-            }
+
+
+        userItems.forEach {
+            MovableItem(item= it)
         }
-        Button(onClick = {homeScreenViewModel.obj(userItems[0])}) {
-
-        }
-
-
-        ListOfItems()
+        //ListOfItems()
         val density = LocalDensity.current
         AnimatedVisibility(
             modifier = Modifier.align(Alignment.TopEnd),
-            visible = !isEditingFurniture,
+            visible = !uiState.isEditingFurniture,
             enter = fadeIn(),
             exit = fadeOut(),
         ) {
@@ -174,7 +120,7 @@ fun HomeScreen(homeScreenViewModel: HomeScreenViewModel = viewModel()) {
         }
         AnimatedVisibility(
             modifier = Modifier.align(Alignment.TopEnd),
-            visible = !isAddingFurniture && isEditingFurniture,
+            visible = !isAddingFurniture && uiState.isEditingFurniture,
             enter = fadeIn(),
             exit = fadeOut(),
         ) {
@@ -190,7 +136,7 @@ fun HomeScreen(homeScreenViewModel: HomeScreenViewModel = viewModel()) {
                 Icon(Icons.Filled.Add, contentDescription = "add furniture")
             }
             AnimatedVisibility(
-                visible = isAnyFurnitureSelected,
+                visible = uiState.isAnyFurnitureSelected,
                 enter = fadeIn(),
                 exit = fadeOut(),
             ) {
@@ -203,7 +149,7 @@ fun HomeScreen(homeScreenViewModel: HomeScreenViewModel = viewModel()) {
                         .padding(30.dp)
                         .size(60.dp),
                     onClick = {
-                        homeScreenViewModel.deleteObject(selectedFurnitureId)
+                        homeScreenViewModel.deleteObject(uiState.selectedFurnitureId)
                     }) {
                     Icon(Icons.Filled.Delete, contentDescription = "delete furniture")
                 }
@@ -228,23 +174,22 @@ fun HomeScreen(homeScreenViewModel: HomeScreenViewModel = viewModel()) {
                     modifier = Modifier
                         .padding(vertical = 10.dp)
                 ) {
-                    Column(
+                    LazyColumn(
                         modifier = Modifier
                             .scrollable(rememberScrollState(), orientation = Orientation.Vertical)
                             .width(100.dp)
                     ) {
-                        userItems.forEach { item ->
+                        items(userItems){ item ->
                             Image(
                                 modifier = Modifier.clickable {
 
-                                    homeScreenViewModel.addObject(item= item)
-
+                                    homeScreenViewModel.addItem(item= item)
                                     isAddingFurniture = false
 
                                 },
                                 painter = painterResource(id = item.res),
                                 contentDescription = "",
-                                colorFilter = if (furniture.contains(item.res)) ColorFilter.tint(
+                                colorFilter = if (item.visible) ColorFilter.tint(
                                     Color.DarkGray,
                                     BlendMode.Color
                                 ) else null,
@@ -257,7 +202,7 @@ fun HomeScreen(homeScreenViewModel: HomeScreenViewModel = viewModel()) {
 
 
 
-        if (!isEditingFurniture && !isAddingFurniture) {
+        if (!uiState.isEditingFurniture && !isAddingFurniture) {
             person.Draw()
         }
 

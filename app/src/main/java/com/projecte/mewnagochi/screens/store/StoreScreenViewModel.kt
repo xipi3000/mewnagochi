@@ -35,8 +35,7 @@ data class StoreItem(
 }
 
 class StoreScreenViewModel : ViewModel() {
-    private val _currentUser: MutableState<String> = mutableStateOf("")
-    val currentUser: MutableState<String> = _currentUser
+
     private val storageService = StorageServiceImpl()
     val userItems = storageService.items
     //TODO: implementar-ho a firebase, agafar això del nubol, fent query amb el user que estem ara mateix per a poder agafar tmb els que ja té el user i indicarlos com a pucharsed
@@ -49,12 +48,9 @@ class StoreScreenViewModel : ViewModel() {
     val items: StateFlow<MutableList<StoreItem>> = _items
 
     init {
-        Log.i("User3", AccountServiceImpl().currentEmail)
-        _currentUser.value = AccountServiceImpl().currentEmail
         viewModelScope.launch {
             userItems.collect{
                 it.forEach {
-
                     item->
                     Log.i("items",item.name)
                     _items.value.forEach{
@@ -66,12 +62,6 @@ class StoreScreenViewModel : ViewModel() {
                 }
             }
         }
-
-
-    }
-
-    fun updateItems(items: MutableList<StoreItem>) {
-        _items.value = items
     }
 
     fun buyItem(id: Int) {

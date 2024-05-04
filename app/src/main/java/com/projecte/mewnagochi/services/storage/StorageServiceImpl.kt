@@ -6,6 +6,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.dataObjects
 import com.google.firebase.firestore.firestore
+import com.google.firebase.firestore.toObject
 import com.projecte.mewnagochi.services.auth.AccountServiceImpl
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -42,9 +43,8 @@ class StorageServiceImpl : StorageService {
                     .dataObjects()
             }
 
-    override fun getItem(taskId: String, onError: (Throwable) -> Unit, onSuccess: (Item) -> Unit) {
-        TODO("Not yet implemented")
-    }
+    override suspend fun getItem(taskId: String): Item? =
+        firestore.collection(ITEM_COLLECTION).document(taskId).get().await().toObject()
 
     override suspend fun saveItem(task: Item, onResult: (Throwable?) -> Unit, onSuccess: () -> Unit) {
             val updateItem = task.copy(userId = auth.getUserId())
