@@ -11,16 +11,18 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardColors
@@ -63,30 +65,21 @@ import com.projecte.mewnagochi.services.storage.Item
 @Composable
 fun StoreScreen(
     storeViewModel: StoreScreenViewModel = viewModel(),
-    userViewModel: UserViewModel = viewModel()
-
 ) {
     val items by storeViewModel.items.collectAsState()
-    Column(
-
+    LazyColumn(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.SpaceAround,
         modifier = Modifier
             .fillMaxSize()
-            .verticalScroll(rememberScrollState())
             .background(MaterialTheme.colorScheme.onBackground)
+            .scrollable(rememberScrollState(), orientation = Orientation.Vertical)
     ) {
-        for (item in items) {
-
-            Row() {
-                StoreItem(item, storeViewModel::addItem)
-
-            }
-
+        items(items) {
+            item ->
+            StoreItem(item, storeViewModel::addItem)
         }
-        Row() {
 
-        }
 
     }
 
@@ -144,7 +137,7 @@ fun StoreItemContainer(
                     fontSize = 25.sp
                 )
             } else {
-                PucharseButton(onClick = { onClick(item.toItem()) }
+                PucharseButton(onClick = { onClick(item.fromStoreItemToItem()) }
                 ) //{
 
                     //storeViewModel.buyItem(item.id)

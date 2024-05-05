@@ -6,16 +6,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.projecte.mewnagochi.R
-import com.projecte.mewnagochi.services.auth.AccountServiceImpl
 import com.projecte.mewnagochi.services.storage.Item
-import com.projecte.mewnagochi.services.storage.StorageService
 import com.projecte.mewnagochi.services.storage.StorageServiceImpl
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.forEach
 import kotlinx.coroutines.launch
-import java.util.UUID
-import kotlin.random.Random
 
 data class StoreItem(
     val id: Int,
@@ -29,8 +24,8 @@ data class StoreItem(
             isPurchasedState.value = value
         }
 
-    fun toItem(): Item {
-        return Item(name, id)
+    fun fromStoreItemToItem(): Item {
+        return Item(name=name, res = id)
     }
 }
 
@@ -43,6 +38,9 @@ class StoreScreenViewModel : ViewModel() {
         mutableListOf(
             StoreItem(R.drawable.window, "FINESTRA", mutableStateOf(false), true),
             StoreItem(R.drawable.chest, "CHEST", mutableStateOf(false), false),
+            StoreItem(R.drawable.door, "PORTA", mutableStateOf(false), false),
+            StoreItem(R.drawable.torch, "TORXA", mutableStateOf(false), false),
+            StoreItem(R.drawable.window, "FINESTRA\nINFERN", mutableStateOf(false), false),
         )
     )
     val items: StateFlow<MutableList<StoreItem>> = _items

@@ -12,6 +12,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.tasks.await
+import java.util.UUID
 
 
 class StorageServiceImpl : StorageService {
@@ -47,9 +48,8 @@ class StorageServiceImpl : StorageService {
         firestore.collection(ITEM_COLLECTION).document(taskId).get().await().toObject()
 
     override suspend fun saveItem(task: Item, onResult: (Throwable?) -> Unit, onSuccess: () -> Unit) {
-            val updateItem = task.copy(userId = auth.getUserId())
-            firestore.collection(ITEM_COLLECTION).document(updateItem.name).set(updateItem).addOnCompleteListener{
-                it ->
+            val updateItem = task.copy(userId = auth.getUserId(), id = UUID.randomUUID().toString())
+            firestore.collection(ITEM_COLLECTION).document(updateItem.id).set(updateItem).addOnCompleteListener{
                 if(it.isComplete){
                     onSuccess()
                 }
@@ -64,7 +64,7 @@ class StorageServiceImpl : StorageService {
 
     override fun updateItem(task: Item, onResult: (Throwable?) -> Unit) {
 
-        firestore.collection(ITEM_COLLECTION).document(task.name).set(task).addOnCompleteListener {
+        firestore.collection(ITEM_COLLECTION).document(task.id).set(task).addOnCompleteListener {
             if(it.isComplete){}
             else onResult(it.exception)
         }

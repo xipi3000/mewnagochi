@@ -1,5 +1,6 @@
 package com.projecte.mewnagochi.screens.home
 
+import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -189,7 +190,7 @@ fun HomeScreen(homeScreenViewModel: HomeScreenViewModel = viewModel()) {
                                 },
                                 painter = painterResource(id = item.res),
                                 contentDescription = "",
-                                colorFilter = if (item.visible) ColorFilter.tint(
+                                colorFilter = if (item.visible  ) ColorFilter.tint(
                                     Color.DarkGray,
                                     BlendMode.Color
                                 ) else null,
