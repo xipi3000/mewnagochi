@@ -2,15 +2,21 @@ package com.projecte.mewnagochi.services.storage
 
 import android.util.Log
 import com.google.firebase.Firebase
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.database
+import com.google.firebase.database.snapshots
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.dataObjects
 import com.google.firebase.firestore.firestore
 import com.google.firebase.firestore.toObject
+import com.google.type.Money
 import com.projecte.mewnagochi.services.auth.AccountServiceImpl
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.tasks.await
 import java.util.UUID
 
@@ -24,15 +30,16 @@ class StorageServiceImpl : StorageService {
         private const val CREATED_AT_FIELD = "createdAt"
         private const val ITEM_COLLECTION = "items"
         private const val SAVE_TASK_TRACE = "saveItem"
+        private const val MONEY_COLLECTION = "usersMoney"
         private const val UPDATE_TASK_TRACE = "updateItem"
     }
 
     private val firestore: FirebaseFirestore = Firebase.firestore
     private val auth = AccountServiceImpl()
+    private val database: FirebaseDatabase = FirebaseDatabase.getInstance("https://mewnagochi-default-rtdb.europe-west1.firebasedatabase.app")
 
     private val collection get() = firestore.collection(ITEM_COLLECTION)
         .whereEqualTo(USER_ID_FIELD, auth.getUserId())
-
 
     @OptIn(ExperimentalCoroutinesApi::class)
     override val items: Flow<List<Item>>
@@ -43,12 +50,59 @@ class StorageServiceImpl : StorageService {
                     .whereEqualTo(USER_ID_FIELD, user.id)
                     .dataObjects()
             }
+    @OptIn(ExperimentalCoroutinesApi::class)
+    override val money: Flow<Long>
+        get() =
+            auth.currentUser.flatMapLatest { user ->
+                database.getReference(MONEY_COLLECTION)
+                    .child(user.id)
+                    .snapshots.map{
+                        if(it.value ==null) 0L
+                                else it.value as Long
+                    }
+            }
+    override suspend fun getItem(itemId: String): Item? =
+        firestore.collection(ITEM_COLLECTION).document(itemId).get().await().toObject()
+    suspend fun getMoney(): Long =
 
-    override suspend fun getItem(taskId: String): Item? =
-        firestore.collection(ITEM_COLLECTION).document(taskId).get().await().toObject()
+        database.getReference(MONEY_COLLECTION)
+            .child(auth.getUserId()).get().await().value as Long? ?: 0L
 
-    override suspend fun saveItem(task: Item, onResult: (Throwable?) -> Unit, onSuccess: () -> Unit) {
-            val updateItem = task.copy(userId = auth.getUserId(), id = UUID.randomUUID().toString())
+    override suspend fun saveMoney(
+        savings: Long,
+        onResult: (Throwable?) -> Unit,
+        onSuccess: () -> Unit
+    ) {
+               database.reference.child(MONEY_COLLECTION)
+            .child(auth.getUserId())
+                .setValue(getMoney()+savings)
+    }
+
+    override suspend fun spendMoney(
+        cost: Long,
+        onResult: (Throwable?) -> Unit,
+        onSuccess: () -> Unit
+    ) {
+        val usersMoney = getMoney()
+        Log.i("wallet",(usersMoney-cost).toString())
+        if (usersMoney-cost<0) {
+            Log.i("wallet","error")
+            onResult(Exception("Not enough money"))
+        }
+        else {
+            Log.i("wallet","passed")
+            database.reference.child(MONEY_COLLECTION)
+                .child(auth.getUserId())
+                .setValue(usersMoney - cost)
+            onSuccess()
+        }
+
+    }
+
+
+
+    override suspend fun saveItem(item: Item, onResult: (Throwable?) -> Unit, onSuccess: () -> Unit) {
+            val updateItem = item.copy(userId = auth.getUserId(), id = UUID.randomUUID().toString())
             firestore.collection(ITEM_COLLECTION).document(updateItem.id).set(updateItem).addOnCompleteListener{
                 if(it.isComplete){
                     onSuccess()
@@ -62,15 +116,15 @@ class StorageServiceImpl : StorageService {
 
 
 
-    override fun updateItem(task: Item, onResult: (Throwable?) -> Unit) {
+    override fun updateItem(item: Item, onResult: (Throwable?) -> Unit) {
 
-        firestore.collection(ITEM_COLLECTION).document(task.id).set(task).addOnCompleteListener {
+        firestore.collection(ITEM_COLLECTION).document(item.id).set(item).addOnCompleteListener {
             if(it.isComplete){}
             else onResult(it.exception)
         }
     }
 
-    override fun deleteItem(taskId: String, onResult: (Throwable?) -> Unit) {
+    override fun deleteItem(itemId: String, onResult: (Throwable?) -> Unit) {
         TODO("Not yet implemented")
     }
 }

@@ -1,6 +1,7 @@
 package com.projecte.mewnagochi.screens.store
 
 
+import android.widget.Toast
 import androidx.compose.animation.core.Easing
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
@@ -15,6 +16,7 @@ import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -47,6 +49,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.drawscope.rotate
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
@@ -60,6 +63,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 
 import com.projecte.mewnagochi.R
 import com.projecte.mewnagochi.services.storage.Item
+import kotlin.coroutines.coroutineContext
 
 
 @Composable
@@ -77,18 +81,18 @@ fun StoreScreen(
     ) {
         items(items) {
             item ->
+            Button(onClick = storeViewModel::addMoney) {
+                Text(text = "+10")
+            }
             StoreItem(item, storeViewModel::addItem)
         }
-
-
     }
-
 }
 
 @Composable
 fun StoreItem(
     item: StoreItem,
-    onClick: (Item) -> Unit
+    onClick: (Item,Long,(Throwable?) -> Unit) -> Unit
 ) {
     if (item.isNew) NewStoreItemContainer(item = item, onClick =  onClick)
     else StoreItemContainer(item = item, onClick =  onClick)
@@ -96,7 +100,7 @@ fun StoreItem(
 
 @Composable
 fun StoreItemContainer(
-    onClick: (Item) -> Unit = {},
+    onClick: (Item,Long,(Throwable?) -> Unit) -> Unit,
     modifier: Modifier = Modifier,
     item: StoreItem,
     colors: CardColors = CardDefaults.outlinedCardColors(
@@ -137,7 +141,18 @@ fun StoreItemContainer(
                     fontSize = 25.sp
                 )
             } else {
-                PucharseButton(onClick = { onClick(item.fromStoreItemToItem()) }
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Image(painter = painterResource(id = R.drawable.coins), contentDescription = "Coins",Modifier.size(60.dp))
+                    Text(text = item.cost.toString(),
+                        style = MaterialTheme.typography.headlineLarge)
+                }
+                val context = LocalContext.current
+                PucharseButton(onClick = { onClick(item.fromStoreItemToItem(),item.cost){
+
+                    Toast.makeText(context,it?.message, Toast.LENGTH_SHORT).show()
+                } }
                 ) //{
 
                     //storeViewModel.buyItem(item.id)
@@ -153,7 +168,7 @@ fun StoreItemContainer(
 
 @Composable
 fun NewStoreItemContainer(
-    onClick: (Item) -> Unit = {},
+    onClick: (Item,Long,(Throwable?) -> Unit) -> Unit ,
     item: StoreItem,
     modifier: Modifier = Modifier
 ) {
@@ -283,23 +298,3 @@ fun Modifier.animatedBorder(
         .background(color = backgroundColor, shape = shape)
 }
 
-
-@Preview
-@Composable
-fun preview() {
-    val i = remember { mutableStateOf(false) }
-    StoreItemContainer(item = StoreItem(R.drawable.window, "window", i, false))
-}
-
-@Preview
-@Composable
-fun preview2() {
-    val i = remember { mutableStateOf(true) }
-    NewStoreItemContainer(item = StoreItem(R.drawable.window, "FINESTRA", i, true))
-}
-
-@Preview
-@Composable
-fun preview3() {
-    StoreScreen()
-}

@@ -38,7 +38,7 @@ fun MovableItem(
     var objectState by remember { mutableStateOf(PersonState.IDLE) }
     val screenUi by viewModel.uiState
 
-    if (screenUi.selectedFurnitureId != item.name) {
+    if (screenUi.selectedFurnitureId != item.id) {
         objectState = PersonState.IDLE
     }
 
@@ -100,7 +100,7 @@ fun MovableItem(
                                 indication = null
                             ) {
                                 objectState = if (objectState != PersonState.CLICKED) {
-                                    viewModel.selectFurniture(item.name)
+                                    viewModel.selectFurniture(item.id)
 
                                     PersonState.CLICKED
                                 } else {

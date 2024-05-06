@@ -83,14 +83,17 @@ fun MainScreen(
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
     val user by myViewModel.currentUser.collectAsState(initial = User())
+    val userMoney by myViewModel.money.collectAsState(initial = null)
     Scaffold(
         topBar = {
             if (navigationBarItems.any { it.label == currentRoute }) {
                 TopAppBar(title = {
-                    UserAppBar(
-                        user=user.displayName,
-                        numOfCoins = 100
-                    )
+                    userMoney?.let {
+                        UserAppBar(
+                            user=user.displayName,
+                            numOfCoins = it
+                        )
+                    }
                 })
             }
         },
@@ -154,9 +157,9 @@ fun MainScreen(
         }
     }
 }
-@Preview
+
 @Composable
-fun UserAppBar(user:String ="user", modifier: Modifier = Modifier,numOfCoins:Int=100) {
+fun UserAppBar(user:String ="user", modifier: Modifier = Modifier,numOfCoins:Long) {
     Row(
         modifier = modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,

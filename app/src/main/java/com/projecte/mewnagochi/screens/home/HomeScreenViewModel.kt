@@ -20,14 +20,13 @@ class HomeScreenViewModel (
     private val storageService = StorageServiceImpl()
     var uiState =  mutableStateOf(HomeScreenUi())
         private set
-
     val items = storageService.items
-
 
 
     fun deleteObject(id: String){
         viewModelScope.launch {
             val item = storageService.getItem(id)
+
             if (item != null) {
                 updateItem(item.copy(visible = false))
                 uiState.value = uiState.value.copy(isAnyFurnitureSelected=false, selectedFurnitureId = "")

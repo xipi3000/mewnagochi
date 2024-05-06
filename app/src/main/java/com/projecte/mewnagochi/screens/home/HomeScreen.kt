@@ -60,14 +60,7 @@ import java.util.UUID
 fun HomeScreen(homeScreenViewModel: HomeScreenViewModel = viewModel()) {
     val uiState by homeScreenViewModel.uiState
     var isAddingFurniture by remember { mutableStateOf(false) }
-/*    val furnitureIds = remember {
-        listOf(
-            R.drawable.window,
-            R.drawable.chest,
-            R.drawable.door,
-            R.drawable.torch,
-        )
-    }*/
+
     val userItems by homeScreenViewModel.items.collectAsState(emptyList())
 
     val person = Person()
