@@ -13,7 +13,20 @@
           "package_name": "com.projecte.mewnagochi"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "855110736657-c79qf8r9k2f5b42p1hb6tmsa67h8ns35.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.projecte.mewnagochi",
+            "certificate_hash": "b6b01807215ec55ea2d4c3be8579f02937993353"
+          }
+        },
+        {
+          "client_id": "855110736657-n62e0c5ukhnt3f66ughnm0hs5b66bdf6.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyDCDd2QUdrxXMGhsKNvJw1hbSiOBZD18tY"
@@ -21,7 +34,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "855110736657-n62e0c5ukhnt3f66ughnm0hs5b66bdf6.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }

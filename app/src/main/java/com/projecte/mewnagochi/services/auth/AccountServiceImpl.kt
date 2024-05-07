@@ -2,6 +2,7 @@ package com.projecte.mewnagochi.services.auth
 
 import android.util.Log
 import com.google.firebase.Firebase
+import com.google.firebase.auth.AuthCredential
 import com.google.firebase.auth.EmailAuthProvider
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.auth
@@ -95,6 +96,21 @@ class AccountServiceImpl  : AccountService {
             onResult(e.cause)
         }
 
+    }
+
+    override fun authenticateWithGoogle(
+        credential: AuthCredential,
+        onResult: (Throwable?) -> Unit,
+    ) {
+        try {
+            Firebase.auth.signInWithCredential(credential)
+                .addOnCompleteListener {
+                    onResult(it.exception)
+                }
+        }
+        catch (e: Exception){
+            onResult(e.cause)
+        }
     }
 
     override fun linkAccount(email: String, password: String, onResult: (Throwable?) -> Unit) {

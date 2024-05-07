@@ -4,7 +4,10 @@ package com.projecte.mewnagochi.screens.login
 import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.google.firebase.auth.AuthCredential
 import com.projecte.mewnagochi.services.auth.AccountServiceImpl
+import kotlinx.coroutines.launch
 
 data class User(
     val id: String = "",
@@ -43,7 +46,18 @@ class LoginViewModel : ViewModel() {
         Log.i("ViewModel",uiState.value.loginFinished.toString())
     }
 
-
+    fun loginUserWithGoogle(credential: AuthCredential, onSuccess: () -> Unit){
+        val accountService = AccountServiceImpl()
+        accountService.authenticateWithGoogle(credential){
+            error ->
+            if(error == null){
+                onSuccess()
+            }
+            else {
+                Log.e("error",error.toString())
+            }
+        }
+    }
 
     fun loginUser() =
         if(uiState.value.email.isBlank() || uiState.value.password.isBlank()) onErrorMessage("Password or mail is empty")

@@ -53,20 +53,39 @@ class StorageServiceImpl : StorageService {
     @OptIn(ExperimentalCoroutinesApi::class)
     override val money: Flow<Long>
         get() =
-            auth.currentUser.flatMapLatest { user ->
-                database.getReference(MONEY_COLLECTION)
-                    .child(user.id)
-                    .snapshots.map{
-                        if(it.value ==null) 0L
-                                else it.value as Long
+            try{
+                auth.currentUser.flatMapLatest { user ->
+                    try {
+                        database.getReference(MONEY_COLLECTION)
+                            .child(user.id)
+                            .snapshots.map {
+                                if (it.value == null) 0L
+                                else {
+
+                                    try{it.value as Long}
+                                    catch (e:Exception){
+                                        0L
+                                    }
+                                }
+                            }
                     }
+                    catch (e:Exception){
+                        flow{}
+                    }
+                }
+            }
+            catch (e: Exception){
+                flow{}
             }
     override suspend fun getItem(itemId: String): Item? =
         firestore.collection(ITEM_COLLECTION).document(itemId).get().await().toObject()
     suspend fun getMoney(): Long =
-
+        try{
         database.getReference(MONEY_COLLECTION)
-            .child(auth.getUserId()).get().await().value as Long? ?: 0L
+            .child(auth.getUserId()).get().await().value as Long? ?: 0L}
+        catch (e : Exception){
+            0L
+        }
 
     override suspend fun saveMoney(
         savings: Long,
