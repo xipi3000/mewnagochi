@@ -39,19 +39,20 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.projecte.mewnagochi.ui.theme.LabeledIcon
+import com.google.firebase.messaging.FirebaseMessaging
 import com.projecte.mewnagochi.R
-import com.projecte.mewnagochi.screens.login.LoginScreen
-import com.projecte.mewnagochi.screens.login.LoginViewModel
-import com.projecte.mewnagochi.screens.sign_up.RegisterScreen
-import com.projecte.mewnagochi.screens.login.User
 import com.projecte.mewnagochi.screens.forgot_password.ForgotPasswordScreen
 import com.projecte.mewnagochi.screens.home.HomeScreen
+import com.projecte.mewnagochi.screens.login.LoginScreen
+import com.projecte.mewnagochi.screens.login.LoginViewModel
+import com.projecte.mewnagochi.screens.login.User
+import com.projecte.mewnagochi.screens.sign_up.RegisterScreen
+import com.projecte.mewnagochi.screens.store.StoreScreen
 import com.projecte.mewnagochi.stats.HealthConnectAvailability
 import com.projecte.mewnagochi.stats.HealthConnectManager
 import com.projecte.mewnagochi.stats.StatsViewModel
-import com.projecte.mewnagochi.screens.store.StoreScreen
 import com.projecte.mewnagochi.ui.StatsScreen
+import com.projecte.mewnagochi.ui.theme.LabeledIcon
 import kotlinx.coroutines.CoroutineScope
 
 
@@ -75,25 +76,23 @@ fun MainScreen(
             StoreScreen()
         },
 
-    )
+        )
 ) {
 
-    Log.i("ROUTE",navController.currentDestination.toString())
+    Log.i("ROUTE", navController.currentDestination.toString())
     val selectedItem by myViewModel.navigationBarSelected.collectAsState()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
     val user by myViewModel.currentUser.collectAsState(initial = User())
-    Scaffold(
-        topBar = {
-            if (navigationBarItems.any { it.label == currentRoute }) {
-                TopAppBar(title = {
-                    UserAppBar(
-                        user=user.displayName,
-                        numOfCoins = 100
-                    )
-                })
-            }
-        },
+    Scaffold(topBar = {
+        if (navigationBarItems.any { it.label == currentRoute }) {
+            TopAppBar(title = {
+                UserAppBar(
+                    user = user.displayName, numOfCoins = 100
+                )
+            })
+        }
+    },
 
         bottomBar = {
             if (navigationBarItems.any { it.label == currentRoute }) {
@@ -101,8 +100,7 @@ fun MainScreen(
                     navigationBarItems.forEachIndexed { index, item ->
                         NavigationBarItem(icon = {
                             Icon(
-                                item.icon,
-                                contentDescription = item.label
+                                item.icon, contentDescription = item.label
                             )
                         },
                             label = { Text(item.label) },
@@ -118,7 +116,7 @@ fun MainScreen(
                 }
             }
 
-    }) { scaffoldPadding ->
+        }) { scaffoldPadding ->
         Column(
             modifier = Modifier.padding(scaffoldPadding)
         ) {
@@ -130,22 +128,20 @@ fun MainScreen(
                         item.screen()
                     }
                 }
-                composable("login"){
+                composable("login") {
                     LoginScreen(
-                        onLoginFinished = {navController.navigate("Home")},
-                        onRegister = {navController.navigate("register")},
-                        onForgotPassword =  {navController.navigate("forgot_password")},
+                        onLoginFinished = { navController.navigate("Home") },
+                        onRegister = { navController.navigate("register") },
+                        onForgotPassword = { navController.navigate("forgot_password") },
                     )
                 }
-                composable("register"){
-                    RegisterScreen()
-                    {
+                composable("register") {
+                    RegisterScreen() {
                         navController.navigate("login")
                     }
                 }
-                composable("forgot_password"){
-                    ForgotPasswordScreen()
-                    {
+                composable("forgot_password") {
+                    ForgotPasswordScreen() {
                         navController.navigate("login")
                     }
                 }
@@ -154,22 +150,29 @@ fun MainScreen(
         }
     }
 }
+
 @Preview
 @Composable
-fun UserAppBar(user:String ="user", modifier: Modifier = Modifier,numOfCoins:Int=100) {
+fun UserAppBar(user: String = "user", modifier: Modifier = Modifier, numOfCoins: Int = 100) {
     Row(
         modifier = modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        Text(text = user,
-            style = MaterialTheme.typography.headlineLarge)
+        Text(
+            text = user, style = MaterialTheme.typography.headlineLarge
+        )
         Row(
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Image(painter = painterResource(id = R.drawable.coins), contentDescription = "Coins",Modifier.size(60.dp))
-            Text(text = numOfCoins.toString(),
-                style = MaterialTheme.typography.headlineLarge)
+            Image(
+                painter = painterResource(id = R.drawable.coins),
+                contentDescription = "Coins",
+                Modifier.size(60.dp)
+            )
+            Text(
+                text = numOfCoins.toString(), style = MaterialTheme.typography.headlineLarge
+            )
         }
     }
 }
@@ -195,15 +198,28 @@ fun StatisticsScreen(context: Context, scope: CoroutineScope, activity: Activity
                     activity
                 )
             })
+
+    //Obtaining FCM token
+    lateinit var firebaseMessageToken: String
+    FirebaseMessaging.getInstance().token.addOnCompleteListener {
+        if (!it.isComplete) {
+            Log.i("FCM_token", "getInstanceId failed", it.exception)
+            firebaseMessageToken = ""
+            return@addOnCompleteListener
+        }
+
+        firebaseMessageToken = it.result.toString()
+        Log.i("FCM_token", "FCM Token: $firebaseMessageToken")
+    }
+
+
     StatsScreen(statsViewModel = statsViewModel, snackbarHostState, scope, healthConnectManager)
     LaunchedEffect(true) {
         //if no permisions -> request
-        if (!statsViewModel.checkPermissions(context) && !(healthConnectManager.availability.value == HealthConnectAvailability.NOT_SUPPORTED ||
-                    healthConnectManager.availability.value == HealthConnectAvailability.NOT_INSTALLED)) {
+        if (!statsViewModel.checkPermissions(context) && !(healthConnectManager.availability.value == HealthConnectAvailability.NOT_SUPPORTED || healthConnectManager.availability.value == HealthConnectAvailability.NOT_INSTALLED)) {
             Log.i("permission", "first request")
             statsViewModel.requestPermissions(context = context)
-        } else if (!(healthConnectManager.availability.value == HealthConnectAvailability.NOT_SUPPORTED ||
-                    healthConnectManager.availability.value == HealthConnectAvailability.NOT_INSTALLED)){
+        } else if (!(healthConnectManager.availability.value == HealthConnectAvailability.NOT_SUPPORTED || healthConnectManager.availability.value == HealthConnectAvailability.NOT_INSTALLED)) {
             statsViewModel.getData(scope, healthConnectManager)
         }
     }
