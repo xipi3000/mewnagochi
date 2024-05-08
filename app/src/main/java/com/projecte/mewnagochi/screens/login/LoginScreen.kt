@@ -54,7 +54,9 @@ fun LoginScreen(
     onForgotPassword: () -> Unit = {},
     onLoginFinished: () -> Unit = {},
 ) {
-
+    if(viewModel.isUserLoggedIn()){
+        onLoginFinished()
+    }
     val uiState by viewModel.uiState
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult()

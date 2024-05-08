@@ -27,6 +27,10 @@ data class UserRegisterData(
 class AccountServiceImpl  : AccountService {
     override val currentEmail: String
         get() = Firebase.auth.currentUser?.email.toString()
+
+    override val isUserSignedIn: Boolean
+        get() = Firebase.auth.currentUser!=null
+
     override val currentUser: Flow<User>
         get() = callbackFlow {
             val listener =
@@ -48,7 +52,15 @@ class AccountServiceImpl  : AccountService {
             awaitClose { Firebase.auth.removeAuthStateListener(listener) }
         }
 
-
+    override fun signOut(onSuccess: () -> Unit,onResult: (Throwable?) -> Unit) {
+        try{
+            Firebase.auth.signOut()
+            onSuccess()
+        }
+        catch (e:Exception){
+            onResult(e)
+        }
+    }
     override fun createAccount(email: String, password: String,username: String, onResult: (Throwable?) -> Unit) {
         val profileUpdates = userProfileChangeRequest {
             displayName = username

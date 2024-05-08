@@ -26,7 +26,10 @@ data class LoginUiState(
 class LoginViewModel : ViewModel() {
     var uiState = mutableStateOf(LoginUiState())
         private set
-
+    fun isUserLoggedIn(): Boolean{
+        val accountService = AccountServiceImpl()
+        return accountService.isUserSignedIn
+    }
     fun onEmailChange(email: String) {
         uiState.value = uiState.value.copy(email = email)
     }
@@ -58,7 +61,10 @@ class LoginViewModel : ViewModel() {
             }
         }
     }
-
+    fun getCurrentUser():String{
+        val accountService = AccountServiceImpl()
+        return accountService.getUserId()
+    }
     fun loginUser() =
         if(uiState.value.email.isBlank() || uiState.value.password.isBlank()) onErrorMessage("Password or mail is empty")
         else {

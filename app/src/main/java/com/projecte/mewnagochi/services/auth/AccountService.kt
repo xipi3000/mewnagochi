@@ -15,4 +15,6 @@ interface AccountService {
     fun changePassword(email: String, onResult: (Throwable?) -> Unit)
 
     fun getUserId(): String
+    fun signOut(onSuccess: () -> Unit,onResult: (Throwable?) -> Unit)
+    val isUserSignedIn: Boolean
 }

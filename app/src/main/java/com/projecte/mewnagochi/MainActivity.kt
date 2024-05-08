@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -24,6 +25,7 @@ import com.projecte.mewnagochi.screens.login.LoginScreen
 import com.projecte.mewnagochi.screens.main.MainScreen
 import com.projecte.mewnagochi.screens.sign_up.RegisterScreen
 import com.projecte.mewnagochi.screens.main.StatisticsScreen
+import com.projecte.mewnagochi.screens.profile.ProfileScreen
 import com.projecte.mewnagochi.screens.store.StoreScreen
 import com.projecte.mewnagochi.ui.theme.LabeledIcon
 import com.projecte.mewnagochi.ui.theme.MewnagochiTheme
@@ -45,7 +47,7 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
-    @Composable
+    /*@Composable
     fun MyNavGraph(
         context: Context,
         activity: Activity,
@@ -59,6 +61,9 @@ class MainActivity : ComponentActivity() {
             },
             LabeledIcon("Store", Icons.Filled.ShoppingCart) {
                 StoreScreen()
+            },
+            LabeledIcon("Profile", Icons.Filled.Person) {
+                ProfileScreen()
             },
 
             ),
@@ -88,7 +93,8 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
-    }
+    }*/
+
 
 }
 

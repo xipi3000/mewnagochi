@@ -34,7 +34,7 @@ import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
 
-class Person() {
+class PersonInvited() {
 
     @Composable
     fun getWalkingMapsR(): Array<ImageBitmap> {
@@ -135,7 +135,7 @@ class Person() {
     fun returnToCenter(
         offsetX: Float,
         offsetY: Float,
-        personViewModel: PersonViewModel,
+        personViewModel: PersonInvitedViewModel,
     ) {
         var staticOffsetx = offsetX
         val scope = CoroutineScope(Dispatchers.Main)
@@ -176,7 +176,7 @@ class Person() {
 
     @Composable
     fun Draw(
-        personViewModel: PersonViewModel = viewModel()
+        personViewModel: PersonInvitedViewModel = viewModel()
     ) {
         val offsetX by personViewModel.offsetX.collectAsState()
         var offsetY by remember { mutableStateOf(0f) }

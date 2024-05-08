@@ -11,8 +11,10 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -50,6 +52,7 @@ import com.projecte.mewnagochi.R
 import com.projecte.mewnagochi.services.storage.Item
 import com.projecte.mewnagochi.ui.furniture.MovableItem
 import com.projecte.mewnagochi.ui.theme.Person
+import com.projecte.mewnagochi.ui.theme.PersonInvited
 import java.util.UUID
 
 
@@ -65,7 +68,8 @@ fun HomeScreen(homeScreenViewModel: HomeScreenViewModel = viewModel()) {
 
     val person = Person()
     person.BuildSprite()
-
+    //val person2 = PersonInvited()
+    //person2.BuildSprite()
     Box () {
         Image(
             painter = painterResource(id = R.drawable.phone_backgrounds),
@@ -197,7 +201,10 @@ fun HomeScreen(homeScreenViewModel: HomeScreenViewModel = viewModel()) {
 
 
         if (!uiState.isEditingFurniture && !isAddingFurniture) {
+            //person2.Draw()
             person.Draw()
+
+
         }
 
     }
