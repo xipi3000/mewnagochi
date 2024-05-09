@@ -7,6 +7,7 @@ import kotlinx.coroutines.flow.Flow
 interface StorageService {
     suspend fun saveMoney(savings: Long, onResult: (Throwable?) -> Unit, onSuccess: () -> Unit)
     suspend fun spendMoney(cost: Long, onResult: (Throwable?) -> Unit, onSuccess: () -> Unit)
+    val userPreferences: Flow<UserPreferences?>
     val money: Flow<Long>
 
     suspend fun saveItem(item: Item, onResult: (Throwable?) -> Unit, onSuccess: () -> Unit)
@@ -15,5 +16,8 @@ interface StorageService {
     val items: Flow<List<Item>>
 
     suspend fun getItem(itemId: String): Item?
+    fun createPreferences(onResult: (Throwable?) -> Unit, userId: String, onSuccess: () -> Unit)
+    fun updatePreferences(preferences: UserPreferences, onResult: (Throwable?) -> Unit)
+    suspend fun getUserPreferences(): UserPreferences?
 }
 

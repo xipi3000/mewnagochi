@@ -7,6 +7,8 @@ import androidx.lifecycle.viewModelScope
 import com.projecte.mewnagochi.services.auth.AccountServiceImpl
 import com.projecte.mewnagochi.services.storage.Item
 import com.projecte.mewnagochi.services.storage.StorageServiceImpl
+import com.projecte.mewnagochi.services.storage.UserPreferences
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 
 data class HomeScreenUi(
@@ -17,11 +19,12 @@ data class HomeScreenUi(
 class HomeScreenViewModel (
     private val savedStateHandle : SavedStateHandle
 ) : ViewModel() {
+
     private val storageService = StorageServiceImpl()
     var uiState =  mutableStateOf(HomeScreenUi())
         private set
     val items = storageService.items
-
+    val selectedSkin: Flow<UserPreferences?> = storageService.userPreferences
 
     fun deleteObject(id: String){
         viewModelScope.launch {

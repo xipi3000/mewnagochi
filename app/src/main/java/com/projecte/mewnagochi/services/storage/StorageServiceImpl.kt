@@ -29,6 +29,7 @@ class StorageServiceImpl : StorageService {
         private const val FLAG_FIELD = "flag"
         private const val CREATED_AT_FIELD = "createdAt"
         private const val ITEM_COLLECTION = "items"
+        private const val USER_COLLECTION = "usersPreferences"
         private const val SAVE_TASK_TRACE = "saveItem"
         private const val MONEY_COLLECTION = "usersMoney"
         private const val UPDATE_TASK_TRACE = "updateItem"
@@ -48,6 +49,15 @@ class StorageServiceImpl : StorageService {
                 firestore
                     .collection(ITEM_COLLECTION)
                     .whereEqualTo(USER_ID_FIELD, user.id)
+                    .dataObjects()
+            }
+    @OptIn(ExperimentalCoroutinesApi::class)
+    override val userPreferences: Flow<UserPreferences?>
+        get() =
+            auth.currentUser.flatMapLatest { user ->
+                firestore
+                    .collection(USER_COLLECTION)
+                    .document(user.id)
                     .dataObjects()
             }
     @OptIn(ExperimentalCoroutinesApi::class)
@@ -79,6 +89,9 @@ class StorageServiceImpl : StorageService {
             }
     override suspend fun getItem(itemId: String): Item? =
         firestore.collection(ITEM_COLLECTION).document(itemId).get().await().toObject()
+
+    override suspend fun getUserPreferences(): UserPreferences? =
+        firestore.collection(USER_COLLECTION).document(auth.getUserId()).get().await().toObject()
     suspend fun getMoney(): Long =
         try{
         database.getReference(MONEY_COLLECTION)
@@ -138,11 +151,29 @@ class StorageServiceImpl : StorageService {
     override fun updateItem(item: Item, onResult: (Throwable?) -> Unit) {
 
         firestore.collection(ITEM_COLLECTION).document(item.id).set(item).addOnCompleteListener {
-            if(it.isComplete){}
-            else onResult(it.exception)
+            if(!it.isComplete) onResult(it.exception)
         }
     }
+    override fun createPreferences(onResult: (Throwable?) -> Unit, userId: String,onSuccess: () -> Unit) {
+        firestore.collection(USER_COLLECTION).document(userId).set(UserPreferences()).addOnCompleteListener{
+            if(it.isComplete){
+                onSuccess()
+            }
+            else{
+                onResult(it.exception)
+            }
+        }
 
+    }
+    override fun updatePreferences(preferences: UserPreferences, onResult: (Throwable?) -> Unit) {
+
+        firestore.collection(USER_COLLECTION).document(auth.getUserId()).set(preferences).addOnCompleteListener {
+            if(!it.isComplete){
+                createPreferences(userId = auth.getUserId(), onSuccess = {}, onResult = {})
+                firestore.collection(USER_COLLECTION).document(auth.getUserId()).set(preferences)
+            }
+        }
+    }
     override fun deleteItem(itemId: String, onResult: (Throwable?) -> Unit) {
         TODO("Not yet implemented")
     }

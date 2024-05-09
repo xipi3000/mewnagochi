@@ -50,6 +50,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.projecte.mewnagochi.R
 import com.projecte.mewnagochi.services.storage.Item
+import com.projecte.mewnagochi.services.storage.UserPreferences
 import com.projecte.mewnagochi.ui.furniture.MovableItem
 import com.projecte.mewnagochi.ui.theme.Person
 import com.projecte.mewnagochi.ui.theme.PersonInvited
@@ -65,11 +66,11 @@ fun HomeScreen(homeScreenViewModel: HomeScreenViewModel = viewModel()) {
     var isAddingFurniture by remember { mutableStateOf(false) }
 
     val userItems by homeScreenViewModel.items.collectAsState(emptyList())
-
+    val user by homeScreenViewModel.selectedSkin.collectAsState(UserPreferences())
     val person = Person()
     person.BuildSprite()
-    //val person2 = PersonInvited()
-    //person2.BuildSprite()
+    val person2 = PersonInvited()
+    person2.BuildSprite()
     Box () {
         Image(
             painter = painterResource(id = R.drawable.phone_backgrounds),
@@ -201,9 +202,11 @@ fun HomeScreen(homeScreenViewModel: HomeScreenViewModel = viewModel()) {
 
 
         if (!uiState.isEditingFurniture && !isAddingFurniture) {
-            //person2.Draw()
-            person.Draw()
-
+            if(user?.selectedSkin == "adventurer")
+                person.Draw()
+            else {
+                person2.Draw()
+            }
 
         }
 

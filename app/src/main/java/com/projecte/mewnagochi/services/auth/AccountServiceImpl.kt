@@ -25,6 +25,7 @@ data class UserRegisterData(
 )
 
 class AccountServiceImpl  : AccountService {
+
     override val currentEmail: String
         get() = Firebase.auth.currentUser?.email.toString()
 
@@ -76,6 +77,7 @@ class AccountServiceImpl  : AccountService {
                                 if (it.isComplete) {
                                     task.result.user!!.sendEmailVerification()
                                         .addOnCompleteListener {
+                                            task.result.user!!.uid
                                             onResult(it.exception)
                                         }
                                 } else {
