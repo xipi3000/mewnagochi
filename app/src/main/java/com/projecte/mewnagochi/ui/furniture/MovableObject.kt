@@ -56,6 +56,7 @@ fun MovableItem(
         }
     })
     if (item.visible) {
+
         Image(
             painter = painterResource(id = item.res),
             contentDescription = "",

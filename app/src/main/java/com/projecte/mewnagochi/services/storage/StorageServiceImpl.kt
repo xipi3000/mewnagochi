@@ -53,13 +53,22 @@ class StorageServiceImpl : StorageService {
             }
     @OptIn(ExperimentalCoroutinesApi::class)
     override val userPreferences: Flow<UserPreferences?>
-        get() =
+        get() =try{
             auth.currentUser.flatMapLatest { user ->
-                firestore
-                    .collection(USER_COLLECTION)
-                    .document(user.id)
-                    .dataObjects()
+                try {
+                    firestore
+                        .collection(USER_COLLECTION)
+                        .document(user.id)
+                        .dataObjects()
+                }catch (e: Exception){
+                    flow{}
+                }
             }
+
+        }
+        catch (e: Exception){
+            flow{}
+        }
     @OptIn(ExperimentalCoroutinesApi::class)
     override val money: Flow<Long>
         get() =
