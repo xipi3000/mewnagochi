@@ -1,9 +1,15 @@
 package com.projecte.mewnagochi.screens.main
 
+import android.Manifest
 import android.app.Activity
 import android.content.Context
+import android.content.pm.PackageManager
+import android.os.Build
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -33,6 +39,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -40,6 +47,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.google.firebase.messaging.FirebaseMessaging
+import com.google.firebase.messaging.FirebaseMessagingService
 import com.projecte.mewnagochi.R
 import com.projecte.mewnagochi.screens.forgot_password.ForgotPasswordScreen
 import com.projecte.mewnagochi.screens.home.HomeScreen
@@ -48,6 +56,7 @@ import com.projecte.mewnagochi.screens.login.LoginViewModel
 import com.projecte.mewnagochi.screens.login.User
 import com.projecte.mewnagochi.screens.sign_up.RegisterScreen
 import com.projecte.mewnagochi.screens.store.StoreScreen
+import com.projecte.mewnagochi.services.notification.MyFirebaseMessagingService
 import com.projecte.mewnagochi.stats.HealthConnectAvailability
 import com.projecte.mewnagochi.stats.HealthConnectManager
 import com.projecte.mewnagochi.stats.StatsViewModel
@@ -78,6 +87,9 @@ fun MainScreen(
 
         )
 ) {
+    val notificationPermissionLauncher =
+        rememberLauncherForActivityResult(contract = ActivityResultContracts.RequestPermission(),
+            onResult = {})
 
     Log.i("ROUTE", navController.currentDestination.toString())
     val selectedItem by myViewModel.navigationBarSelected.collectAsState()
@@ -148,6 +160,16 @@ fun MainScreen(
             }
 
         }
+
+        if (ContextCompat.checkSelfPermission(
+                context,
+                Manifest.permission.POST_NOTIFICATIONS
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            // Request notification permission
+            notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+        }
+
     }
 }
 
@@ -198,21 +220,6 @@ fun StatisticsScreen(context: Context, scope: CoroutineScope, activity: Activity
                     activity
                 )
             })
-
-    //Obtaining FCM token
-    lateinit var firebaseMessageToken: String
-    FirebaseMessaging.getInstance().token.addOnCompleteListener {
-        if (!it.isComplete) {
-            Log.i("FCM_token", "getInstanceId failed", it.exception)
-            firebaseMessageToken = ""
-            return@addOnCompleteListener
-        }
-
-        firebaseMessageToken = it.result.toString()
-        Log.i("FCM_token", "FCM Token: $firebaseMessageToken")
-    }
-
-
     StatsScreen(statsViewModel = statsViewModel, snackbarHostState, scope, healthConnectManager)
     LaunchedEffect(true) {
         //if no permisions -> request
@@ -224,5 +231,3 @@ fun StatisticsScreen(context: Context, scope: CoroutineScope, activity: Activity
         }
     }
 }
-
-

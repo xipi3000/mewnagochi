@@ -25,6 +25,7 @@ import com.projecte.mewnagochi.screens.main.MainScreen
 import com.projecte.mewnagochi.screens.sign_up.RegisterScreen
 import com.projecte.mewnagochi.screens.main.StatisticsScreen
 import com.projecte.mewnagochi.screens.store.StoreScreen
+import com.projecte.mewnagochi.services.notification.MyFirebaseMessagingService
 import com.projecte.mewnagochi.ui.theme.LabeledIcon
 import com.projecte.mewnagochi.ui.theme.MewnagochiTheme
 import kotlinx.coroutines.CoroutineScope
@@ -32,6 +33,8 @@ import kotlinx.coroutines.CoroutineScope
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val mFMS = MyFirebaseMessagingService()
+        mFMS.checkToken()
         setContent {
             MewnagochiTheme {
 
@@ -89,7 +92,6 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
-
 }
 
 

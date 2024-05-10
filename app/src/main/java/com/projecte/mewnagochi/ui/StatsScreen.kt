@@ -29,7 +29,10 @@ import java.util.Locale
 
 @Composable
 fun StatsScreen(
-    statsViewModel: StatsViewModel, snackbarHostState: SnackbarHostState, scope: CoroutineScope, healthConnectMannager: HealthConnectManager
+    statsViewModel: StatsViewModel,
+    snackbarHostState: SnackbarHostState,
+    scope: CoroutineScope,
+    healthConnectMannager: HealthConnectManager,
 ) {
     val statsUiState by statsViewModel.uiState.collectAsState()
     Scaffold(
@@ -164,5 +167,4 @@ fun StatsScreen(
             }
         }
     }
-
 }
