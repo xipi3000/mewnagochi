@@ -1,10 +1,10 @@
-package com.projecte.mewnagochi.screens.store
+package com.projecte.mewnagochi.ui.theme
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import com.projecte.mewnagochi.ui.theme.PersonState
 
-class PersonViewModel (
+class PersonInvitedViewModel (
     private val savedStateHandle : SavedStateHandle
 ) : ViewModel() {
 

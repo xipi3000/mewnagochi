@@ -1,5 +1,6 @@
 package com.projecte.mewnagochi.screens.home
 
+import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -10,17 +11,22 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Create
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.Icon
@@ -43,80 +49,34 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.projecte.mewnagochi.R
+import com.projecte.mewnagochi.services.storage.Item
+import com.projecte.mewnagochi.services.storage.UserPreferences
+import com.projecte.mewnagochi.ui.furniture.MovableItem
 import com.projecte.mewnagochi.ui.theme.Person
+import com.projecte.mewnagochi.ui.theme.PersonInvited
 import java.util.UUID
 
 
-@Composable
-fun Torch() {
-    com.projecte.mewnagochi.ui.furniture.Torch(
-        id = UUID.randomUUID().toString(),
-        res = R.drawable.torch
-    ).Draw()
-}
 
-@Composable
-fun Door() {
-    com.projecte.mewnagochi.ui.furniture.Door(
-        id = UUID.randomUUID().toString(),
-        res = R.drawable.door
-    ).Draw()
-}
-
-@Composable
-fun Chest() {
-    com.projecte.mewnagochi.ui.furniture.Chest(
-        id = UUID.randomUUID().toString(),
-        res = R.drawable.chest
-    ).Draw()
-}
-
-@Composable
-fun Window() {
-
-    com.projecte.mewnagochi.ui.furniture.Window(
-        id = UUID.randomUUID().toString(),
-        res = R.drawable.window
-    ).Draw()
-}
-
-@Composable
-fun ListOfItems() {
-    Torch()
-    Window()
-    Chest()
-    Door()
-}
 
 
 @Composable
 fun HomeScreen(homeScreenViewModel: HomeScreenViewModel = viewModel()) {
-
-    val isEditingFurniture by homeScreenViewModel.isEditingFurniture.collectAsState()
-    val isAnyFurnitureSelected by homeScreenViewModel.isAnyFurnitureSelected.collectAsState()
-    val selectedFurnitureId by homeScreenViewModel.selectedFurnitureId.collectAsState()
-    val furniture by homeScreenViewModel.furniture.collectAsState()
+    val uiState by homeScreenViewModel.uiState
     var isAddingFurniture by remember { mutableStateOf(false) }
 
-    val furnitureIds = remember {
-        listOf(
-            R.drawable.window,
-            R.drawable.chest,
-            R.drawable.door,
-            R.drawable.torch,
-        )
-    }
-
-
+    val userItems by homeScreenViewModel.items.collectAsState(emptyList())
+    val user by homeScreenViewModel.selectedSkin.collectAsState(UserPreferences())
     val person = Person()
     person.BuildSprite()
-
+    val person2 = PersonInvited()
+    person2.BuildSprite()
     Box () {
         Image(
             painter = painterResource(id = R.drawable.phone_backgrounds),
             contentDescription = "Background",
             contentScale = ContentScale.FillBounds,
-            colorFilter = if (isEditingFurniture) ColorFilter.tint(
+            colorFilter = if (uiState.isEditingFurniture) ColorFilter.tint(
                 Color.DarkGray,
                 BlendMode.Hardlight
             ) else null,
@@ -132,11 +92,15 @@ fun HomeScreen(homeScreenViewModel: HomeScreenViewModel = viewModel()) {
         )
 
 
-        ListOfItems()
+
+        userItems.forEach {
+            MovableItem(item= it)
+        }
+        //ListOfItems()
         val density = LocalDensity.current
         AnimatedVisibility(
             modifier = Modifier.align(Alignment.TopEnd),
-            visible = !isEditingFurniture,
+            visible = !uiState.isEditingFurniture,
             enter = fadeIn(),
             exit = fadeOut(),
         ) {
@@ -155,7 +119,7 @@ fun HomeScreen(homeScreenViewModel: HomeScreenViewModel = viewModel()) {
         }
         AnimatedVisibility(
             modifier = Modifier.align(Alignment.TopEnd),
-            visible = !isAddingFurniture && isEditingFurniture,
+            visible = !isAddingFurniture && uiState.isEditingFurniture,
             enter = fadeIn(),
             exit = fadeOut(),
         ) {
@@ -171,7 +135,7 @@ fun HomeScreen(homeScreenViewModel: HomeScreenViewModel = viewModel()) {
                 Icon(Icons.Filled.Add, contentDescription = "add furniture")
             }
             AnimatedVisibility(
-                visible = isAnyFurnitureSelected,
+                visible = uiState.isAnyFurnitureSelected,
                 enter = fadeIn(),
                 exit = fadeOut(),
             ) {
@@ -184,7 +148,7 @@ fun HomeScreen(homeScreenViewModel: HomeScreenViewModel = viewModel()) {
                         .padding(30.dp)
                         .size(60.dp),
                     onClick = {
-                        homeScreenViewModel.deleteObject(selectedFurnitureId)
+                        homeScreenViewModel.deleteObject(uiState.selectedFurnitureId)
                     }) {
                     Icon(Icons.Filled.Delete, contentDescription = "delete furniture")
                 }
@@ -209,22 +173,22 @@ fun HomeScreen(homeScreenViewModel: HomeScreenViewModel = viewModel()) {
                     modifier = Modifier
                         .padding(vertical = 10.dp)
                 ) {
-                    Column(
+                    LazyColumn(
                         modifier = Modifier
                             .scrollable(rememberScrollState(), orientation = Orientation.Vertical)
                             .width(100.dp)
                     ) {
-                        furnitureIds.forEach { furnitureId ->
+                        items(userItems){ item ->
                             Image(
                                 modifier = Modifier.clickable {
 
-                                    homeScreenViewModel.addObject(furnitureId)
+                                    homeScreenViewModel.addItem(item= item)
                                     isAddingFurniture = false
 
                                 },
-                                painter = painterResource(id = furnitureId),
+                                painter = painterResource(id = item.res),
                                 contentDescription = "",
-                                colorFilter = if (furniture.contains(furnitureId)) ColorFilter.tint(
+                                colorFilter = if (item.visible  ) ColorFilter.tint(
                                     Color.DarkGray,
                                     BlendMode.Color
                                 ) else null,
@@ -237,8 +201,13 @@ fun HomeScreen(homeScreenViewModel: HomeScreenViewModel = viewModel()) {
 
 
 
-        if (!isEditingFurniture && !isAddingFurniture) {
-            person.Draw()
+        if (!uiState.isEditingFurniture && !isAddingFurniture) {
+            if(user?.selectedSkin == "adventurer")
+                person.Draw()
+            else {
+                person2.Draw()
+            }
+
         }
 
     }

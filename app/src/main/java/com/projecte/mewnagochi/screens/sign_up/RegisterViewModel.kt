@@ -3,6 +3,7 @@ package com.projecte.mewnagochi.screens.sign_up
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import com.projecte.mewnagochi.services.auth.AccountServiceImpl
+import com.projecte.mewnagochi.services.storage.StorageServiceImpl
 
 data class RegisterUiState(
     val email: String = "",
@@ -44,8 +45,19 @@ class RegisterViewModel : ViewModel(){
                 uiState.value.username
             ) { error ->
                 if (error == null) {
-                    onErrorMessage("")
-                    loginFinished()
+                    val storegeService = StorageServiceImpl()
+                    storegeService.createPreferences(
+                        userId = accountService.getUserId(),
+                        onSuccess = {
+                            onErrorMessage("")
+                            loginFinished()
+                        },
+                        onResult = {
+                            onErrorMessage(it?.message!!)
+                        }
+
+                    )
+
                 } else {
                     try {
                         onErrorMessage(error.cause?.message!!)

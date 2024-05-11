@@ -2,6 +2,7 @@ package com.projecte.mewnagochi.services.auth
 
 import android.util.Log
 import com.google.firebase.Firebase
+import com.google.firebase.auth.AuthCredential
 import com.google.firebase.auth.EmailAuthProvider
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.auth
@@ -24,24 +25,43 @@ data class UserRegisterData(
 )
 
 class AccountServiceImpl  : AccountService {
+
     override val currentEmail: String
         get() = Firebase.auth.currentUser?.email.toString()
+
+    override val isUserSignedIn: Boolean
+        get() = Firebase.auth.currentUser!=null
+
     override val currentUser: Flow<User>
         get() = callbackFlow {
             val listener =
                 FirebaseAuth.AuthStateListener { auth ->
-                    Log.i("Auth",auth.currentUser.toString())
-                    this.trySend(auth.currentUser?.let {
-                        User(it.uid, it.isAnonymous, it.email!!,it.displayName!!
 
-                        )
+                    this.trySend(auth.currentUser?.let {
+                        try{
+                            User(
+                                it.uid, it.isAnonymous, it.email!!, it.displayName!!
+
+                            )
+                        }
+                        catch (e:Exception){
+                            User()
+                        }
                    } ?: User())
                 }
             Firebase.auth.addAuthStateListener(listener)
             awaitClose { Firebase.auth.removeAuthStateListener(listener) }
         }
 
-
+    override fun signOut(onSuccess: () -> Unit,onResult: (Throwable?) -> Unit) {
+        try{
+            Firebase.auth.signOut()
+            onSuccess()
+        }
+        catch (e:Exception){
+            onResult(e)
+        }
+    }
     override fun createAccount(email: String, password: String,username: String, onResult: (Throwable?) -> Unit) {
         val profileUpdates = userProfileChangeRequest {
             displayName = username
@@ -57,6 +77,7 @@ class AccountServiceImpl  : AccountService {
                                 if (it.isComplete) {
                                     task.result.user!!.sendEmailVerification()
                                         .addOnCompleteListener {
+                                            task.result.user!!.uid
                                             onResult(it.exception)
                                         }
                                 } else {
@@ -91,6 +112,21 @@ class AccountServiceImpl  : AccountService {
 
     }
 
+    override fun authenticateWithGoogle(
+        credential: AuthCredential,
+        onResult: (Throwable?) -> Unit,
+    ) {
+        try {
+            Firebase.auth.signInWithCredential(credential)
+                .addOnCompleteListener {
+                    onResult(it.exception)
+                }
+        }
+        catch (e: Exception){
+            onResult(e.cause)
+        }
+    }
+
     override fun linkAccount(email: String, password: String, onResult: (Throwable?) -> Unit) {
         val credential = EmailAuthProvider.getCredential(email, password)
 
@@ -108,6 +144,10 @@ class AccountServiceImpl  : AccountService {
     override fun changePassword(email: String, onResult: (Throwable?) -> Unit ) {
         Firebase.auth.sendPasswordResetEmail(email)
             .addOnCompleteListener { onResult(it.exception) }
+    }
+
+    override fun getUserId(): String {
+        return Firebase.auth.currentUser!!.uid
     }
 
 }

@@ -34,16 +34,17 @@ import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
 
-class Person() {
+class PersonInvited() {
 
     @Composable
     fun getWalkingMapsR(): Array<ImageBitmap> {
         return arrayOf(
-            ImageBitmap.imageResource(id = R.drawable.run0),
-            ImageBitmap.imageResource(id = R.drawable.run1),
-            ImageBitmap.imageResource(id = R.drawable.run2),
-            ImageBitmap.imageResource(id = R.drawable.run3),
-            ImageBitmap.imageResource(id = R.drawable.run4)
+            ImageBitmap.imageResource(id = R.drawable.walk1_f),
+            ImageBitmap.imageResource(id = R.drawable.walk2_f),
+            ImageBitmap.imageResource(id = R.drawable.walk3_f),
+            ImageBitmap.imageResource(id = R.drawable.walk4_f),
+            ImageBitmap.imageResource(id = R.drawable.walk5_f),
+            ImageBitmap.imageResource(id = R.drawable.walk6_f)
         )
     }
 
@@ -63,53 +64,52 @@ class Person() {
 
     @Composable
     fun getWalkingMapsL(): Array<ImageBitmap> {
-        return arrayOf(
-            flipImageBitmap(ImageBitmap.imageResource(id = R.drawable.run0)),
-            flipImageBitmap(ImageBitmap.imageResource(id = R.drawable.run1)),
-            flipImageBitmap(ImageBitmap.imageResource(id = R.drawable.run2)),
-            flipImageBitmap(ImageBitmap.imageResource(id = R.drawable.run3)),
-            flipImageBitmap(ImageBitmap.imageResource(id = R.drawable.run4))
-        )
+        val imageArray = getWalkingMapsR()
+        val leftImageArray = arrayOfNulls<ImageBitmap>(6)
+        imageArray.forEachIndexed { index, imageBitmap ->
+            leftImageArray[index]=flipImageBitmap(imageBitmap)
+        }
+ 
+        return leftImageArray.requireNoNulls()
     }
 
     @Composable
     fun getUpMaps(): Array<ImageBitmap> {
         return arrayOf(
-            ImageBitmap.imageResource(id = R.drawable.up1),
-            ImageBitmap.imageResource(id = R.drawable.up2),
-            ImageBitmap.imageResource(id = R.drawable.up3),
-            ImageBitmap.imageResource(id = R.drawable.up4),
+            ImageBitmap.imageResource(id = R.drawable.up3_f),
+            ImageBitmap.imageResource(id = R.drawable.up2_f),
+            ImageBitmap.imageResource(id = R.drawable.up1_f),
         )
     }
 
     @Composable
     fun getFallMaps(): Array<ImageBitmap> {
         return arrayOf(
-            ImageBitmap.imageResource(id = R.drawable.fall1),
-            ImageBitmap.imageResource(id = R.drawable.fall2),
-            ImageBitmap.imageResource(id = R.drawable.fall3),
+            ImageBitmap.imageResource(id = R.drawable.fall_f),
+            ImageBitmap.imageResource(id = R.drawable.fall2_f),
+            ImageBitmap.imageResource(id = R.drawable.fall3_f),
         )
     }
 
     @Composable
     fun getJumpMaps(): Array<ImageBitmap> {
         return arrayOf(
-            ImageBitmap.imageResource(id = R.drawable.jump1),
-            ImageBitmap.imageResource(id = R.drawable.jump2),
+            ImageBitmap.imageResource(id = R.drawable.air1_f),
+            ImageBitmap.imageResource(id = R.drawable.air2_f),
         )
     }
 
     @Composable
     fun getIdleMaps(): Array<ImageBitmap> {
         return arrayOf(
-            ImageBitmap.imageResource(id = R.drawable.idle)
+            ImageBitmap.imageResource(id = R.drawable.idle_f)
         )
     }
 
     @Composable
     fun getClickedMaps(): Array<ImageBitmap> {
         return arrayOf(
-            ImageBitmap.imageResource(id = R.drawable.clicked)
+            ImageBitmap.imageResource(id = R.drawable.ouch_f)
         )
     }
 
@@ -135,7 +135,7 @@ class Person() {
     fun returnToCenter(
         offsetX: Float,
         offsetY: Float,
-        personViewModel: PersonViewModel,
+        personViewModel: PersonInvitedViewModel,
     ) {
         var staticOffsetx = offsetX
         val scope = CoroutineScope(Dispatchers.Main)
@@ -176,7 +176,7 @@ class Person() {
 
     @Composable
     fun Draw(
-        personViewModel: PersonViewModel = viewModel()
+        personViewModel: PersonInvitedViewModel = viewModel()
     ) {
         val offsetX by personViewModel.offsetX.collectAsState()
         var offsetY by remember { mutableStateOf(0f) }
