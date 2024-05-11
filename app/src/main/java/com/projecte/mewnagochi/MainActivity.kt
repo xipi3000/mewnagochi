@@ -1,36 +1,16 @@
 package com.projecte.mewnagochi
 
-import android.app.Activity
-import android.content.Context
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.lifecycleScope
-import androidx.navigation.NavHostController
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import androidx.navigation.compose.rememberNavController
-import com.projecte.mewnagochi.screens.home.HomeScreen
-import com.projecte.mewnagochi.screens.login.LoginScreen
 import com.projecte.mewnagochi.screens.main.MainScreen
-import com.projecte.mewnagochi.screens.sign_up.RegisterScreen
-import com.projecte.mewnagochi.screens.main.StatisticsScreen
-import com.projecte.mewnagochi.screens.profile.ProfileScreen
-import com.projecte.mewnagochi.screens.store.StoreScreen
 import com.projecte.mewnagochi.services.notification.MyFirebaseMessagingService
-import com.projecte.mewnagochi.ui.theme.LabeledIcon
 import com.projecte.mewnagochi.ui.theme.MewnagochiTheme
-import kotlinx.coroutines.CoroutineScope
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -39,7 +19,6 @@ class MainActivity : ComponentActivity() {
         mFMS.checkToken()
         setContent {
             MewnagochiTheme {
-
                 // A surface container using the 'background' color from the theme
                 Surface(
                     modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background
@@ -49,8 +28,7 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
-    }
-    /*@Composable
+    }/*@Composable
     fun MyNavGraph(
         context: Context,
         activity: Activity,
@@ -97,8 +75,6 @@ class MainActivity : ComponentActivity() {
             }
         }
     }*/
-
-
 }
 
 
