@@ -7,6 +7,7 @@ import android.content.Intent
 import android.media.RingtoneManager
 import android.util.Log
 import androidx.core.app.NotificationCompat
+import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.messaging.FirebaseMessaging
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
@@ -15,8 +16,8 @@ import com.projecte.mewnagochi.R
 
 
 class MyFirebaseMessagingService : FirebaseMessagingService() {
-
     lateinit var firebaseMessageToken: String
+    private val database: FirebaseDatabase = FirebaseDatabase.getInstance("https://mewnagochi-default-rtdb.europe-west1.firebasedatabase.app")
     fun checkToken() {
         if (!this::firebaseMessageToken.isInitialized) {
             obtainFCMToken()
@@ -33,6 +34,7 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
 
             firebaseMessageToken = it.result.toString()
             Log.i("FCM_token", "FCM Token: $firebaseMessageToken")
+            sendRegistrationToServer(firebaseMessageToken)
         }
     }
 
@@ -43,27 +45,26 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
     }
 
     private fun sendRegistrationToServer(token: String) {
-        // Implement this method to send token to your app server
-        Log.i("Notification", "Token sent to server: $token)")
+        // Database schema: FCMTokens/Token/Hour_to_get_notified
+        // Try to get the notification hour value
+            // It works -> token already stored, don't modify it's configured hour
+            // It fails -> add new token with default hour
+        val ref = database.getReference("FCMTokens").child(token)
+        ref.get().addOnCompleteListener {
+            if (it.isSuccessful) {
+                val value = it.result?.value
+                if (value == null) {
+                    Log.i("FCM", "Setting default value")
+                    ref.setValue(20)
+                } else{
+                    Log.i("FCM", "Configured hour value found, not modifying it")
+                }
+            }
+        }
     }
 
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
         super.onMessageReceived(remoteMessage)
-
-        // Check if message contains a data payload.
-        if (remoteMessage.data.isNotEmpty()) {
-            Log.d("Recieved", "Message data payload: ${remoteMessage.data}")
-
-            // Check if data needs to be processed by long running job
-//            if (needsToBeScheduled()) {
-//                // For long-running tasks (10 seconds or more) use WorkManager.
-//                scheduleJob()
-//            } else {
-//                // Handle message within 10 seconds
-//                handleNow()
-//            }
-        }
-
         displayNotification(applicationContext, remoteMessage.notification?.title, remoteMessage.notification?.body)
     }
 
@@ -78,7 +79,6 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
         )
 
         val channelId = getString(R.string.default_notification_channel_id)
-        Log.i("Recieved", "Channel ID: $channelId")
         val defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
         val notificationBuilder = NotificationCompat.Builder(context, channelId)
             .setSmallIcon(R.drawable.window)
@@ -93,5 +93,8 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
         val notificationId = 0
         notificationManager.notify(notificationId, notificationBuilder.build())
     }
-}
 
+    fun modifyHourValue(newHour: Int) {
+        database.getReference("FCMTokens").child(firebaseMessageToken).setValue(newHour)
+    }
+}

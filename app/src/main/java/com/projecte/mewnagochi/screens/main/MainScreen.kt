@@ -49,11 +49,11 @@ import com.projecte.mewnagochi.R
 import com.projecte.mewnagochi.screens.forgot_password.ForgotPasswordScreen
 import com.projecte.mewnagochi.screens.home.HomeScreen
 import com.projecte.mewnagochi.screens.login.LoginScreen
-import com.projecte.mewnagochi.screens.login.LoginViewModel
 import com.projecte.mewnagochi.screens.login.User
 import com.projecte.mewnagochi.screens.profile.ProfileScreen
 import com.projecte.mewnagochi.screens.sign_up.RegisterScreen
 import com.projecte.mewnagochi.screens.store.StoreScreen
+import com.projecte.mewnagochi.services.notification.MyFirebaseMessagingService
 import com.projecte.mewnagochi.stats.HealthConnectAvailability
 import com.projecte.mewnagochi.stats.HealthConnectManager
 import com.projecte.mewnagochi.stats.StatsViewModel
@@ -65,7 +65,7 @@ import kotlinx.coroutines.CoroutineScope
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen(
-    loginViewModel: LoginViewModel = viewModel(),
+    mFMS: MyFirebaseMessagingService,
     myViewModel: MyViewModel = viewModel(),
     navController: NavHostController = rememberNavController(),
     context: Context,
@@ -87,7 +87,7 @@ fun MainScreen(
                 navController.navigate("login")
             }, onResult = {
                 Toast.makeText(context, it?.message, Toast.LENGTH_SHORT).show()
-            })
+            }, mFMS = mFMS)
         },
     )
 ) {

@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.projecte.mewnagochi.screens.login.User
 import com.projecte.mewnagochi.services.auth.AccountServiceImpl
+import com.projecte.mewnagochi.services.notification.MyFirebaseMessagingService
 import com.projecte.mewnagochi.services.storage.StorageServiceImpl
 import com.projecte.mewnagochi.services.storage.UserPreferences
 import kotlinx.coroutines.flow.Flow
@@ -21,6 +22,8 @@ data class ProfileUiState(
 class ProfileViewModel : ViewModel() {
     private val _uiState = MutableStateFlow(ProfileUiState())
     val uiState: StateFlow<ProfileUiState> = _uiState.asStateFlow()
+
+    lateinit var mFMS: MyFirebaseMessagingService
 
     val accountService = AccountServiceImpl()
     val currentUser : Flow<User> = AccountServiceImpl().currentUser
@@ -65,6 +68,7 @@ class ProfileViewModel : ViewModel() {
 
     fun onHourNotificationChanged(value : Float) {
         _uiState.value = uiState.value.copy(notificationHour = value.toInt())
+        mFMS.modifyHourValue(value.toInt())
     }
 
     fun onStepsGoalSet(preferences: UserPreferences) {

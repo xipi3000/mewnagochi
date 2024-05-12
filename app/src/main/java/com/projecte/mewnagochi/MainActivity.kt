@@ -24,7 +24,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background
                 ) {
                     //MyNavGraph(context = this, activity = this, scope = this.lifecycleScope)
-                    MainScreen(context = this, activity = this, scope = this.lifecycleScope)
+                    MainScreen(context = this, activity = this, scope = this.lifecycleScope, mFMS = mFMS)
                 }
             }
         }
