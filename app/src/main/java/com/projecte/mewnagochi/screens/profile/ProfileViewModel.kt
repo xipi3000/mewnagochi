@@ -1,28 +1,33 @@
 package com.projecte.mewnagochi.screens.profile
 
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.projecte.mewnagochi.screens.login.LoginUiState
 import com.projecte.mewnagochi.screens.login.User
 import com.projecte.mewnagochi.services.auth.AccountServiceImpl
 import com.projecte.mewnagochi.services.storage.StorageServiceImpl
 import com.projecte.mewnagochi.services.storage.UserPreferences
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+
 data class ProfileUiState(
-    val openAlertDialog: Boolean = false,
-    val runningGoal: Float = 0F,
+    var openAlertDialog: Boolean = false,
+    var stepsGoal: Int = 0,
+    var notificationHour: Int = 20,
 )
 
 class ProfileViewModel : ViewModel() {
-    var uiState = mutableStateOf(ProfileUiState())
-        private set
+    private val _uiState = MutableStateFlow(ProfileUiState())
+    val uiState: StateFlow<ProfileUiState> = _uiState.asStateFlow()
+
     val accountService = AccountServiceImpl()
     val currentUser : Flow<User> = AccountServiceImpl().currentUser
     private val storageService = StorageServiceImpl()
     val money: Flow<Long> = storageService.money
     val userPreferences: Flow<UserPreferences?> = storageService.userPreferences
+
     fun logOut(onSuccess: () -> Unit,onResult: (Throwable?) -> Unit) {
         accountService.signOut(onSuccess, onResult)
     }
@@ -34,11 +39,8 @@ class ProfileViewModel : ViewModel() {
             }
             userPreferences = userPreferences.copy(selectedSkin = "witch")
             storageService.updatePreferences(userPreferences){
-
-
             }
         }
-
     }
 
     fun setSkinAdventurer() {
@@ -49,24 +51,28 @@ class ProfileViewModel : ViewModel() {
             }
             userPreferences =  userPreferences.copy(selectedSkin = "adventurer")
             storageService.updatePreferences(userPreferences){
-
-
             }
         }
     }
 
     fun onOpenAlertDialogChange(value: Boolean) {
-        uiState.value = uiState.value.copy(openAlertDialog =value)
+        _uiState.value = uiState.value.copy(openAlertDialog =value)
     }
 
-    fun onRunningGoalChanged(value : Float) {
-        uiState.value = uiState.value.copy(runningGoal =value)
-
+    fun onStepsGoalChanged(value : Float) {
+        _uiState.value = uiState.value.copy(stepsGoal = value.toInt())
     }
 
-    fun onRunningGoalSet(preferences: UserPreferences) {
-        storageService.updatePreferences(preferences.copy(runningGoal = uiState.value.runningGoal)) {
+    fun onHourNotificationChanged(value : Float) {
+        _uiState.value = uiState.value.copy(notificationHour = value.toInt())
+    }
 
+    fun onStepsGoalSet(preferences: UserPreferences) {
+        storageService.updatePreferences(preferences.copy(stepsGoal = uiState.value.stepsGoal)) {
+        }
+    }
+    fun onHourNotificationSet(preferences: UserPreferences) {
+        storageService.updatePreferences(preferences.copy(notificationHour = uiState.value.notificationHour)) {
         }
     }
 

@@ -64,7 +64,10 @@ fun ProfileScreen(
     val currentUser by viewModel.currentUser.collectAsState(initial = User())
     val usersMoney by viewModel.money.collectAsState(initial = 0L)
     val userPreferences by viewModel.userPreferences.collectAsState(initial = UserPreferences())
-    val uiState by viewModel.uiState
+    val uiState by viewModel.uiState.collectAsState()
+    //PER FER QUE EL SLIDER SLIDEJI; COMENTAR AQUESTES 2 LINIES
+    uiState.stepsGoal = userPreferences?.stepsGoal ?: 0
+    uiState.notificationHour = userPreferences?.notificationHour ?: 20
 
     //TODO: FOTO DE PERFIL DE USUARI
     //TODO: PREFERENCES sliders
@@ -75,7 +78,6 @@ fun ProfileScreen(
             .fillMaxSize()
             .verticalScroll(rememberScrollState()),
     ) {
-
         Card(modifier = Modifier.fillMaxWidth()) {
             Column(
                 modifier = Modifier
@@ -98,18 +100,32 @@ fun ProfileScreen(
                     modifier = Modifier.padding(bottom = 10.dp)
                 )
                 GoalSlider(
-                    title = "Running Goal:",
-                    goal = uiState.runningGoal,
-                    onValueChange = viewModel::onRunningGoalChanged,
+                    title = "Daily Steps Objective:",
+                    goal = uiState.stepsGoal.toFloat(),
+                    onValueChange = viewModel::onStepsGoalChanged,
                     onValueChangeFinished = {
-                        viewModel.onRunningGoalSet(
+                        viewModel.onStepsGoalSet(
                             userPreferences!!
                         )
                     },
-                    maxRangeGoal = 30f,
+                    maxRangeGoal = 20000f,
                     isUnit = false,
-                    )
-
+                    unit = " steps"
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                GoalSlider(
+                    title = "At which time do you want to receive notifications?",
+                    goal = uiState.notificationHour.toFloat(),
+                    onValueChange = viewModel::onHourNotificationChanged,
+                    onValueChangeFinished = {
+                        viewModel.onHourNotificationSet(
+                            userPreferences!!
+                        )
+                    },
+                    maxRangeGoal = 24f,
+                    isUnit = false,
+                    unit = " h."
+                )
             }
         }
 
@@ -127,41 +143,30 @@ fun ProfileScreen(
                     .fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceAround
             ) {
-                Image(
-                    modifier = Modifier
-                        .clip(CircleShape)
-                        .clickable { viewModel.setSkinAdventurer() }
-                        .then(
-                            if (userPreferences?.selectedSkin == "adventurer") Modifier.border(
-                                6.dp,
-                                Color(parseColor("#f7b416")),
-                                CircleShape
-                            ) else Modifier.border(
-                                3.dp,
-                                Color.LightGray,
-                                CircleShape
-                            )
-                        ),
+                Image(modifier = Modifier
+                    .clip(CircleShape)
+                    .clickable { viewModel.setSkinAdventurer() }
+                    .then(
+                        if (userPreferences?.selectedSkin == "adventurer") Modifier.border(
+                            6.dp, Color(parseColor("#f7b416")), CircleShape
+                        ) else Modifier.border(
+                            3.dp, Color.LightGray, CircleShape
+                        )
+                    ),
                     painter = painterResource(id = R.drawable.pfp),
-                    contentDescription = "adventurer"
-                )
-                Image(
-                    modifier = Modifier
-                        .clip(CircleShape)
-                        .clickable { viewModel.setSkinWhitch() }
-                        .then(
-                            if (userPreferences?.selectedSkin == "witch") Modifier.border(
-                                6.dp,
-                                Color(parseColor("#f7b416")),
-                                CircleShape
-                            ) else Modifier.border(
-                                1.dp,
-                                Color.LightGray,
-                                CircleShape
-                            )
-                        ),
-                    painter = painterResource(id = R.drawable.pfp_f), contentDescription = "witch"
-                )
+                    contentDescription = "adventurer")
+                Image(modifier = Modifier
+                    .clip(CircleShape)
+                    .clickable { viewModel.setSkinWhitch() }
+                    .then(
+                        if (userPreferences?.selectedSkin == "witch") Modifier.border(
+                            6.dp, Color(parseColor("#f7b416")), CircleShape
+                        ) else Modifier.border(
+                            1.dp, Color.LightGray, CircleShape
+                        )
+                    ),
+                    painter = painterResource(id = R.drawable.pfp_f),
+                    contentDescription = "witch")
             }
         }
         Spacer(modifier = Modifier.height(30.dp))
@@ -182,7 +187,6 @@ fun ProfileScreen(
                 Text("Log Out")
             }
         }
-
     }
     when {
         uiState.openAlertDialog -> {
@@ -200,15 +204,17 @@ fun ProfileScreen(
     }
 }
 
+
 @Composable
 fun GoalSlider(
-    title : String,
-    goal : Float,
+    title: String,
+    goal: Float,
     onValueChange: (Float) -> Unit,
     onValueChangeFinished: (() -> Unit)?,
     maxRangeGoal: Float,
-    isUnit : Boolean,
-){
+    isUnit: Boolean,
+    unit: String,
+) {
     Column {
         Text(text = title)
         Slider(
@@ -217,8 +223,7 @@ fun GoalSlider(
             onValueChangeFinished = onValueChangeFinished,
             valueRange = 0f..maxRangeGoal
         )
-        if(isUnit) Text(text = "%.0f".format(goal) + "km")
-        else Text(text = "%.2f".format(goal) + "km")
+        Text(text = "%d".format(goal.toInt()) + unit)
     }
 }
 
@@ -231,36 +236,25 @@ fun AlertDialogExample(
     dialogText: String,
     icon: ImageVector,
 ) {
-    AlertDialog(
-        icon = {
-            Icon(icon, contentDescription = "Example Icon")
-        },
-        title = {
-            Text(text = dialogTitle)
-        },
-        text = {
-            Text(text = dialogText)
-        },
-        onDismissRequest = {
-            onDismissRequest()
-        },
-        confirmButton = {
-            OutlinedButton(
-                onClick = {
-                    onConfirmation()
-                }
-            ) {
-                Text("Confirm")
-            }
-        },
-        dismissButton = {
-            Button(
-                onClick = {
-                    onDismissRequest()
-                }
-            ) {
-                Text("Dismiss")
-            }
+    AlertDialog(icon = {
+        Icon(icon, contentDescription = "Example Icon")
+    }, title = {
+        Text(text = dialogTitle)
+    }, text = {
+        Text(text = dialogText)
+    }, onDismissRequest = {
+        onDismissRequest()
+    }, confirmButton = {
+        OutlinedButton(onClick = {
+            onConfirmation()
+        }) {
+            Text("Confirm")
         }
-    )
+    }, dismissButton = {
+        Button(onClick = {
+            onDismissRequest()
+        }) {
+            Text("Dismiss")
+        }
+    })
 }
