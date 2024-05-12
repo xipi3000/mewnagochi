@@ -57,6 +57,7 @@ fun ProfileScreen(
     val userPreferences by viewModel.userPreferences.collectAsState(initial = UserPreferences())
     val uiState by viewModel.uiState.collectAsState()
     viewModel.mFMS = mFMS
+
     //PER FER QUE EL SLIDER SLIDEJI; COMENTAR AQUESTES 2 LINIES
     uiState.stepsGoal = userPreferences?.stepsGoal ?: 0
     uiState.notificationHour = userPreferences?.notificationHour ?: 20

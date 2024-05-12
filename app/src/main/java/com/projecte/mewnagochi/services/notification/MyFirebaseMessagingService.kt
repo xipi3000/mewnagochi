@@ -97,4 +97,5 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
     fun modifyHourValue(newHour: Int) {
         database.getReference("FCMTokens").child(firebaseMessageToken).setValue(newHour)
     }
+
 }

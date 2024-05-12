@@ -69,6 +69,7 @@ class ProfileViewModel : ViewModel() {
     fun onHourNotificationChanged(value : Float) {
         _uiState.value = uiState.value.copy(notificationHour = value.toInt())
         mFMS.modifyHourValue(value.toInt())
+
     }
 
     fun onStepsGoalSet(preferences: UserPreferences) {

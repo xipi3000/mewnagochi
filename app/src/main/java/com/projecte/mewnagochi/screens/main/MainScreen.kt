@@ -61,7 +61,6 @@ import com.projecte.mewnagochi.ui.StatsScreen
 import com.projecte.mewnagochi.ui.theme.LabeledIcon
 import kotlinx.coroutines.CoroutineScope
 
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen(

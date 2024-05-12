@@ -17,6 +17,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         val mFMS = MyFirebaseMessagingService()
         mFMS.checkToken()
+
         setContent {
             MewnagochiTheme {
                 // A surface container using the 'background' color from the theme
