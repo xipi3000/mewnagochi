@@ -14,9 +14,9 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 data class ProfileUiState(
-    var openAlertDialog: Boolean = false,
-    var stepsGoal: Int = 0,
-    var notificationHour: Int = 20,
+    val openAlertDialog: Boolean = false,
+    val stepsGoal: Int = 0,
+    val notificationHour: Int = 20,
 )
 
 class ProfileViewModel : ViewModel() {
@@ -30,6 +30,15 @@ class ProfileViewModel : ViewModel() {
     private val storageService = StorageServiceImpl()
     val money: Flow<Long> = storageService.money
     val userPreferences: Flow<UserPreferences?> = storageService.userPreferences
+
+    init {
+        viewModelScope.launch {
+            val preferences = storageService.getUserPreferences()
+            if(preferences!=null) {
+                _uiState.value = uiState.value.copy(stepsGoal = preferences.stepsGoal, notificationHour = preferences.notificationHour)
+            }
+        }
+    }
 
     fun logOut(onSuccess: () -> Unit,onResult: (Throwable?) -> Unit) {
         accountService.signOut(onSuccess, onResult)
