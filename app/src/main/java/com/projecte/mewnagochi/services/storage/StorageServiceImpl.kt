@@ -3,20 +3,19 @@ package com.projecte.mewnagochi.services.storage
 import android.util.Log
 import com.google.firebase.Firebase
 import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.database.database
 import com.google.firebase.database.snapshots
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.dataObjects
 import com.google.firebase.firestore.firestore
 import com.google.firebase.firestore.toObject
-import com.google.type.Money
+import com.google.firebase.storage.StorageReference
+import com.google.firebase.storage.storage
 import com.projecte.mewnagochi.services.auth.AccountServiceImpl
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.tasks.await
 import java.util.UUID
 
@@ -38,6 +37,22 @@ class StorageServiceImpl : StorageService {
     private val firestore: FirebaseFirestore = Firebase.firestore
     private val auth = AccountServiceImpl()
     private val database: FirebaseDatabase = FirebaseDatabase.getInstance("https://mewnagochi-default-rtdb.europe-west1.firebasedatabase.app")
+    private val storage = Firebase.storage.reference.child("/")
+
+ /*   suspend fun listImages(param: (Any) -> Unit):  ArrayList<StorageReference>{
+        val photoArray : ArrayList<StorageReference> = ArrayList()
+        val photos = storage.listAll().await().items
+        photos.forEach { photo ->
+            photoArray.add(photo)
+            Log.i("profile",photo.name)
+        }
+        return photoArray
+
+    }*/
+     suspend fun listImages(onPhotosReceived: (List<StorageReference>) -> Unit) {
+         val photos = storage.listAll().await().items
+         onPhotosReceived(photos)
+     }
 
     private val collection get() = firestore.collection(ITEM_COLLECTION)
         .whereEqualTo(USER_ID_FIELD, auth.getUserId())
