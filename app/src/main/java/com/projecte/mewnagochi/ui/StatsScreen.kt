@@ -1,5 +1,6 @@
 package com.projecte.mewnagochi.ui
 
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -24,14 +25,12 @@ import androidx.compose.ui.unit.dp
 import com.projecte.mewnagochi.stats.HealthConnectAvailability
 import com.projecte.mewnagochi.stats.HealthConnectManager
 import com.projecte.mewnagochi.stats.StatsViewModel
-import kotlinx.coroutines.CoroutineScope
 import java.util.Locale
 
 @Composable
 fun StatsScreen(
     statsViewModel: StatsViewModel,
     snackbarHostState: SnackbarHostState,
-    scope: CoroutineScope,
     healthConnectMannager: HealthConnectManager,
 ) {
     val statsUiState by statsViewModel.uiState.collectAsState()
@@ -40,6 +39,7 @@ fun StatsScreen(
         modifier = Modifier
             .fillMaxSize()
     ) { scaffoldPadding ->
+        Log.i("calla", scaffoldPadding.toString())
 
         if (healthConnectMannager.availability.value == HealthConnectAvailability.NOT_SUPPORTED ||
             healthConnectMannager.availability.value == HealthConnectAvailability.NOT_INSTALLED) {
@@ -162,7 +162,7 @@ fun StatsScreen(
                     }
                 }
             }
-            Button(onClick = { statsViewModel.getData(scope = scope, healthConnectManager = healthConnectMannager) }) {
+            Button(onClick = { statsViewModel.getData(healthConnectManager = healthConnectMannager) }) {
                 Text(text = "Refresh Data")
             }
         }

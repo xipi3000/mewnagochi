@@ -59,7 +59,6 @@ import com.projecte.mewnagochi.stats.HealthConnectManager
 import com.projecte.mewnagochi.stats.StatsViewModel
 import com.projecte.mewnagochi.ui.StatsScreen
 import com.projecte.mewnagochi.ui.theme.LabeledIcon
-import kotlinx.coroutines.CoroutineScope
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -69,13 +68,12 @@ fun MainScreen(
     navController: NavHostController = rememberNavController(),
     context: Context,
     activity: Activity,
-    scope: CoroutineScope,
     navigationBarItems: List<LabeledIcon> = listOf(
         LabeledIcon("Home", Icons.Filled.Home) {
             HomeScreen()
         },
         LabeledIcon("Stats", Icons.Filled.Info) {
-            StatisticsScreen(context, scope, activity)
+            StatisticsScreen(context, activity)
         },
         LabeledIcon("Store", Icons.Filled.ShoppingCart) {
             StoreScreen()
@@ -99,6 +97,7 @@ fun MainScreen(
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
     val user by myViewModel.currentUser.collectAsState(initial = User())
+    //Maybe s'haurà de canviar el money per les cloudFunctions, quan estigui deployejada se veurà tho
     val userMoney by myViewModel.money.collectAsState(initial = null)
     Scaffold(topBar = {
         if (navigationBarItems.any { it.label == currentRoute } && currentRoute != "Profile") {
@@ -203,7 +202,7 @@ fun UserAppBar(user: String = "user", modifier: Modifier = Modifier, numOfCoins:
 }
 
 @Composable
-fun StatisticsScreen(context: Context, scope: CoroutineScope, activity: Activity) {
+fun StatisticsScreen(context: Context, activity: Activity) {
     val healthConnectManager by lazy {
         HealthConnectManager(context)
     }
@@ -216,21 +215,20 @@ fun StatisticsScreen(context: Context, scope: CoroutineScope, activity: Activity
             onResult = { grantedPermissions: Set<String> ->
                 statsViewModel.onPermissionResult(
                     healthConnectManager,
-                    scope,
                     context,
                     grantedPermissions,
                     snackbarHostState,
                     activity
                 )
             })
-    StatsScreen(statsViewModel = statsViewModel, snackbarHostState, scope, healthConnectManager)
+    StatsScreen(statsViewModel = statsViewModel, snackbarHostState,healthConnectManager)
     LaunchedEffect(true) {
         //if no permisions -> request
         if (!statsViewModel.checkPermissions(context) && !(healthConnectManager.availability.value == HealthConnectAvailability.NOT_SUPPORTED || healthConnectManager.availability.value == HealthConnectAvailability.NOT_INSTALLED)) {
             Log.i("permission", "first request")
             statsViewModel.requestPermissions(context = context)
         } else if (!(healthConnectManager.availability.value == HealthConnectAvailability.NOT_SUPPORTED || healthConnectManager.availability.value == HealthConnectAvailability.NOT_INSTALLED)) {
-            statsViewModel.getData(scope, healthConnectManager)
+            statsViewModel.getData(healthConnectManager)
         }
     }
 }
