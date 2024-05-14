@@ -16,7 +16,8 @@ import kotlinx.coroutines.launch
 data class ProfileUiState(
     val openAlertDialog: Boolean = false,
     val stepsGoal: Int = 0,
-    val notificationHour: Int = 20
+    val notificationHour: Int = 20,
+    val currentSteps : Int = 0,
 )
 
 class ProfileViewModel : ViewModel() {
@@ -85,9 +86,9 @@ class ProfileViewModel : ViewModel() {
         storageService.updatePreferences(preferences.copy(stepsGoal = uiState.value.stepsGoal)) {
         }
     }
+
     fun onHourNotificationSet(preferences: UserPreferences) {
         storageService.updatePreferences(preferences.copy(notificationHour = uiState.value.notificationHour)) {
         }
     }
-
 }

@@ -21,6 +21,9 @@ import androidx.health.connect.client.records.WeightRecord
 import androidx.health.connect.client.request.ReadRecordsRequest
 import androidx.health.connect.client.time.TimeRangeFilter
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.projecte.mewnagochi.services.storage.StorageServiceImpl
+import com.projecte.mewnagochi.services.storage.UserPreferences
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -156,7 +159,7 @@ class StatsViewModel() : ViewModel() {
     fun getData(scope: CoroutineScope, healthConnectManager: HealthConnectManager) {
         //In this method, we'll see first the data requests, and then the parsing of the queries
         scope.launch {
-            /** STEP 1: Obtain steps info **/
+            /** STEP 1: Obtain steps info (and some firestore extras)**/
             //Request steps record (only the ones recorded today)
             val stepsResponse = healthConnectManager.healthConnectClient.readRecords(
                 request = ReadRecordsRequest<StepsRecord>(
@@ -171,6 +174,32 @@ class StatsViewModel() : ViewModel() {
             var steps = 0L
             for (record in stepsResponse.records) {
                 steps += record.count
+            }
+            //We'll also use this method to update the average and current steps on Firestore
+            val stepsAverageResponse = healthConnectManager.healthConnectClient.readRecords(
+                request = ReadRecordsRequest<StepsRecord>(
+                    //last week
+                    timeRangeFilter = TimeRangeFilter.between(
+                        LocalDateTime.now().withHour(0).withMinute(0).withSecond(0).minusDays(8),
+                        LocalDateTime.now().withHour(0).withMinute(0).withSecond(0)
+                    )
+                )
+            )
+            var stepsWeeklyAverage = 0L
+            for (record in stepsAverageResponse.records) {
+                stepsWeeklyAverage += record.count
+            }
+            val stepsAverageInt = stepsWeeklyAverage.toInt()/7
+            viewModelScope.launch {
+                val storageService = StorageServiceImpl()
+                var userPreferences = storageService.getUserPreferences()
+                if(userPreferences==null) {
+                    userPreferences = UserPreferences()
+                }
+                userPreferences = userPreferences.copy(stepsAverage = stepsAverageInt, currentSteps = steps.toInt())
+                storageService.updatePreferences(userPreferences){}
+                //This document update will trigger cloud function "checkObjectiveAccomplished",
+                //which will send notification and update money if objective has been reached.
             }
 
             /** STEP 2: Obtain weight info **/
