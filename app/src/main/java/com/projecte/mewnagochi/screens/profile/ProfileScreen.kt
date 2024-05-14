@@ -139,23 +139,16 @@ fun ProfileScreen(
                             viewModel.onSelectProfilePhotoChange(true)
                         }){
                         viewModel.getProfilePictures()
-                        /*var imageBitmap by remember {
-                            mutableStateOf<ImageBitmap?>(null)
-                        }
 
-                        viewModel.getProfilePicture(userPreferences!!.selectedPfp).getBytes(ONE_MEGABYTE).addOnSuccessListener {
-                            imageBitmap =
-                                BitmapFactory.decodeByteArray(it, 0, it.size).asImageBitmap()
-                        }*/
                         val imageBitmap by viewModel.profilePicture.collectAsState(initial = ImageBitmap(1,1))
-                        //if (imageBitmap != null)
 
-                            Image(
-                                painter = BitmapPainter(imageBitmap),
-                                contentDescription = "contentDescription",
-                                modifier = Modifier
-                                    .fillMaxSize()
-                            )
+
+                        Image(
+                            painter = BitmapPainter(imageBitmap),
+                            contentDescription = "contentDescription",
+                            modifier = Modifier
+                                .fillMaxSize()
+                        )
                     }
                     Text(
                         text = currentUser.displayName,

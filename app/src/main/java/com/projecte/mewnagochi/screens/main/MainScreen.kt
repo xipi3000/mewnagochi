@@ -13,10 +13,13 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
@@ -43,6 +46,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -108,6 +113,7 @@ fun MainScreen(
     val currentRoute = navBackStackEntry?.destination?.route
     val user by myViewModel.currentUser.collectAsState(initial = User())
     val userMoney by myViewModel.money.collectAsState(initial = null)
+    val imageBitmap by myViewModel.profilePicture.collectAsState(initial = ImageBitmap(1,1))
     Scaffold(
         topBar = {
             if (navigationBarItems.any { it.label == currentRoute }&&currentRoute!="Profile") {
@@ -115,7 +121,8 @@ fun MainScreen(
                     userMoney?.let {
                         UserAppBar(
                             user=user.displayName,
-                            numOfCoins = it
+                            numOfCoins = it,
+                            imageBitmap = imageBitmap
                         )
                     }
                 })
@@ -181,11 +188,13 @@ fun MainScreen(
         }
     }
 }
-@Preview
-@Composable
-fun UserAppBar(user:String ="user", modifier: Modifier = Modifier,numOfCoins:Long=10L) {
 
-        Column {
+@Composable
+fun UserAppBar(user:String ="user", modifier: Modifier = Modifier,numOfCoins:Long=10L,
+               imageBitmap : ImageBitmap
+               ) {
+
+        Column(modifier = modifier.padding(end = 10.dp)) {
 
 
             Row(
@@ -193,13 +202,25 @@ fun UserAppBar(user:String ="user", modifier: Modifier = Modifier,numOfCoins:Lon
                     .fillMaxWidth(),
 
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
             ) {
 
+
+
+                Image(
+                    painter = BitmapPainter(imageBitmap),
+                    contentDescription = "contentDescription",
+                    modifier = Modifier
+                        .padding(10.dp)
+                        .clip(CircleShape)
+                        .size(60.dp)
+
+
+                )
                 Text(
                     text = user,
                     style = MaterialTheme.typography.headlineLarge
                 )
+                Spacer(modifier = Modifier.weight(1F))
                 Row(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
@@ -214,9 +235,6 @@ fun UserAppBar(user:String ="user", modifier: Modifier = Modifier,numOfCoins:Lon
                     )
                 }
             }
-
-
-
     }
 }
 
