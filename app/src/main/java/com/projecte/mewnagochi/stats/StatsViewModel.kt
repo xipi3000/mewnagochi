@@ -39,7 +39,6 @@ class StatsViewModel() : ViewModel() {
     lateinit var healthPermissionLauncher: ActivityResultLauncher<Set<String>>
     lateinit var myHealthConnectManager: HealthConnectManager
     lateinit var myScope: CoroutineScope
-    lateinit var myContext: Context
 
 
     fun showSnackbar(
@@ -78,7 +77,6 @@ class StatsViewModel() : ViewModel() {
     ) {
         myScope = scope
         myHealthConnectManager = healthConnectManager
-        myContext = context
         Log.i("permission", "entered onResult")
         val permissions = setOf(
             HealthPermission.getReadPermission(StepsRecord::class),
@@ -143,7 +141,6 @@ class StatsViewModel() : ViewModel() {
 
 
     fun requestPermissions(context: Context) {
-        myContext = context
         if (!checkPermissions(context)) {
             healthPermissionLauncher.launch(
                 setOf(
@@ -175,6 +172,7 @@ class StatsViewModel() : ViewModel() {
             for (record in stepsResponse.records) {
                 steps += record.count
             }
+
             //We'll also use this method to update the average and current steps on Firestore
             val stepsAverageResponse = healthConnectManager.healthConnectClient.readRecords(
                 request = ReadRecordsRequest<StepsRecord>(

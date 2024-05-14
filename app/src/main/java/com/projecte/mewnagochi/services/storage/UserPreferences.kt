@@ -5,5 +5,5 @@ data class UserPreferences(
     val stepsGoal : Int = 0,
     val notificationHour : Int = 20,
     val currentSteps : Int = 0,
-    val stepsAverage : Int = 0
+    val stepsAverage : Int = 0,
 )
