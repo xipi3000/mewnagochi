@@ -53,7 +53,16 @@ class StorageServiceImpl : StorageService {
          val photos = storage.listAll().await().items
          onPhotosReceived(photos)
      }
+    fun getImage(name : String): StorageReference {
 
+        try {
+            return storage.child("/").child(name)
+        }
+        catch (e:Exception){
+            return storage.child("/default_pfp.png")
+        }
+
+    }
     private val collection get() = firestore.collection(ITEM_COLLECTION)
         .whereEqualTo(USER_ID_FIELD, auth.getUserId())
 
@@ -111,6 +120,7 @@ class StorageServiceImpl : StorageService {
             catch (e: Exception){
                 flow{}
             }
+
     override suspend fun getItem(itemId: String): Item? =
         firestore.collection(ITEM_COLLECTION).document(itemId).get().await().toObject()
 

@@ -9,6 +9,7 @@ import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -22,6 +23,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyHorizontalGrid
 import androidx.compose.foundation.lazy.items
@@ -75,7 +77,7 @@ import com.projecte.mewnagochi.services.storage.StorageServiceImpl
 import com.projecte.mewnagochi.services.storage.UserPreferences
 import com.projecte.mewnagochi.ui.theme.PersonState
 import kotlinx.coroutines.launch
-
+const val  ONE_MEGABYTE: Long = 1024 * 1024
 @RequiresApi(Build.VERSION_CODES.S)
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalGlideComposeApi::class)
 @Composable
@@ -94,17 +96,19 @@ fun ProfileScreen(
 
     //TODO: CHOOSE INTERNET
 
+
+
+
+    val profilePictures by viewModel.photoList.collectAsState()
     when {
         uiState.selectProfilePhoto -> {
             ProfilePictureDialog(
                 onDismissRequest = { viewModel.onSelectProfilePhotoChange(false) },
-                onConfirmation = {
-                    viewModel.onSelectProfilePhotoChange(false)
-
-                },
-                dialogTitle = "Logging out",
-                dialogText = "You are logging out of the app, your session will be closed",
-                icon = Icons.Default.Info
+                onConfirmation =
+                    viewModel::setProfilePicture,
+                profilePictures = profilePictures,
+                setProfilePicture = viewModel::selectProfilePicture,
+                selectedPfp = uiState.selectedProfilePhoto
             )
         }
     }
@@ -115,65 +119,50 @@ fun ProfileScreen(
             .verticalScroll(rememberScrollState()),
     ) {
 
-        val profilePictures by viewModel.photoList.collectAsState()
-
-        LaunchedEffect(Unit) {
-            viewModel.getProfilePictures()
-        }
-
-        // Now you can use the profilePictures list in your UI
-        // For example:
-        val ONE_MEGABYTE: Long = 1024 * 1024
-
-        profilePictures.forEach {
-            var pgoot by remember {
-                mutableStateOf<ImageBitmap?>(null)
-            }
-            var islandRef = it
-            islandRef.getBytes(ONE_MEGABYTE).addOnSuccessListener {
-
-                pgoot = BitmapFactory.decodeByteArray(it , 0, it.size).asImageBitmap()
-            }.addOnFailureListener {
-                // Handle any errors
-            }
 
 
-            if(pgoot!=null)
-            Image(
-                painter = BitmapPainter(pgoot!!),
-                contentDescription = "contentDescription",
-
-            )
-            var uri: Uri
-            /*it.downloadUrl.onSuccessTask {
-                uri = it
-            }*/
-            GlideImage(
-                model = it,
-                contentDescription = "getString(R.id.picture_of_cat)",
-
-                )
-
-        }
 
         Card(modifier = Modifier.fillMaxWidth()) {
-            Box(modifier = Modifier
-                .clip(CircleShape)
-                .clickable {
 
-
-                })
 
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(10.dp)
             ) {
-                Text(
-                    text = currentUser.displayName,
-                    style = MaterialTheme.typography.headlineLarge,
-                    modifier = Modifier.padding(bottom = 20.dp, top = 10.dp)
-                )
+                Row(){
+                    Box(modifier = Modifier
+                        .clip(CircleShape)
+                        .background(Color.White)
+                        .size(140.dp)
+                        .clickable {
+                            viewModel.onSelectProfilePhotoChange(true)
+                        }){
+                        viewModel.getProfilePictures()
+                        /*var imageBitmap by remember {
+                            mutableStateOf<ImageBitmap?>(null)
+                        }
+
+                        viewModel.getProfilePicture(userPreferences!!.selectedPfp).getBytes(ONE_MEGABYTE).addOnSuccessListener {
+                            imageBitmap =
+                                BitmapFactory.decodeByteArray(it, 0, it.size).asImageBitmap()
+                        }*/
+                        val imageBitmap by viewModel.profilePicture.collectAsState(initial = ImageBitmap(1,1))
+                        //if (imageBitmap != null)
+
+                            Image(
+                                painter = BitmapPainter(imageBitmap),
+                                contentDescription = "contentDescription",
+                                modifier = Modifier
+                                    .fillMaxSize()
+                            )
+                    }
+                    Text(
+                        text = currentUser.displayName,
+                        style = MaterialTheme.typography.headlineLarge,
+                        modifier = Modifier.padding(bottom = 20.dp, top = 10.dp)
+                    )
+                }
                 Text(
                     text = "Email: " + currentUser.email,
                     style = MaterialTheme.typography.headlineMedium,
@@ -311,24 +300,62 @@ fun GoalSlider(
 @Composable
 fun ProfilePictureDialog(
     onDismissRequest: () -> Unit,
-    onConfirmation: () -> Unit,
+    onConfirmation: (String) -> Unit,
     dialogTitle: String= "Choose your profile picture:",
-    dialogText: String,
-    icon: ImageVector,
+    selectedPfp: String = "",
+    setProfilePicture : (String) -> Unit,
+    profilePictures:
+    List<StorageReference>,
+
+
 ) {
     AlertDialog(
-        icon = {
-            Icon(icon, contentDescription = "Example Icon")
-        },
+
         title = {
             Text(text = dialogTitle)
         },
         text = {
-           /* LazyHorizontalGrid(rows = GridCells.Fixed(2)) {
-                items(photos) { photo ->
-                    PhotoItem(photo)
+
+
+
+            LazyRow {
+                items(profilePictures) {
+
+
+                    var imageBitmap by remember {
+                        mutableStateOf<ImageBitmap?>(null)
+                    }
+
+                    it.getBytes(ONE_MEGABYTE).addOnSuccessListener {
+                        imageBitmap =
+                            BitmapFactory.decodeByteArray(it, 0, it.size).asImageBitmap()
+                    }
+
+                    if (imageBitmap != null)
+                        Image(
+                            painter = BitmapPainter(imageBitmap!!),
+                            contentDescription = "contentDescription",
+                            modifier = Modifier
+                                .padding(10.dp)
+                                .size(90.dp)
+                                .clip(CircleShape)
+                                .clickable { setProfilePicture(it.name) }
+                                .then(
+                                    if (selectedPfp == it.name) Modifier.border(
+                                        6.dp,
+                                        Color(parseColor("#f7b416")),
+                                        CircleShape
+                                    ) else Modifier.border(
+                                        1.dp,
+                                        Color.LightGray,
+                                        CircleShape
+                                    )
+                                ),
+                        )
+
                 }
-            }*/
+
+                }
         },
         onDismissRequest = {
             onDismissRequest()
@@ -336,7 +363,7 @@ fun ProfilePictureDialog(
         confirmButton = {
             OutlinedButton(
                 onClick = {
-                    onConfirmation()
+                    onConfirmation(selectedPfp)
                 }
             ) {
                 Text("Confirm")

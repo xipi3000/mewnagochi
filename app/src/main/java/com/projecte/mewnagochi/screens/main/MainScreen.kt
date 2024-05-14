@@ -2,9 +2,11 @@ package com.projecte.mewnagochi.screens.main
 
 import android.app.Activity
 import android.content.Context
+import android.os.Build
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.annotation.RequiresApi
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -67,6 +69,7 @@ import com.projecte.mewnagochi.ui.StatsScreen
 import kotlinx.coroutines.CoroutineScope
 
 
+@RequiresApi(Build.VERSION_CODES.S)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen(
@@ -192,6 +195,7 @@ fun UserAppBar(user:String ="user", modifier: Modifier = Modifier,numOfCoins:Lon
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
+
                 Text(
                     text = user,
                     style = MaterialTheme.typography.headlineLarge
