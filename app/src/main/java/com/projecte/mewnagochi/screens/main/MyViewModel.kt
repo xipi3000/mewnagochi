@@ -22,10 +22,19 @@ class MyViewModel(
     val navigationBarSelected = savedStateHandle.getStateFlow("navigationBarSelected",0)
 
     val profilePicture : Flow<ImageBitmap> get()= flow{
-        val refe = storageService.getImage(storageService.getUserPreferences()!!.selectedPfp).getBytes(
-            ONE_MEGABYTE
-        ).await()
-        emit(BitmapFactory.decodeByteArray(refe, 0, refe.size).asImageBitmap())
+        try {
+            val refe =
+                storageService.getImage(storageService.getUserPreferences()!!.selectedPfp).getBytes(
+                    ONE_MEGABYTE
+                ).await()
+            emit(BitmapFactory.decodeByteArray(refe, 0, refe.size).asImageBitmap())
+        }
+        catch (e:Exception){
+            val refe = storageService.getImage("/default_pfp.png").getBytes(
+                ONE_MEGABYTE
+            ).await()
+            emit(BitmapFactory.decodeByteArray(refe, 0, refe.size).asImageBitmap())
+        }
     }
     fun setNewSelected(index: Int) {
         savedStateHandle["navigationBarSelected"] = index
