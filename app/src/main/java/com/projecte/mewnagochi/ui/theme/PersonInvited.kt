@@ -119,13 +119,13 @@ class PersonInvited() {
     fun BuildSprite() {
         aniManager = AnimationManager(
             arrayOf(
-                Animation(getIdleMaps(), animTime = 1F),
-                Animation(getWalkingMapsL(), animTime = 8F),
-                Animation(getJumpMaps(), animTime = 2F),
-                Animation(getFallMaps(), animTime = 3F, freezLastFrame = true),
-                Animation(getWalkingMapsR(), animTime = 8F),
-                Animation(getUpMaps(), animTime = 10F),
-                Animation(getClickedMaps(), animTime = 1F),
+                Animation(getIdleMaps(), animTime = 1F, dialog = ImageBitmap.imageResource(id = R.drawable.dialog)),
+                Animation(getWalkingMapsL(), animTime = 8F, dialog = ImageBitmap.imageResource(id = R.drawable.dialog)),
+                Animation(getJumpMaps(), animTime = 2F, dialog = ImageBitmap.imageResource(id = R.drawable.dialog)),
+                Animation(getFallMaps(), animTime = 3F, freezLastFrame = true, dialog = ImageBitmap.imageResource(id = R.drawable.dialog)),
+                Animation(getWalkingMapsR(), animTime = 8F, dialog = ImageBitmap.imageResource(id = R.drawable.dialog)),
+                Animation(getUpMaps(), animTime = 10F, dialog = ImageBitmap.imageResource(id = R.drawable.dialog)),
+                Animation(getClickedMaps(), animTime = 1F, dialog = ImageBitmap.imageResource(id = R.drawable.dialog)),
             )
         )
 

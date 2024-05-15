@@ -1,10 +1,12 @@
 package com.projecte.mewnagochi.ui.animation
 
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
@@ -12,7 +14,10 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 
@@ -23,7 +28,8 @@ class Animation(
     private val animTime: Float,
     private val frameTime: Float = animTime / frames.size,
     private var lastFrame: MutableState<Long> = mutableLongStateOf(System.currentTimeMillis()),
-    private var freezLastFrame: Boolean = false
+    private var freezLastFrame: Boolean = false,
+    private val dialog: ImageBitmap
 ) {
 
     var isPlaying: Boolean = false
@@ -48,10 +54,21 @@ class Animation(
         ) {
             Canvas(
                 modifier = modifier
-                    .width(frames[frameIndex.value].width.dp/5)
-                    .height(frames[frameIndex.value].height.dp*10/53)
+                    .offset(-frames[frameIndex.value].width.dp / 5,-frames[frameIndex.value].height.dp * 10 / 53)
+                //.clipToBounds()
+            ) {
+                drawImage(
+                    dialog,
+        )
+            }
+            Canvas(
+                modifier = modifier
+                    .width(frames[frameIndex.value].width.dp / 5)
+                    .height(frames[frameIndex.value].height.dp * 10 / 53)
                     //.clipToBounds()
             ) {
+                //drawImage(dialog, topLeft = Offset(-dialog.width.toFloat()+size.width,-frames[frameIndex.value].height.toFloat() * 10 / 30))
+
                 drawImage(frames[frameIndex.value],
                     dstSize = IntSize(size.width.toInt(), size.height.toInt()),
                     )
