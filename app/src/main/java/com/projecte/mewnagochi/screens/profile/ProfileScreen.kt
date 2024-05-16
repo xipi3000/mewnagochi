@@ -64,10 +64,12 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import androidx.datastore.preferences.preferencesDataStoreFile
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import coil.compose.rememberImagePainter
@@ -93,6 +95,8 @@ fun ProfileScreen(
     val usersMoney by viewModel.money.collectAsState(initial = 0L)
     val userPreferences by viewModel.userPreferences.collectAsState(initial = UserPreferences())
     val uiState by viewModel.uiState
+    LocalContext.current.InternetPreferenceStateDataStore.
+
     //TODO: CHOOSE INTERNET
     val profilePictures by viewModel.photoList.collectAsState()
     when {
