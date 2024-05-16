@@ -136,4 +136,18 @@ class ProfileViewModel : ViewModel() {
         }
     }
 
+    fun selectInternetPreference(index: Int) {
+        viewModelScope.launch {
+            var userPreferences = storageService.getUserPreferences()
+            if(userPreferences==null) {
+                userPreferences = UserPreferences()
+            }
+            userPreferences =  userPreferences.copy(selectedInternetPreference = index)
+            storageService.updatePreferences(userPreferences){
+
+
+            }
+        }
+    }
+
 }

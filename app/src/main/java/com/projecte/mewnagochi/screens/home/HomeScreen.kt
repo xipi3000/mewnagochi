@@ -217,11 +217,10 @@ fun HomeScreen(homeScreenViewModel: HomeScreenViewModel = viewModel()) {
                 person.Draw()
 
 
-
-                }
             } else {
                 person2.Draw()
             }
+        }
 
         }
     }

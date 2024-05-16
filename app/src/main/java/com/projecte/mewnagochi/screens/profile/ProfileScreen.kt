@@ -6,6 +6,7 @@ import android.graphics.ImageDecoder.createSource
 import android.graphics.ImageDecoder.decodeBitmap
 import android.net.Uri
 import android.os.Build
+import android.provider.MediaStore.Audio.Radio
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
@@ -42,6 +43,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -53,6 +55,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -89,16 +92,8 @@ fun ProfileScreen(
     val currentUser by viewModel.currentUser.collectAsState(initial = User())
     val usersMoney by viewModel.money.collectAsState(initial = 0L)
     val userPreferences by viewModel.userPreferences.collectAsState(initial = UserPreferences())
-
     val uiState by viewModel.uiState
-
-    //TODO: FOTO DE PERFIL DE USUARI
-
     //TODO: CHOOSE INTERNET
-
-
-
-
     val profilePictures by viewModel.photoList.collectAsState()
     when {
         uiState.selectProfilePhoto -> {
@@ -166,6 +161,7 @@ fun ProfileScreen(
                     style = MaterialTheme.typography.headlineMedium,
                     modifier = Modifier.padding(bottom = 10.dp)
                 )
+                SelectInternetButton(userPreferences!!.selectedInternetPreference,viewModel::selectInternetPreference)
                 GoalSlider(
                     title = "Running Goal:",
                     goal = uiState.runningGoal,
@@ -265,6 +261,21 @@ fun ProfileScreen(
                 dialogText = "You are logging out of the app, your session will be closed",
                 icon = Icons.Default.Info
             )
+        }
+    }
+}
+
+@Composable
+fun SelectInternetButton(selectedWifiPreference: Int,selectWifiPreference: (Int) -> Unit) {
+    val buttons = listOf("wifi+mobile","wifi only")
+    Row {
+        buttons.forEachIndexed(){ index, name ->
+            Column(horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                RadioButton(selected = selectedWifiPreference==index, onClick = {selectWifiPreference(index)})
+                Text(name)
+            }
         }
     }
 }
