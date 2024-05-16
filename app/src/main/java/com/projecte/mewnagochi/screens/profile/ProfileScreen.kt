@@ -86,12 +86,7 @@ import kotlinx.coroutines.launch
 const val  ONE_MEGABYTE: Long = 1024 * 1024
 @RequiresApi(Build.VERSION_CODES.S)
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalGlideComposeApi::class)
-@Composable
-open fun getAppSetting(): InternetPreferenceState {
-    return context.dataStore.data.collectAsState(
-        initial = MovableObjectState()
-    ).value
-}
+
 
 
 @Composable
@@ -104,11 +99,9 @@ fun ProfileScreen(
     val usersMoney by viewModel.money.collectAsState(initial = 0L)
     val userPreferences by viewModel.userPreferences.collectAsState(initial = UserPreferences())
     val uiState by viewModel.uiState
-    val context : Context = LocalContext.current
-    context.dataStore.data.collectAsState(
-        initial = MovableObjectState()
-    ).value
-}
+    val internetPreference by LocalContext.current.InternetPreferenceStateDataStore.data.collectAsState(
+        initial = InternetPreferenceState())
+
 
     //TODO: CHOOSE INTERNET
     val profilePictures by viewModel.photoList.collectAsState()
@@ -178,7 +171,7 @@ fun ProfileScreen(
                     style = MaterialTheme.typography.headlineMedium,
                     modifier = Modifier.padding(bottom = 10.dp)
                 )
-                SelectInternetButton(userPreferences!!.selectedInternetPreference,viewModel::selectInternetPreference)
+                SelectInternetButton(internetPreference.internetPreferenceSelected,viewModel::selectInternetPreference)
                 GoalSlider(
                     title = "Running Goal:",
                     goal = uiState.runningGoal,
