@@ -19,10 +19,10 @@ data class HomeScreenUi(
 class HomeScreenViewModel (
     private val savedStateHandle : SavedStateHandle
 ) : ViewModel() {
-
     private val storageService = StorageServiceImpl()
     var uiState =  mutableStateOf(HomeScreenUi())
         private set
+    val functionMessage = "Que tal si vas a caminar un ratet"
     val items = storageService.items
     val selectedSkin: Flow<UserPreferences?> = storageService.userPreferences
 

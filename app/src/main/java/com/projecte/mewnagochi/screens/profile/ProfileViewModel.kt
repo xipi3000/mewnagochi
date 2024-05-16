@@ -67,11 +67,18 @@ class ProfileViewModel : ViewModel() {
     val profilePicture : Flow<ImageBitmap> get()= flow{
 
 
+        try {
+            val refe = storageService.getImage(storageService.getUserPreferences()!!.selectedPfp)
+                .getBytes(ONE_MEGABYTE).await()
 
-        val refe = storageService.getImage(storageService.getUserPreferences()!!.selectedPfp).getBytes(ONE_MEGABYTE).await()
+            emit(BitmapFactory.decodeByteArray(refe, 0, refe.size).asImageBitmap())
+        } catch (e : Exception){
+            val refe = storageService.getImage("/default_pfp.png")
+                .getBytes(ONE_MEGABYTE).await()
 
-        emit(BitmapFactory.decodeByteArray(refe, 0, refe.size).asImageBitmap())
+            emit(BitmapFactory.decodeByteArray(refe, 0, refe.size).asImageBitmap())
 
+        }
     }
 
     fun getProfilePicture(name:String){
