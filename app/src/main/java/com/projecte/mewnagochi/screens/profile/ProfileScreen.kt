@@ -1,5 +1,6 @@
 package com.projecte.mewnagochi.screens.profile
 
+import android.content.Context
 import android.graphics.BitmapFactory
 import android.graphics.Color.parseColor
 import android.graphics.ImageDecoder.createSource
@@ -86,6 +87,14 @@ const val  ONE_MEGABYTE: Long = 1024 * 1024
 @RequiresApi(Build.VERSION_CODES.S)
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalGlideComposeApi::class)
 @Composable
+open fun getAppSetting(): InternetPreferenceState {
+    return context.dataStore.data.collectAsState(
+        initial = MovableObjectState()
+    ).value
+}
+
+
+@Composable
 fun ProfileScreen(
     viewModel: ProfileViewModel = viewModel(),
     onSuccess: () -> Unit = {},
@@ -95,7 +104,11 @@ fun ProfileScreen(
     val usersMoney by viewModel.money.collectAsState(initial = 0L)
     val userPreferences by viewModel.userPreferences.collectAsState(initial = UserPreferences())
     val uiState by viewModel.uiState
-    LocalContext.current.InternetPreferenceStateDataStore.
+    val context : Context = LocalContext.current
+    context.dataStore.data.collectAsState(
+        initial = MovableObjectState()
+    ).value
+}
 
     //TODO: CHOOSE INTERNET
     val profilePictures by viewModel.photoList.collectAsState()
