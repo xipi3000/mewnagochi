@@ -13,11 +13,14 @@ import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import com.projecte.mewnagochi.MainActivity
 import com.projecte.mewnagochi.R
+import com.projecte.mewnagochi.services.auth.AccountServiceImpl
 
 
 class MyFirebaseMessagingService : FirebaseMessagingService() {
-    lateinit var firebaseMessageToken: String
+    private lateinit var firebaseMessageToken: String
     private val database: FirebaseDatabase = FirebaseDatabase.getInstance("https://mewnagochi-default-rtdb.europe-west1.firebasedatabase.app")
+    private val auth = AccountServiceImpl()
+    private lateinit var userID: String
     fun checkToken() {
         if (!this::firebaseMessageToken.isInitialized) {
             obtainFCMToken()
@@ -49,15 +52,18 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
         // Try to get the notification hour value
             // It works -> token already stored, don't modify it's configured hour
             // It fails -> add new token with default hour
+
         val ref = database.getReference("FCMTokens").child(token)
         ref.get().addOnCompleteListener {
             if (it.isSuccessful) {
                 val value = it.result?.value
                 if (value == null) {
+                    userID = auth.getUserId()
                     Log.i("FCM", "Setting default value")
-                    ref.setValue(20)
+                    ref.child("notification").setValue(20)
+                    ref.child("associatedTo").setValue(userID)
                 } else{
-                    Log.i("FCM", "Configured hour value found, not modifying it")
+                    Log.i("FCM", "Configured values found, not modifying")
                 }
             }
         }
@@ -65,7 +71,7 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
 
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
         super.onMessageReceived(remoteMessage)
-        displayNotification(applicationContext, remoteMessage.notification?.title, remoteMessage.notification?.body)
+        displayNotification(applicationContext, remoteMessage.data["title"], remoteMessage.data["body"])
     }
 
     fun displayNotification(context: Context, title: String?, body: String?) {
@@ -95,7 +101,8 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
     }
 
     fun modifyHourValue(newHour: Int) {
-        database.getReference("FCMTokens").child(firebaseMessageToken).setValue(newHour)
+        database.getReference("FCMTokens").child(firebaseMessageToken)
+            .child("notification").setValue(newHour)
     }
 
 }

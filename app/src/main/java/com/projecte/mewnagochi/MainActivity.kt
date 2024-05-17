@@ -15,7 +15,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val mFMS = MyFirebaseMessagingService()
-        mFMS.checkToken()
+
 
         setContent {
             MewnagochiTheme {
