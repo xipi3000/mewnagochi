@@ -24,6 +24,7 @@ import androidx.lifecycle.lifecycleScope
 import com.projecte.mewnagochi.screens.main.MainScreen
 import com.projecte.mewnagochi.screens.profile.InternetPreferenceState
 import com.projecte.mewnagochi.screens.profile.InternetPreferenceStateDataStore
+import com.projecte.mewnagochi.services.auth.NetworkConnection
 import com.projecte.mewnagochi.services.storage.StorageServiceImpl
 import com.projecte.mewnagochi.ui.theme.MewnagochiTheme
 
@@ -47,10 +48,12 @@ class MainActivity : ComponentActivity() {
             super.onCapabilitiesChanged(network, networkCapabilities)
             Log.i("firestoreNetwork",networkCapabilities.toString())
             if(networkCapabilities.toString().contains("WIFI")){
-                StorageServiceImpl().setFirestoreNetworkDisabled()
+                StorageServiceImpl().setFirestoreNetworkEnabled()
+                NetworkConnection.isAvailable=true
             }
             else{
                 StorageServiceImpl().setFirestoreNetworkDisabled()
+                NetworkConnection.isAvailable=false
             }
         }
 
@@ -90,12 +93,13 @@ class MainActivity : ComponentActivity() {
                     if(isRegistered)connMgr.unregisterNetworkCallback(networkCallback)
                     connMgr.requestNetwork(networkRequest,networkCallback)
                     isRegistered=true
-              
+
 
                 }
                 else{
                     if(isRegistered)connMgr.unregisterNetworkCallback(networkCallback)
                     StorageServiceImpl().setFirestoreNetworkEnabled()
+                    NetworkConnection.isAvailable=true
                     isRegistered=false
                 }
                 // A surface container using the 'background' color from the theme

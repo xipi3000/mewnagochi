@@ -4,14 +4,11 @@ package com.projecte.mewnagochi.screens.login
 import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.AuthCredential
 import com.projecte.mewnagochi.services.auth.AccountServiceImpl
-import kotlinx.coroutines.launch
 
 data class User(
     val id: String = "",
-    val isAnonymous: Boolean = true,
     val email: String = "",
     val displayName: String = "",
 )
