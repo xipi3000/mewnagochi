@@ -1,10 +1,12 @@
 package com.projecte.mewnagochi.screens.profile
 
+import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.storage.StorageReference
@@ -136,18 +138,13 @@ class ProfileViewModel : ViewModel() {
         }
     }
 
-    fun selectInternetPreference(index: Int) {
+    fun selectInternetPreference(context: Context,index : Int) {
         viewModelScope.launch {
-            var userPreferences = storageService.getUserPreferences()
-            if(userPreferences==null) {
-                userPreferences = UserPreferences()
-            }
-            userPreferences =  userPreferences.copy(selectedInternetPreference = index)
-            storageService.updatePreferences(userPreferences){
-
-
+            context.InternetPreferenceStateDataStore.updateData {
+                it.copy(internetPreferenceSelected = index)
             }
         }
     }
+
 
 }

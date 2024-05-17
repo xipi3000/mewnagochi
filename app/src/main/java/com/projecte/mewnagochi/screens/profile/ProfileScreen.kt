@@ -83,11 +83,10 @@ import com.projecte.mewnagochi.services.storage.StorageServiceImpl
 import com.projecte.mewnagochi.services.storage.UserPreferences
 import com.projecte.mewnagochi.ui.theme.PersonState
 import kotlinx.coroutines.launch
-const val  ONE_MEGABYTE: Long = 1024 * 1024
+
+const val ONE_MEGABYTE: Long = 1024 * 1024
+
 @RequiresApi(Build.VERSION_CODES.S)
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalGlideComposeApi::class)
-
-
 
 @Composable
 fun ProfileScreen(
@@ -100,7 +99,8 @@ fun ProfileScreen(
     val userPreferences by viewModel.userPreferences.collectAsState(initial = UserPreferences())
     val uiState by viewModel.uiState
     val internetPreference by LocalContext.current.InternetPreferenceStateDataStore.data.collectAsState(
-        initial = InternetPreferenceState())
+        initial = InternetPreferenceState()
+    )
 
 
     //TODO: CHOOSE INTERNET
@@ -110,7 +110,7 @@ fun ProfileScreen(
             ProfilePictureDialog(
                 onDismissRequest = { viewModel.onSelectProfilePhotoChange(false) },
                 onConfirmation =
-                    viewModel::setProfilePicture,
+                viewModel::setProfilePicture,
                 profilePictures = profilePictures,
                 setProfilePicture = viewModel::selectProfilePicture,
                 selectedPfp = uiState.selectedProfilePhoto
@@ -125,8 +125,6 @@ fun ProfileScreen(
     ) {
 
 
-
-
         Card(modifier = Modifier.fillMaxWidth()) {
 
 
@@ -135,17 +133,22 @@ fun ProfileScreen(
                     .fillMaxWidth()
                     .padding(10.dp)
             ) {
-                Row(){
+                Row() {
                     Box(modifier = Modifier
                         .clip(CircleShape)
                         .background(Color.White)
                         .size(140.dp)
                         .clickable {
                             viewModel.onSelectProfilePhotoChange(true)
-                        }){
+                        }) {
                         viewModel.getProfilePictures()
 
-                        val imageBitmap by viewModel.profilePicture.collectAsState(initial = ImageBitmap(1,1))
+                        val imageBitmap by viewModel.profilePicture.collectAsState(
+                            initial = ImageBitmap(
+                                1,
+                                1
+                            )
+                        )
 
 
                         Image(
@@ -171,7 +174,10 @@ fun ProfileScreen(
                     style = MaterialTheme.typography.headlineMedium,
                     modifier = Modifier.padding(bottom = 10.dp)
                 )
-                SelectInternetButton(internetPreference.internetPreferenceSelected,viewModel::selectInternetPreference)
+                SelectInternetButton(
+                    internetPreference.internetPreferenceSelected,
+                    viewModel::selectInternetPreference
+                )
                 GoalSlider(
                     title = "Running Goal:",
                     goal = uiState.runningGoal,
@@ -183,7 +189,7 @@ fun ProfileScreen(
                     },
                     maxRangeGoal = 30f,
                     isUnit = false,
-                    )
+                )
 
             }
         }
@@ -276,14 +282,23 @@ fun ProfileScreen(
 }
 
 @Composable
-fun SelectInternetButton(selectedWifiPreference: Int,selectWifiPreference: (Int) -> Unit) {
-    val buttons = listOf("wifi+mobile","wifi only")
+fun SelectInternetButton(
+    selectedWifiPreference: Int,
+    selectWifiPreference: (Context, Int) -> Unit
+) {
+    val buttons = listOf("wifi+mobile", "wifi")
+    val context = LocalContext.current
     Row {
-        buttons.forEachIndexed(){ index, name ->
-            Column(horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
-                ) {
-                RadioButton(selected = selectedWifiPreference==index, onClick = {selectWifiPreference(index)})
+        buttons.forEachIndexed() { index, name ->
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center
+            ) {
+                RadioButton(selected = selectedWifiPreference == index, onClick = {
+                    selectWifiPreference(
+                        context, index
+                    )
+                })
                 Text(name)
             }
         }
@@ -292,13 +307,13 @@ fun SelectInternetButton(selectedWifiPreference: Int,selectWifiPreference: (Int)
 
 @Composable
 fun GoalSlider(
-    title : String,
-    goal : Float,
+    title: String,
+    goal: Float,
     onValueChange: (Float) -> Unit,
     onValueChangeFinished: (() -> Unit)?,
     maxRangeGoal: Float,
-    isUnit : Boolean,
-){
+    isUnit: Boolean,
+) {
     Column {
         Text(text = title)
         Slider(
@@ -307,29 +322,29 @@ fun GoalSlider(
             onValueChangeFinished = onValueChangeFinished,
             valueRange = 0f..maxRangeGoal
         )
-        if(isUnit) Text(text = "%.0f".format(goal) + "km")
+        if (isUnit) Text(text = "%.0f".format(goal) + "km")
         else Text(text = "%.2f".format(goal) + "km")
     }
 }
+
 @Composable
 fun ProfilePictureDialog(
     onDismissRequest: () -> Unit,
     onConfirmation: (String) -> Unit,
-    dialogTitle: String= "Choose your profile picture:",
+    dialogTitle: String = "Choose your profile picture:",
     selectedPfp: String = "",
-    setProfilePicture : (String) -> Unit,
+    setProfilePicture: (String) -> Unit,
     profilePictures:
     List<StorageReference>,
 
 
-) {
+    ) {
     AlertDialog(
 
         title = {
             Text(text = dialogTitle)
         },
         text = {
-
 
 
             LazyRow {
@@ -369,7 +384,7 @@ fun ProfilePictureDialog(
 
                 }
 
-                }
+            }
         },
         onDismissRequest = {
             onDismissRequest()
@@ -394,6 +409,7 @@ fun ProfilePictureDialog(
         }
     )
 }
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AlertDialogExample(
