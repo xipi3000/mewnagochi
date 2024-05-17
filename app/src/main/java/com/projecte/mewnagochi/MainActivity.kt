@@ -1,42 +1,103 @@
 package com.projecte.mewnagochi
 
-import android.app.Activity
 import android.content.Context
+import android.net.ConnectivityManager
+import android.net.Network
+import android.net.NetworkCapabilities
+import android.net.NetworkRequest
+import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.lifecycleScope
-import androidx.navigation.NavHostController
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import androidx.navigation.compose.rememberNavController
-import com.projecte.mewnagochi.screens.home.HomeScreen
-import com.projecte.mewnagochi.screens.login.LoginScreen
 import com.projecte.mewnagochi.screens.main.MainScreen
-import com.projecte.mewnagochi.screens.sign_up.RegisterScreen
-import com.projecte.mewnagochi.screens.main.StatisticsScreen
-import com.projecte.mewnagochi.screens.profile.ProfileScreen
-import com.projecte.mewnagochi.screens.store.StoreScreen
-import com.projecte.mewnagochi.ui.theme.LabeledIcon
+import com.projecte.mewnagochi.screens.profile.InternetPreferenceState
+import com.projecte.mewnagochi.screens.profile.InternetPreferenceStateDataStore
+import com.projecte.mewnagochi.services.storage.StorageServiceImpl
 import com.projecte.mewnagochi.ui.theme.MewnagochiTheme
-import kotlinx.coroutines.CoroutineScope
 
 class MainActivity : ComponentActivity() {
+
+
+    private val networkCallback = object : ConnectivityManager.NetworkCallback() {
+        // network is available for use
+        override fun onAvailable(network: Network) {
+            super.onAvailable(network)
+            Log.i("firestoreNetwork", "Connected to $network")
+            StorageServiceImpl().setFirestoreNetworkEnabled()
+        }
+
+        // Network capabilities have changed for the network
+        @RequiresApi(Build.VERSION_CODES.S)
+        override fun onCapabilitiesChanged(
+            network: Network,
+            networkCapabilities: NetworkCapabilities
+        ) {
+            super.onCapabilitiesChanged(network, networkCapabilities)
+            Log.i("firestoreNetwork",networkCapabilities.toString())
+            if(networkCapabilities.toString().contains("WIFI")){
+                StorageServiceImpl().setFirestoreNetworkDisabled()
+            }
+            else{
+                StorageServiceImpl().setFirestoreNetworkDisabled()
+            }
+        }
+
+        // lost network connection
+        override fun onLost(network: Network) {
+            super.onLost(network)
+
+            Log.i("firestoreNetwork", "Disconnected from $network")
+        }
+    }
+
+    private val networkRequest : NetworkRequest = NetworkRequest.Builder()
+        .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+        .addTransportType(NetworkCapabilities.TRANSPORT_WIFI)
+        .addTransportType(NetworkCapabilities.TRANSPORT_CELLULAR)
+        .build()
+
+
+
+
+    @RequiresApi(Build.VERSION_CODES.S)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContent {
-            MewnagochiTheme {
+        val connMgr = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
 
+
+
+
+
+
+        setContent {
+            MewnagochiTheme() {
+                val internetPreferenceState by this.InternetPreferenceStateDataStore.data.collectAsState(initial = InternetPreferenceState())
+                var isRegistered by remember { mutableStateOf(false)}
+
+                if(internetPreferenceState.internetPreferenceSelected==1){
+                    if(isRegistered)connMgr.unregisterNetworkCallback(networkCallback)
+                    connMgr.requestNetwork(networkRequest,networkCallback)
+                    isRegistered=true
+              
+
+                }
+                else{
+                    if(isRegistered)connMgr.unregisterNetworkCallback(networkCallback)
+                    StorageServiceImpl().setFirestoreNetworkEnabled()
+                    isRegistered=false
+                }
                 // A surface container using the 'background' color from the theme
                 Surface(
                     modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background

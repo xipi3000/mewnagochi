@@ -13,6 +13,8 @@ import com.google.firebase.storage.storage
 import com.projecte.mewnagochi.services.auth.AccountServiceImpl
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
@@ -23,43 +25,66 @@ import java.util.UUID
 class StorageServiceImpl : StorageService {
     companion object {
         private const val USER_ID_FIELD = "userId"
-        private const val COMPLETED_FIELD = "completed"
-        private const val PRIORITY_FIELD = "priority"
-        private const val FLAG_FIELD = "flag"
-        private const val CREATED_AT_FIELD = "createdAt"
         private const val ITEM_COLLECTION = "items"
         private const val USER_COLLECTION = "usersPreferences"
-        private const val SAVE_TASK_TRACE = "saveItem"
         private const val MONEY_COLLECTION = "usersMoney"
-        private const val UPDATE_TASK_TRACE = "updateItem"
+
     }
 
-    private val firestore: FirebaseFirestore = Firebase.firestore
+    private val firestore: FirebaseFirestore = FirestoreProvider.firestore
     private val auth = AccountServiceImpl()
-    private val database: FirebaseDatabase = FirebaseDatabase.getInstance("https://mewnagochi-default-rtdb.europe-west1.firebasedatabase.app")
-    private val storage = Firebase.storage.reference.child("/")
+    private val database: FirebaseDatabase = FirebaseDatabaseProvider.instance
+    private val storage = FirebaseStorageProvider.instance
 
- /*   suspend fun listImages(param: (Any) -> Unit):  ArrayList<StorageReference>{
-        val photoArray : ArrayList<StorageReference> = ArrayList()
-        val photos = storage.listAll().await().items
-        photos.forEach { photo ->
-            photoArray.add(photo)
-            Log.i("profile",photo.name)
+
+ fun setFirestoreNetworkEnabled() {
+     val firestore = FirebaseFirestore.getInstance()
+         firestore.enableNetwork()
+             .addOnCompleteListener { task ->
+                 if (task.isSuccessful) {
+                     Log.i("firestoreNetwork","Going online")
+                 } else {
+                     // Handle failure
+                 }
+             }
+         database.goOnline()
+         FirebaseStorageProvider.enable()
+
+
+
+ }
+    fun setFirestoreNetworkDisabled() {
+    firestore.disableNetwork()
+    .addOnCompleteListener { task ->
+        if (task.isSuccessful) {
+            Log.i("firestoreNetwork","Going offline")
+        } else {
+            Log.e("firestoreNetwork","Error going offline")
         }
-        return photoArray
+    }
+    database.goOffline()
+    FirebaseStorageProvider.disable()
 
-    }*/
+}
      suspend fun listImages(onPhotosReceived: (List<StorageReference>) -> Unit) {
-         val photos = storage.listAll().await().items
-         onPhotosReceived(photos)
-     }
-    fun getImage(name : String): StorageReference {
-
-        try {
-            return storage.child("/").child(name)
+        if(FirebaseStorageProvider.enabled.value) {
+            val photos = storage.listAll().await().items
+            onPhotosReceived(photos)
         }
-        catch (e:Exception){
-            return storage.child("/default_pfp.png")
+         else{
+            onPhotosReceived(emptyList())
+        }
+     }
+    fun getImage(name : String): StorageReference? {
+        if(FirebaseStorageProvider.enabled.value) {
+            try {
+                return storage.child("/").child(name)
+            } catch (e: Exception) {
+                return storage.child("/default_pfp.png")
+            }
+        }
+        else{
+            return null
         }
 
     }
@@ -211,4 +236,29 @@ class StorageServiceImpl : StorageService {
     override fun deleteItem(itemId: String, onResult: (Throwable?) -> Unit) {
         TODO("Not yet implemented")
     }
+}
+object FirestoreProvider {
+    val firestore: FirebaseFirestore by lazy {
+        Firebase.firestore
+    }
+}
+
+object FirebaseDatabaseProvider {
+    val instance: FirebaseDatabase by lazy {
+        FirebaseDatabase.getInstance("https://mewnagochi-default-rtdb.europe-west1.firebasedatabase.app")
+    }
+}
+object FirebaseStorageProvider {
+    val enabled = MutableStateFlow(true)
+    val enableFlow = enabled.asStateFlow()
+    val instance  : StorageReference by lazy {
+        Firebase.storage.reference.child("/")
+    }
+    fun disable(){
+        enabled.value = false
+    }
+    fun enable(){
+        enabled.value = true
+    }
+
 }

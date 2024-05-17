@@ -1,12 +1,10 @@
 package com.projecte.mewnagochi.screens.profile
 
 import android.content.Context
-import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.storage.StorageReference
@@ -35,29 +33,31 @@ class ProfileViewModel : ViewModel() {
     val photoList: StateFlow<List<StorageReference>> = _photoList
 
     val accountService = AccountServiceImpl()
-    val currentUser : Flow<User> = AccountServiceImpl().currentUser
+    val currentUser: Flow<User> = AccountServiceImpl().currentUser
     private val storageService = StorageServiceImpl()
     val money: Flow<Long> = storageService.money
 
     val userPreferences: Flow<UserPreferences?> = storageService.userPreferences
-    fun logOut(onSuccess: () -> Unit,onResult: (Throwable?) -> Unit) {
+    fun logOut(onSuccess: () -> Unit, onResult: (Throwable?) -> Unit) {
         accountService.signOut(onSuccess, onResult)
     }
-    fun setSkinWhitch(){
+
+    fun setSkinWhitch() {
         viewModelScope.launch {
             var userPreferences = storageService.getUserPreferences()
-            if(userPreferences==null) {
+            if (userPreferences == null) {
                 userPreferences = UserPreferences()
             }
             userPreferences = userPreferences.copy(selectedSkin = "witch")
-            storageService.updatePreferences(userPreferences){
+            storageService.updatePreferences(userPreferences) {
 
 
             }
         }
 
     }
-    fun getProfilePictures(){
+
+    fun getProfilePictures() {
 
         viewModelScope.launch {
             storageService.listImages { photos ->
@@ -66,38 +66,50 @@ class ProfileViewModel : ViewModel() {
         }
     }
 
-    val profilePicture : Flow<ImageBitmap> get()= flow{
+    val profilePicture: Flow<ImageBitmap>
+        get() = flow {
 
+            try {
+                val refe =
+                    storageService.getImage(storageService.getUserPreferences()!!.selectedPfp)!!
+                        .getBytes(
+                            ONE_MEGABYTE
+                        ).await()
+                emit(BitmapFactory.decodeByteArray(refe, 0, refe.size).asImageBitmap())
+            } catch (e: Exception) {
+                try {
+                    val refe = storageService.getImage("/default_pfp.png")!!.getBytes(
+                        ONE_MEGABYTE
+                    ).await()
+                    emit(BitmapFactory.decodeByteArray(refe, 0, refe.size).asImageBitmap())
+                } catch (e: Exception) {
 
-        try {
-            val refe = storageService.getImage(storageService.getUserPreferences()!!.selectedPfp)
-                .getBytes(ONE_MEGABYTE).await()
-
-            emit(BitmapFactory.decodeByteArray(refe, 0, refe.size).asImageBitmap())
-        } catch (e : Exception){
-            val refe = storageService.getImage("/default_pfp.png")
-                .getBytes(ONE_MEGABYTE).await()
-
-            emit(BitmapFactory.decodeByteArray(refe, 0, refe.size).asImageBitmap())
-
+                    emit(ImageBitmap(1,1))
+                }
+            }
         }
+
+    fun getProfilePicture(name: String) {
+        try {
+        storageService.getImage(name)!!.getBytes(ONE_MEGABYTE).addOnSuccessListener {
+
+            BitmapFactory.decodeByteArray(it, 0, it.size).asImageBitmap()
+        }
+        } catch (e: Exception) {
+
+            BitmapFactory.decodeByteArray(null, 0, 0).asImageBitmap()
+        }
+
     }
 
-    fun getProfilePicture(name:String){
-        storageService.getImage(name).getBytes(ONE_MEGABYTE).addOnSuccessListener {
-
-               BitmapFactory.decodeByteArray(it, 0, it.size).asImageBitmap()
-      }
-
-    }
     fun setSkinAdventurer() {
         viewModelScope.launch {
             var userPreferences = storageService.getUserPreferences()
-            if(userPreferences==null) {
+            if (userPreferences == null) {
                 userPreferences = UserPreferences()
             }
-            userPreferences =  userPreferences.copy(selectedSkin = "adventurer")
-            storageService.updatePreferences(userPreferences){
+            userPreferences = userPreferences.copy(selectedSkin = "adventurer")
+            storageService.updatePreferences(userPreferences) {
 
 
             }
@@ -105,13 +117,15 @@ class ProfileViewModel : ViewModel() {
     }
 
     fun onOpenAlertDialogChange(value: Boolean) {
-        uiState.value = uiState.value.copy(openAlertDialog =value)
+        uiState.value = uiState.value.copy(openAlertDialog = value)
     }
+
     fun onSelectProfilePhotoChange(value: Boolean) {
-        uiState.value = uiState.value.copy(selectProfilePhoto =value)
+        uiState.value = uiState.value.copy(selectProfilePhoto = value)
     }
-    fun onRunningGoalChanged(value : Float) {
-        uiState.value = uiState.value.copy(runningGoal =value)
+
+    fun onRunningGoalChanged(value: Float) {
+        uiState.value = uiState.value.copy(runningGoal = value)
 
     }
 
@@ -120,25 +134,27 @@ class ProfileViewModel : ViewModel() {
 
         }
     }
+
     fun selectProfilePicture(name: String) {
-        uiState.value = uiState.value.copy(selectedProfilePhoto =name)
+        uiState.value = uiState.value.copy(selectedProfilePhoto = name)
     }
+
     fun setProfilePicture(name: String) {
         onSelectProfilePhotoChange(false)
         viewModelScope.launch {
             var userPreferences = storageService.getUserPreferences()
-            if(userPreferences==null) {
+            if (userPreferences == null) {
                 userPreferences = UserPreferences()
             }
-            userPreferences =  userPreferences.copy(selectedPfp = name)
-            storageService.updatePreferences(userPreferences){
+            userPreferences = userPreferences.copy(selectedPfp = name)
+            storageService.updatePreferences(userPreferences) {
 
 
             }
         }
     }
 
-    fun selectInternetPreference(context: Context,index : Int) {
+    fun selectInternetPreference(context: Context, index: Int) {
         viewModelScope.launch {
             context.InternetPreferenceStateDataStore.updateData {
                 it.copy(internetPreferenceSelected = index)

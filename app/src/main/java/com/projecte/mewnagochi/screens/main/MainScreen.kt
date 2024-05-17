@@ -2,31 +2,28 @@ package com.projecte.mewnagochi.screens.main
 
 import android.app.Activity
 import android.content.Context
+import android.graphics.Color.parseColor
 import android.os.Build
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.annotation.RequiresApi
-import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -40,16 +37,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
@@ -57,20 +53,21 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.projecte.mewnagochi.ui.theme.LabeledIcon
 import com.projecte.mewnagochi.R
-import com.projecte.mewnagochi.screens.login.LoginScreen
-import com.projecte.mewnagochi.screens.login.LoginViewModel
-import com.projecte.mewnagochi.screens.sign_up.RegisterScreen
-import com.projecte.mewnagochi.screens.login.User
 import com.projecte.mewnagochi.screens.forgot_password.ForgotPasswordScreen
 import com.projecte.mewnagochi.screens.home.HomeScreen
+import com.projecte.mewnagochi.screens.login.LoginScreen
+import com.projecte.mewnagochi.screens.login.LoginViewModel
+import com.projecte.mewnagochi.screens.login.User
 import com.projecte.mewnagochi.screens.profile.ProfileScreen
+import com.projecte.mewnagochi.screens.sign_up.RegisterScreen
+import com.projecte.mewnagochi.screens.store.StoreScreen
+import com.projecte.mewnagochi.services.storage.FirebaseStorageProvider
 import com.projecte.mewnagochi.stats.HealthConnectAvailability
 import com.projecte.mewnagochi.stats.HealthConnectManager
 import com.projecte.mewnagochi.stats.StatsViewModel
-import com.projecte.mewnagochi.screens.store.StoreScreen
 import com.projecte.mewnagochi.ui.StatsScreen
+import com.projecte.mewnagochi.ui.theme.LabeledIcon
 import kotlinx.coroutines.CoroutineScope
 
 
@@ -114,17 +111,17 @@ fun MainScreen(
     val user by myViewModel.currentUser.collectAsState(initial = User())
     val userMoney by myViewModel.money.collectAsState(initial = null)
     val imageBitmap by myViewModel.profilePicture.collectAsState(initial = ImageBitmap(1,1))
+    val networkOnline by    FirebaseStorageProvider.enableFlow.collectAsState(initial = false)
     Scaffold(
         topBar = {
             if (navigationBarItems.any { it.label == currentRoute }&&currentRoute!="Profile") {
                 TopAppBar(title = {
-                    userMoney?.let {
                         UserAppBar(
                             user=user.displayName,
-                            numOfCoins = it,
+                            numOfCoins = userMoney?:0,
                             imageBitmap = imageBitmap
                         )
-                    }
+
                 })
             }
         },
@@ -153,37 +150,58 @@ fun MainScreen(
             }
 
     }) { scaffoldPadding ->
-        Column(
-            modifier = Modifier.padding(scaffoldPadding)
-        ) {
-            NavHost(
-                navController = navController, startDestination = "login"
-            ) {
-                navigationBarItems.forEach { item ->
-                    composable(item.label) {
-                        item.screen()
+
+        Box(modifier = Modifier.padding(scaffoldPadding), contentAlignment = Alignment.TopCenter) {
+            Column {
+
+                NavHost(
+                    navController = navController, startDestination = "login"
+                ) {
+                    navigationBarItems.forEach { item ->
+                        composable(item.label) {
+                            item.screen()
+                        }
+                    }
+                    composable("login") {
+                        LoginScreen(
+                            onLoginFinished = { navController.navigate("Home") },
+                            onRegister = { navController.navigate("register") },
+                            onForgotPassword = { navController.navigate("forgot_password") },
+                        )
+                    }
+                    composable("register") {
+                        RegisterScreen()
+                        {
+                            navController.navigate("login")
+                        }
+                    }
+                    composable("forgot_password") {
+                        ForgotPasswordScreen()
+                        {
+                            navController.navigate("login")
+                        }
                     }
                 }
-                composable("login"){
-                    LoginScreen(
-                        onLoginFinished = {navController.navigate("Home")},
-                        onRegister = {navController.navigate("register")},
-                        onForgotPassword =  {navController.navigate("forgot_password")},
+
+            }
+            if(!networkOnline&&navigationBarItems.any { it.label == currentRoute }) {
+                Card(
+                    modifier = Modifier.padding(10.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = Color(parseColor("#aff74848")),
+
+                        ),
+                ) {
+                    Text(
+                        textAlign = TextAlign.Center,
+                        color = Color.White,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.padding(5.dp),
+                        text = "Network not available,\nplease reconnect"
                     )
                 }
-                composable("register"){
-                    RegisterScreen()
-                    {
-                        navController.navigate("login")
-                    }
-                }
-                composable("forgot_password"){
-                    ForgotPasswordScreen()
-                    {
-                        navController.navigate("login")
-                    }
-                }
             }
+
 
         }
     }
