@@ -91,6 +91,7 @@ fun MainScreen(
     val notificationPermissionLauncher =
         rememberLauncherForActivityResult(contract = ActivityResultContracts.RequestPermission(),
             onResult = {})
+    mFMS.checkToken()
 
     Log.i("ROUTE", navController.currentDestination.toString())
     val selectedItem by myViewModel.navigationBarSelected.collectAsState()

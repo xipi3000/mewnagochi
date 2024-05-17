@@ -16,7 +16,7 @@ import kotlinx.coroutines.launch
 data class ProfileUiState(
     val openAlertDialog: Boolean = false,
     val stepsGoal: Int = 0,
-    val notificationHour: Int = 20,
+    val notificationHour : Int = 20,
     val currentSteps : Int = 0
 )
 
