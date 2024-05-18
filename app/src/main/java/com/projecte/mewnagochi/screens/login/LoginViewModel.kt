@@ -55,9 +55,7 @@ class LoginViewModel : ViewModel() {
         accountService.authenticateWithGoogle(credential){
             error ->
             if(error == null){
-
                     onSuccess()
-
             }
             else {
                 Log.e("error",error.toString())
