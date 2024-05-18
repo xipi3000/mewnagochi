@@ -61,12 +61,13 @@ fun LoginScreen(
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult()
     ) {
+        try{
         val task = GoogleSignIn.getSignedInAccountFromIntent(it.data)
-
-            val account = task.getResult(ApiException::class.java)
-            val credential = GoogleAuthProvider.getCredential(account.idToken,null)
-            viewModel.loginUserWithGoogle(credential, onSuccess = onLoginFinished)
-
+        val account = task.getResult(ApiException::class.java)
+        val credential = GoogleAuthProvider.getCredential(account.idToken,null)
+        viewModel.loginUserWithGoogle(credential, onSuccess = onLoginFinished)
+        }
+        catch (e : Exception){}
     }
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,

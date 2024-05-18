@@ -24,8 +24,12 @@ class LoginViewModel : ViewModel() {
     var uiState = mutableStateOf(LoginUiState())
         private set
     fun isUserLoggedIn(): Boolean{
+
         val accountService = AccountServiceImpl()
-        return accountService.isUserSignedIn
+        if(accountService.verifyEmail()) {
+            return accountService.isUserSignedIn
+        }
+        return false
     }
     fun onEmailChange(email: String) {
         uiState.value = uiState.value.copy(email = email)
@@ -51,7 +55,9 @@ class LoginViewModel : ViewModel() {
         accountService.authenticateWithGoogle(credential){
             error ->
             if(error == null){
-                onSuccess()
+
+                    onSuccess()
+
             }
             else {
                 Log.e("error",error.toString())
