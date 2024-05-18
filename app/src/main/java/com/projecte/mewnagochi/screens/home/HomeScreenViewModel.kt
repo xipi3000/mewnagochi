@@ -16,13 +16,16 @@ data class HomeScreenUi(
     val isEditingFurniture:Boolean = false,
     val isAnyFurnitureSelected:Boolean = false,
 )
-class HomeScreenViewModel: ViewModel() {
+class HomeScreenViewModel (
+    private val savedStateHandle : SavedStateHandle
+) : ViewModel() {
     private val storageService = StorageServiceImpl()
     var uiState =  mutableStateOf(HomeScreenUi())
         private set
     val functionMessage : Flow<String> get()= flow{
-        emit( "Que tal si vas a caminar un ratet")
+        emit("Que tal si vas a caminar un ratet")
         delay(3000)
+            // delay(3000)
         emit("")
     }
     val items = storageService.items
