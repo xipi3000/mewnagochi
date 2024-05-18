@@ -25,9 +25,9 @@ class HomeScreenViewModel (
     var uiState =  mutableStateOf(HomeScreenUi())
         private set
     val functionMessage : Flow<String> get()= flow{
-       emit( "Que tal si vas a caminar un ratet")
+        emit("Que tal si vas a caminar un ratet")
         delay(3000)
-           // delay(3000)
+            // delay(3000)
         emit("")
 
     }
