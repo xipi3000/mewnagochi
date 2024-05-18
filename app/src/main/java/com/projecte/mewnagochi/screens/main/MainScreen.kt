@@ -70,7 +70,7 @@ fun MainScreen(
     activity: Activity,
     navigationBarItems: List<LabeledIcon> = listOf(
         LabeledIcon("Home", Icons.Filled.Home) {
-            HomeScreen()
+            HomeScreen(mFMS=mFMS)
         },
         LabeledIcon("Stats", Icons.Filled.Info) {
             StatisticsScreen(context, activity)
@@ -91,7 +91,6 @@ fun MainScreen(
     val notificationPermissionLauncher =
         rememberLauncherForActivityResult(contract = ActivityResultContracts.RequestPermission(),
             onResult = {})
-    mFMS.checkToken()
 
     Log.i("ROUTE", navController.currentDestination.toString())
     val selectedItem by myViewModel.navigationBarSelected.collectAsState()

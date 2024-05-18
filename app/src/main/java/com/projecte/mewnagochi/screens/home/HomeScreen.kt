@@ -1,6 +1,5 @@
 package com.projecte.mewnagochi.screens.home
 
-import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -11,10 +10,8 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -26,7 +23,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Create
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.Icon
@@ -49,19 +45,18 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.projecte.mewnagochi.R
-import com.projecte.mewnagochi.services.storage.Item
+import com.projecte.mewnagochi.services.notification.MyFirebaseMessagingService
 import com.projecte.mewnagochi.services.storage.UserPreferences
 import com.projecte.mewnagochi.ui.furniture.MovableItem
 import com.projecte.mewnagochi.ui.theme.Person
 import com.projecte.mewnagochi.ui.theme.PersonInvited
-import java.util.UUID
-
-
-
 
 
 @Composable
-fun HomeScreen(homeScreenViewModel: HomeScreenViewModel = viewModel()) {
+fun HomeScreen(homeScreenViewModel: HomeScreenViewModel = viewModel(),
+               mFMS: MyFirebaseMessagingService
+) {
+    mFMS.checkToken()
     val uiState by homeScreenViewModel.uiState
     var isAddingFurniture by remember { mutableStateOf(false) }
 

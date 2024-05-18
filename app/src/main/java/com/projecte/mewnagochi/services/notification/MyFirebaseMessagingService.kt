@@ -71,7 +71,7 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
 
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
         super.onMessageReceived(remoteMessage)
-        displayNotification(applicationContext, remoteMessage.data["title"], remoteMessage.data["body"])
+        displayNotification(applicationContext, remoteMessage.notification!!.title, remoteMessage.notification!!.body)
     }
 
     fun displayNotification(context: Context, title: String?, body: String?) {
