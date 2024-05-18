@@ -1,19 +1,12 @@
 package com.projecte.mewnagochi.services.notification
 
-import android.app.NotificationManager
-import android.app.PendingIntent
-import android.content.Context
 import android.content.Intent
 import android.util.Log
-import androidx.core.app.NotificationCompat
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.messaging.FirebaseMessaging
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
-import com.projecte.mewnagochi.MainActivity
-import com.projecte.mewnagochi.R
 import com.projecte.mewnagochi.services.auth.AccountServiceImpl
-
 
 class MyFirebaseMessagingService: FirebaseMessagingService() {
     private lateinit var firebaseMessageToken: String
@@ -29,20 +22,19 @@ class MyFirebaseMessagingService: FirebaseMessagingService() {
     fun obtainFCMToken(){
         FirebaseMessaging.getInstance().token.addOnCompleteListener {
             if (!it.isComplete) {
-                Log.i("FCM_token", "getInstanceId failed", it.exception)
+                Log.i("FCM_Token", "getInstanceId failed", it.exception)
                 firebaseMessageToken = ""
                 return@addOnCompleteListener
             }
-
             firebaseMessageToken = it.result.toString()
-            Log.i("FCM_token", "FCM Token: $firebaseMessageToken")
+            Log.i("FCM_Token", "FCM Token: $firebaseMessageToken")
             sendRegistrationToServer(firebaseMessageToken)
         }
     }
 
     override fun onNewToken(token: String) {
         super.onNewToken(token)
-        Log.i("Notification", "New token: $token")
+        Log.i("FCM_Token", "New token: $token")
         sendRegistrationToServer(token)
     }
 
@@ -68,45 +60,16 @@ class MyFirebaseMessagingService: FirebaseMessagingService() {
 
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
         super.onMessageReceived(remoteMessage)
-        // Suda del tema de data messages, son notifications
-        if (remoteMessage.data.size > 0){
-            Log.i("FCM", "Recieved data message")
-            displayNotification(applicationContext, remoteMessage.data["title"], remoteMessage.data["body"])
-            Log.i("FCM", "Displayed data message!")
-        } else{
-        // Si vols probar algo proba amb aquestes dades
-            Log.i("FCM", "Recieved notification")
-            displayNotification(applicationContext, remoteMessage.notification!!.title, remoteMessage.notification!!.body)
-            Log.i("FCM", "Displayed notification!")
-        }
-    }
-
-    fun displayNotification(context: Context, title: String?, body: String?) {
-        val intent = Intent(context, MainActivity::class.java)
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-        val pendingIntent = PendingIntent.getActivity(
-            context,
-            0,
-            intent,
-            PendingIntent.FLAG_IMMUTABLE,
-        )
-
-        val channelId = getString(R.string.default_notification_channel_id)
-        val notificationBuilder = NotificationCompat.Builder(context, channelId)
-            .setSmallIcon(R.drawable.window)
-            .setContentTitle(title)
-            .setContentText(body)
-            .setAutoCancel(true)
-            .setContentIntent(pendingIntent)
-
-        val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-
-        notificationManager.notify(0, notificationBuilder.build())
+        // When recieving message, relay notification display to background service
+        // This way, notifications are displayed even with the application killed
+        val intent = Intent(applicationContext, myBackgroundService::class.java)
+        intent.putExtra("title", remoteMessage.notification!!.title)
+        intent.putExtra("body", remoteMessage.notification?.body ?: "")
+        startService(intent)
     }
 
     fun modifyHourValue(newHour: Int) {
         database.getReference("FCMTokens").child(firebaseMessageToken)
             .child("notification").setValue(newHour)
     }
-
 }

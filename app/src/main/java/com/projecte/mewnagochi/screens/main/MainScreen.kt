@@ -79,13 +79,15 @@ fun MainScreen(
     myViewModel: MyViewModel = viewModel(),
     navController: NavHostController = rememberNavController(),
     context: Context,
-    activity: Activity,
+    sVM: StatsViewModel,
+    sHS: SnackbarHostState,
+    hcm: HealthConnectManager,
     navigationBarItems: List<LabeledIcon> = listOf(
         LabeledIcon("Home", Icons.Filled.Home) {
             HomeScreen(mFMS=mFMS)
         },
         LabeledIcon("Stats", Icons.Filled.Info) {
-            StatisticsScreen(context, activity)
+            StatisticsScreen(context = context, sVM = sVM, sHS = sHS, hcm = hcm)
         },
         LabeledIcon("Store", Icons.Filled.ShoppingCart) {
             StoreScreen()
@@ -103,7 +105,6 @@ fun MainScreen(
     val notificationPermissionLauncher =
         rememberLauncherForActivityResult(contract = ActivityResultContracts.RequestPermission(),
             onResult = {})
-
     Log.i("ROUTE", navController.currentDestination.toString())
     val selectedItem by myViewModel.navigationBarSelected.collectAsState()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
@@ -165,6 +166,7 @@ fun MainScreen(
                             onLoginFinished = { navController.navigate("Home") },
                             onRegister = { navController.navigate("register") },
                             onForgotPassword = { navController.navigate("forgot_password") },
+                            notifLauncher = notificationPermissionLauncher
                         )
                     }
                     composable("register") {
@@ -203,6 +205,22 @@ fun MainScreen(
 
         }
 
+    }
+}
+
+@Composable
+fun StatisticsScreen(context: Context, sVM: StatsViewModel, sHS: SnackbarHostState, hcm: HealthConnectManager) {
+    StatsScreen(statsViewModel = sVM, snackbarHostState = sHS, healthConnectMannager = hcm)
+    LaunchedEffect(true) {
+        //if no permisions -> request
+        if (!sVM.checkPermissions(context) && !(hcm.availability.value == HealthConnectAvailability.NOT_SUPPORTED ||
+                    hcm.availability.value == HealthConnectAvailability.NOT_INSTALLED)) {
+            Log.i("permission", "first request")
+            sVM.requestPermissions(context = context)
+        } else if (!(hcm.availability.value == HealthConnectAvailability.NOT_SUPPORTED ||
+                    hcm.availability.value == HealthConnectAvailability.NOT_INSTALLED)){
+            sVM.getData(hcm)
+        }
     }
 }
 
@@ -252,37 +270,5 @@ fun UserAppBar(user:String ="user", modifier: Modifier = Modifier,numOfCoins:Lon
                     )
                 }
             }
-    }
-}
-
-@Composable
-fun StatisticsScreen(context: Context, activity: Activity) {
-    val healthConnectManager by lazy {
-        HealthConnectManager(context)
-    }
-    val statsViewModel = StatsViewModel()
-    val snackbarHostState = SnackbarHostState()
-
-    //initialization of healthPermissionLauncher
-    statsViewModel.healthPermissionLauncher =
-        rememberLauncherForActivityResult(contract = healthConnectManager.requestPermissionsActivityContract(),
-            onResult = { grantedPermissions: Set<String> ->
-                statsViewModel.onPermissionResult(
-                    healthConnectManager,
-                    context,
-                    grantedPermissions,
-                    snackbarHostState,
-                    activity
-                )
-            })
-    StatsScreen(statsViewModel = statsViewModel, snackbarHostState,healthConnectManager)
-    LaunchedEffect(true) {
-        //if no permisions -> request
-        if (!statsViewModel.checkPermissions(context) && !(healthConnectManager.availability.value == HealthConnectAvailability.NOT_SUPPORTED || healthConnectManager.availability.value == HealthConnectAvailability.NOT_INSTALLED)) {
-            Log.i("permission", "first request")
-            statsViewModel.requestPermissions(context = context)
-        } else if (!(healthConnectManager.availability.value == HealthConnectAvailability.NOT_SUPPORTED || healthConnectManager.availability.value == HealthConnectAvailability.NOT_INSTALLED)) {
-            statsViewModel.getData(healthConnectManager)
-        }
     }
 }
