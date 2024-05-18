@@ -4,18 +4,14 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
-import android.media.RingtoneManager
 import android.util.Log
-import androidx.compose.runtime.Composable
 import androidx.core.app.NotificationCompat
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.messaging.FirebaseMessaging
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import com.projecte.mewnagochi.MainActivity
 import com.projecte.mewnagochi.R
-import com.projecte.mewnagochi.screens.home.HomeScreenViewModel
 import com.projecte.mewnagochi.services.auth.AccountServiceImpl
 
 
@@ -72,13 +68,18 @@ class MyFirebaseMessagingService: FirebaseMessagingService() {
 
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
         super.onMessageReceived(remoteMessage)
-        displayNotification(applicationContext, remoteMessage.notification!!.title, remoteMessage.notification!!.body)
+        // Suda del tema de data messages, son notifications
+        if (remoteMessage.data.size > 0){
+            Log.i("FCM", "Recieved data message")
+            displayNotification(applicationContext, remoteMessage.data["title"], remoteMessage.data["body"])
+            Log.i("FCM", "Displayed data message!")
+        } else{
+        // Si vols probar algo proba amb aquestes dades
+            Log.i("FCM", "Recieved notification")
+            displayNotification(applicationContext, remoteMessage.notification!!.title, remoteMessage.notification!!.body)
+            Log.i("FCM", "Displayed notification!")
+        }
     }
-
-//    fun checkIfBackground(){
-//        val homeScreenViewModel = HomeScreenViewModel()
-//        homeScreenViewModel.functionMessage.
-//    }
 
     fun displayNotification(context: Context, title: String?, body: String?) {
         val intent = Intent(context, MainActivity::class.java)
@@ -91,19 +92,16 @@ class MyFirebaseMessagingService: FirebaseMessagingService() {
         )
 
         val channelId = getString(R.string.default_notification_channel_id)
-        val defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
         val notificationBuilder = NotificationCompat.Builder(context, channelId)
             .setSmallIcon(R.drawable.window)
             .setContentTitle(title)
             .setContentText(body)
             .setAutoCancel(true)
-            .setSound(defaultSoundUri)
             .setContentIntent(pendingIntent)
 
         val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
-        val notificationId = 0
-        notificationManager.notify(notificationId, notificationBuilder.build())
+        notificationManager.notify(0, notificationBuilder.build())
     }
 
     fun modifyHourValue(newHour: Int) {
