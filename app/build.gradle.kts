@@ -94,5 +94,7 @@ dependencies {
     implementation("com.google.android.gms:play-services-auth:20.7.0")
     implementation("com.google.firebase:firebase-database")
     implementation("com.google.firebase:firebase-messaging:23.0.0")
-
+    implementation("com.google.firebase:firebase-storage")
+    implementation("io.coil-kt:coil-compose:2.6.0")
+    implementation("com.github.bumptech.glide:compose:1.0.0-beta01")
 }

@@ -8,7 +8,9 @@ import com.projecte.mewnagochi.services.auth.AccountServiceImpl
 import com.projecte.mewnagochi.services.storage.Item
 import com.projecte.mewnagochi.services.storage.StorageServiceImpl
 import com.projecte.mewnagochi.services.storage.UserPreferences
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 
 data class HomeScreenUi(
@@ -19,10 +21,16 @@ data class HomeScreenUi(
 class HomeScreenViewModel (
     private val savedStateHandle : SavedStateHandle
 ) : ViewModel() {
-
     private val storageService = StorageServiceImpl()
     var uiState =  mutableStateOf(HomeScreenUi())
         private set
+    val functionMessage : Flow<String> get()= flow{
+       emit( "Que tal si vas a caminar un ratet")
+        viewModelScope.launch {
+            delay(3000)
+            emit("")
+        }
+    }
     val items = storageService.items
     val selectedSkin: Flow<UserPreferences?> = storageService.userPreferences
 

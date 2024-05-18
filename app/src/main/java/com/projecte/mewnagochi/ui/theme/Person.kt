@@ -22,6 +22,7 @@ import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.imageResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.IntOffset
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.projecte.mewnagochi.R
@@ -119,13 +120,13 @@ class Person() {
     fun BuildSprite() {
         aniManager = AnimationManager(
             arrayOf(
-                Animation(getIdleMaps(), animTime = 1F),
-                Animation(getWalkingMapsL(), animTime = 8F),
-                Animation(getJumpMaps(), animTime = 2F),
-                Animation(getFallMaps(), animTime = 3F, freezLastFrame = true),
-                Animation(getWalkingMapsR(), animTime = 8F),
-                Animation(getUpMaps(), animTime = 10F),
-                Animation(getClickedMaps(), animTime = 1F),
+                Animation(getIdleMaps(),animTime = 1F, dialog = ImageBitmap.imageResource(id = R.drawable.dialog)),
+                Animation(getWalkingMapsL(), animTime = 8F, dialog = ImageBitmap.imageResource(id = R.drawable.dialog)),
+                Animation(getJumpMaps(), animTime = 2F, dialog = ImageBitmap.imageResource(id = R.drawable.dialog)),
+                Animation(getFallMaps(), animTime = 3F, freezLastFrame = true, dialog = ImageBitmap.imageResource(id = R.drawable.dialog)),
+                Animation(getWalkingMapsR(), animTime = 8F, dialog = ImageBitmap.imageResource(id = R.drawable.dialog)),
+                Animation(getUpMaps(), animTime = 10F, dialog = ImageBitmap.imageResource(id = R.drawable.dialog)),
+                Animation(getClickedMaps(), animTime = 1F, dialog = ImageBitmap.imageResource(id = R.drawable.dialog)),
             )
         )
 
@@ -176,7 +177,8 @@ class Person() {
 
     @Composable
     fun Draw(
-        personViewModel: PersonViewModel = viewModel()
+        personViewModel: PersonViewModel = viewModel(),
+        modifier: Modifier = Modifier
     ) {
         val offsetX by personViewModel.offsetX.collectAsState()
         var offsetY by remember { mutableStateOf(0f) }
@@ -271,7 +273,8 @@ class Person() {
                 if (personState != PersonState.CLICKED) {
                     personViewModel.setState(PersonState.CLICKED)
                 }
-            })
+            }
+            .then(modifier))
 
         val handler = Handler(Looper.getMainLooper())
         handler.post(object : Runnable {

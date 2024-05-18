@@ -1,11 +1,14 @@
 package com.projecte.mewnagochi.screens.home
 
+import android.annotation.SuppressLint
+import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.scrollable
@@ -19,15 +22,18 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Create
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -42,16 +48,25 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.projecte.mewnagochi.R
 import com.projecte.mewnagochi.services.notification.MyFirebaseMessagingService
+import com.projecte.mewnagochi.screens.store.StoreItemContainer
+import com.projecte.mewnagochi.screens.store.animatedBorder
+import com.projecte.mewnagochi.services.storage.Item
 import com.projecte.mewnagochi.services.storage.UserPreferences
 import com.projecte.mewnagochi.ui.furniture.MovableItem
 import com.projecte.mewnagochi.ui.theme.Person
 import com.projecte.mewnagochi.ui.theme.PersonInvited
+import java.util.UUID
 
 
+@SuppressLint("UnrememberedMutableInteractionSource")
 @Composable
 fun HomeScreen(homeScreenViewModel: HomeScreenViewModel = viewModel(),
                mFMS: MyFirebaseMessagingService
@@ -66,7 +81,7 @@ fun HomeScreen(homeScreenViewModel: HomeScreenViewModel = viewModel(),
     person.BuildSprite()
     val person2 = PersonInvited()
     person2.BuildSprite()
-    Box () {
+    Box() {
         Image(
             painter = painterResource(id = R.drawable.phone_backgrounds),
             contentDescription = "Background",
@@ -89,7 +104,7 @@ fun HomeScreen(homeScreenViewModel: HomeScreenViewModel = viewModel(),
 
 
         userItems.forEach {
-            MovableItem(item= it)
+            MovableItem(item = it)
         }
         //ListOfItems()
         val density = LocalDensity.current
@@ -103,7 +118,7 @@ fun HomeScreen(homeScreenViewModel: HomeScreenViewModel = viewModel(),
                 FilledIconButton(
                     colors = IconButtonDefaults.filledIconButtonColors(
                         containerColor = MaterialTheme.colorScheme.onPrimary,
-                        ),
+                    ),
                     modifier = Modifier
                         .padding(30.dp)
                         .size(60.dp),
@@ -173,17 +188,17 @@ fun HomeScreen(homeScreenViewModel: HomeScreenViewModel = viewModel(),
                             .scrollable(rememberScrollState(), orientation = Orientation.Vertical)
                             .width(100.dp)
                     ) {
-                        items(userItems){ item ->
+                        items(userItems) { item ->
                             Image(
                                 modifier = Modifier.clickable {
 
-                                    homeScreenViewModel.addItem(item= item)
+                                    homeScreenViewModel.addItem(item = item)
                                     isAddingFurniture = false
 
                                 },
                                 painter = painterResource(id = item.res),
                                 contentDescription = "",
-                                colorFilter = if (item.visible  ) ColorFilter.tint(
+                                colorFilter = if (item.visible) ColorFilter.tint(
                                     Color.DarkGray,
                                     BlendMode.Color
                                 ) else null,
@@ -197,15 +212,21 @@ fun HomeScreen(homeScreenViewModel: HomeScreenViewModel = viewModel(),
 
 
         if (!uiState.isEditingFurniture && !isAddingFurniture) {
-            if(user?.selectedSkin == "adventurer")
+            if (user?.selectedSkin == "adventurer") {
+
+
                 person.Draw()
-            else {
+
+
+            } else {
                 person2.Draw()
             }
-
         }
 
+        }
     }
 
 
-}
+
+
+
