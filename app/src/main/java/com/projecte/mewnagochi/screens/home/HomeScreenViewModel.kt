@@ -16,9 +16,7 @@ data class HomeScreenUi(
     val isEditingFurniture:Boolean = false,
     val isAnyFurnitureSelected:Boolean = false,
 )
-class HomeScreenViewModel (
-    private val savedStateHandle : SavedStateHandle
-) : ViewModel() {
+class HomeScreenViewModel: ViewModel() {
     private val storageService = StorageServiceImpl()
     var uiState =  mutableStateOf(HomeScreenUi())
         private set
