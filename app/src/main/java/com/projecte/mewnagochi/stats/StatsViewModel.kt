@@ -31,12 +31,10 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 
-class StatsViewModel() : ViewModel() {
+class StatsViewModel: ViewModel() {
     private val _uiState = MutableStateFlow(StatsUiState())
     val uiState: StateFlow<StatsUiState> = _uiState.asStateFlow()
-
     lateinit var healthPermissionLauncher: ActivityResultLauncher<Set<String>>
-
 
     fun showSnackbar(
         mainText: String, actionText: String, snackbarHostState: SnackbarHostState,
@@ -51,7 +49,6 @@ class StatsViewModel() : ViewModel() {
                 SnackbarResult.Dismissed -> {
                     Log.i(ContentValues.TAG, "SnackbarIgnored")
                 }
-
                 SnackbarResult.ActionPerformed -> {
                     Log.i(ContentValues.TAG, "SnackbarAction")
                     //Each snackbar will have it's own action defined below it
@@ -158,13 +155,12 @@ class StatsViewModel() : ViewModel() {
             for (record in stepsResponse.records) {
                 steps += record.count
             }
-
             //We'll also use this method to update the average and current steps on Firestore
             val stepsAverageResponse = healthConnectManager.healthConnectClient.readRecords(
                 request = ReadRecordsRequest<StepsRecord>(
                     //last week
                     timeRangeFilter = TimeRangeFilter.between(
-                        LocalDateTime.now().withHour(0).withMinute(0).withSecond(0).minusDays(8),
+                        LocalDateTime.now().withHour(0).withMinute(0).withSecond(0).minusDays(7),
                         LocalDateTime.now().withHour(0).withMinute(0).withSecond(0)
                     )
                 )
@@ -175,7 +171,6 @@ class StatsViewModel() : ViewModel() {
                 stepsWeeklyAverage += record.count
             }
             val stepsAverageInt = stepsWeeklyAverage.toInt() / 7
-
             //Update Firestore document with new data
             viewModelScope.launch {
                 val storageService = StorageServiceImpl()
@@ -187,8 +182,8 @@ class StatsViewModel() : ViewModel() {
                     stepsAverage = stepsAverageInt, currentSteps = steps.toInt()
                 )
                 storageService.updatePreferences(userPreferences) {}
-                //This document update will trigger cloud function "checkObjectiveAccomplished",
-                //which will send notification and update money if objective has been reached.
+                // This document update will trigger cloud function "checkObjectiveAccomplished",
+                // which will send notification and update money if objective has been reached.
             }
 
             /** STEP 2: Obtain weight info **/

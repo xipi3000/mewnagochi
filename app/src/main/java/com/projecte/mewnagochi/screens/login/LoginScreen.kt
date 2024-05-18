@@ -1,7 +1,9 @@
 package com.projecte.mewnagochi.screens.login
 
+import android.Manifest
 import android.app.Activity
 import android.app.Instrumentation.ActivityResult
+import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContract
 import androidx.activity.result.contract.ActivityResultContracts
@@ -46,14 +48,15 @@ import com.projecte.mewnagochi.ui.theme.EmailTextField
 import com.projecte.mewnagochi.ui.theme.PasswordTextField
 
 
-@Preview
 @Composable
 fun LoginScreen(
     viewModel: LoginViewModel = viewModel(),
     onRegister: () -> Unit = {},
     onForgotPassword: () -> Unit = {},
     onLoginFinished: () -> Unit = {},
+    notifLauncher: ManagedActivityResultLauncher<String, Boolean>
 ) {
+    notifLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
     if(viewModel.isUserLoggedIn()){
         onLoginFinished()
     }

@@ -163,7 +163,7 @@ fun StatsScreen(
                 }
             }
             Button(onClick = { statsViewModel.getData(healthConnectManager = healthConnectMannager) }) {
-                Text(text = "Refresh Data")
+                Text(text = "Sync to cloud")
             }
         }
     }
