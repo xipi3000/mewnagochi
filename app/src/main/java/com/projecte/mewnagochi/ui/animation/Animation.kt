@@ -15,6 +15,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.ui.Alignment
@@ -57,7 +59,7 @@ class Animation(
         modifier: Modifier,
         viewModel: HomeScreenViewModel = viewModel()
     ) {
-        val message = viewModel.functionMessage
+        val message by viewModel.functionMessage.collectAsState("")
         if (!isPlaying) return
         Column(
             modifier = Modifier.fillMaxSize(),
