@@ -1,18 +1,15 @@
 package com.projecte.mewnagochi.screens.main
 
-import android.Manifest
 import android.app.Activity
 import android.content.Context
-import android.content.pm.PackageManager
 import android.graphics.Color.parseColor
 import android.os.Build
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.annotation.RequiresApi
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -51,7 +48,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -63,25 +59,16 @@ import com.projecte.mewnagochi.screens.forgot_password.ForgotPasswordScreen
 import com.projecte.mewnagochi.screens.home.HomeScreen
 import com.projecte.mewnagochi.screens.login.LoginScreen
 import com.projecte.mewnagochi.screens.login.User
-import com.projecte.mewnagochi.screens.forgot_password.ForgotPasswordScreen
-import com.projecte.mewnagochi.screens.home.HomeScreen
-import com.projecte.mewnagochi.screens.login.LoginScreen
-import com.projecte.mewnagochi.screens.login.LoginViewModel
-import com.projecte.mewnagochi.screens.login.User
 import com.projecte.mewnagochi.screens.profile.ProfileScreen
 import com.projecte.mewnagochi.screens.sign_up.RegisterScreen
 import com.projecte.mewnagochi.screens.store.StoreScreen
 import com.projecte.mewnagochi.services.notification.MyFirebaseMessagingService
-import com.projecte.mewnagochi.screens.sign_up.RegisterScreen
-import com.projecte.mewnagochi.screens.store.StoreScreen
 import com.projecte.mewnagochi.services.storage.FirebaseStorageProvider
 import com.projecte.mewnagochi.stats.HealthConnectAvailability
 import com.projecte.mewnagochi.stats.HealthConnectManager
 import com.projecte.mewnagochi.stats.StatsViewModel
 import com.projecte.mewnagochi.ui.StatsScreen
 import com.projecte.mewnagochi.ui.theme.LabeledIcon
-import com.projecte.mewnagochi.ui.theme.LabeledIcon
-import kotlinx.coroutines.CoroutineScope
 
 
 @RequiresApi(Build.VERSION_CODES.S)

@@ -6,17 +6,20 @@ import android.content.Context
 import android.content.Intent
 import android.media.RingtoneManager
 import android.util.Log
+import androidx.compose.runtime.Composable
 import androidx.core.app.NotificationCompat
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.messaging.FirebaseMessaging
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import com.projecte.mewnagochi.MainActivity
 import com.projecte.mewnagochi.R
+import com.projecte.mewnagochi.screens.home.HomeScreenViewModel
 import com.projecte.mewnagochi.services.auth.AccountServiceImpl
 
 
-class MyFirebaseMessagingService : FirebaseMessagingService() {
+class MyFirebaseMessagingService: FirebaseMessagingService() {
     private lateinit var firebaseMessageToken: String
     private val database: FirebaseDatabase = FirebaseDatabase.getInstance("https://mewnagochi-default-rtdb.europe-west1.firebasedatabase.app")
     private val auth = AccountServiceImpl()
@@ -48,11 +51,9 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
     }
 
     private fun sendRegistrationToServer(token: String) {
-        // Database schema: FCMTokens/Token/Hour_to_get_notified
         // Try to get the notification hour value
             // It works -> token already stored, don't modify it's configured hour
             // It fails -> add new token with default hour
-
         val ref = database.getReference("FCMTokens").child(token)
         ref.get().addOnCompleteListener {
             if (it.isSuccessful) {
@@ -73,6 +74,11 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
         super.onMessageReceived(remoteMessage)
         displayNotification(applicationContext, remoteMessage.notification!!.title, remoteMessage.notification!!.body)
     }
+
+//    fun checkIfBackground(){
+//        val homeScreenViewModel = HomeScreenViewModel()
+//        homeScreenViewModel.functionMessage.
+//    }
 
     fun displayNotification(context: Context, title: String?, body: String?) {
         val intent = Intent(context, MainActivity::class.java)

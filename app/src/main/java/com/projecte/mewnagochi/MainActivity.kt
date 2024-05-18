@@ -20,12 +20,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.lifecycle.lifecycleScope
 import com.projecte.mewnagochi.screens.main.MainScreen
-import com.projecte.mewnagochi.services.notification.MyFirebaseMessagingService
 import com.projecte.mewnagochi.screens.profile.InternetPreferenceState
 import com.projecte.mewnagochi.screens.profile.InternetPreferenceStateDataStore
 import com.projecte.mewnagochi.services.auth.NetworkConnection
+import com.projecte.mewnagochi.services.notification.MyFirebaseMessagingService
 import com.projecte.mewnagochi.services.storage.StorageServiceImpl
 import com.projecte.mewnagochi.ui.theme.MewnagochiTheme
 
@@ -79,15 +78,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val mFMS = MyFirebaseMessagingService()
-
-
         val connMgr = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-
-
-
-
-
-
         setContent {
             MewnagochiTheme() {
                 val internetPreferenceState by this.InternetPreferenceStateDataStore.data.collectAsState(initial = InternetPreferenceState())

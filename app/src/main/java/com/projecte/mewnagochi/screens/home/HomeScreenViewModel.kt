@@ -1,10 +1,8 @@
 package com.projecte.mewnagochi.screens.home
 
 import androidx.compose.runtime.mutableStateOf
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.projecte.mewnagochi.services.auth.AccountServiceImpl
 import com.projecte.mewnagochi.services.storage.Item
 import com.projecte.mewnagochi.services.storage.StorageServiceImpl
 import com.projecte.mewnagochi.services.storage.UserPreferences
@@ -18,18 +16,14 @@ data class HomeScreenUi(
     val isEditingFurniture:Boolean = false,
     val isAnyFurnitureSelected:Boolean = false,
 )
-class HomeScreenViewModel (
-    private val savedStateHandle : SavedStateHandle
-) : ViewModel() {
+class HomeScreenViewModel: ViewModel() {
     private val storageService = StorageServiceImpl()
     var uiState =  mutableStateOf(HomeScreenUi())
         private set
     val functionMessage : Flow<String> get()= flow{
-       emit( "Que tal si vas a caminar un ratet")
-        viewModelScope.launch {
-            delay(3000)
-            emit("")
-        }
+        emit( "Que tal si vas a caminar un ratet")
+        delay(3000)
+        emit("")
     }
     val items = storageService.items
     val selectedSkin: Flow<UserPreferences?> = storageService.userPreferences
