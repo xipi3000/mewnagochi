@@ -4,7 +4,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.projecte.mewnagochi.services.auth.AccountServiceImpl
 import com.projecte.mewnagochi.services.storage.Item
 import com.projecte.mewnagochi.services.storage.StorageServiceImpl
 import com.projecte.mewnagochi.services.storage.UserPreferences
@@ -25,11 +24,9 @@ class HomeScreenViewModel (
     var uiState =  mutableStateOf(HomeScreenUi())
         private set
     val functionMessage : Flow<String> get()= flow{
-       emit( "Que tal si vas a caminar un ratet")
-        viewModelScope.launch {
-            delay(3000)
-            emit("")
-        }
+        emit( "Que tal si vas a caminar un ratet")
+        delay(3000)
+        emit("")
     }
     val items = storageService.items
     val selectedSkin: Flow<UserPreferences?> = storageService.userPreferences

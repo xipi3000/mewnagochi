@@ -3,18 +3,14 @@ package com.projecte.mewnagochi.screens.profile
 import android.content.Context
 import android.graphics.BitmapFactory
 import android.graphics.Color.parseColor
-import android.graphics.ImageDecoder.createSource
-import android.graphics.ImageDecoder.decodeBitmap
-import android.net.Uri
 import android.os.Build
-import android.provider.MediaStore.Audio.Radio
-import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -23,10 +19,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyHorizontalGrid
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -46,7 +39,6 @@ import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -60,25 +52,15 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
-import androidx.datastore.preferences.preferencesDataStoreFile
 import androidx.lifecycle.viewmodel.compose.viewModel
-import coil.compose.AsyncImage
-import coil.compose.rememberImagePainter
-import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
-import com.bumptech.glide.integration.compose.GlideImage
 import com.google.firebase.storage.StorageReference
 import com.projecte.mewnagochi.R
 import com.projecte.mewnagochi.screens.login.User
 import com.projecte.mewnagochi.services.notification.MyFirebaseMessagingService
-import com.projecte.mewnagochi.services.storage.StorageServiceImpl
 import com.projecte.mewnagochi.services.storage.UserPreferences
-import com.projecte.mewnagochi.ui.theme.PersonState
-import kotlinx.coroutines.launch
 
 const val ONE_MEGABYTE: Long = 1024 * 1024
 
@@ -100,7 +82,6 @@ fun ProfileScreen(
         initial = InternetPreferenceState()
     )
 
-
     //TODO: CHOOSE INTERNET
     val profilePictures by viewModel.photoList.collectAsState()
     when {
@@ -121,11 +102,7 @@ fun ProfileScreen(
             .fillMaxSize()
             .verticalScroll(rememberScrollState()),
     ) {
-
-
         Card(modifier = Modifier.fillMaxWidth()) {
-
-
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -147,7 +124,6 @@ fun ProfileScreen(
                                 1
                             )
                         )
-
 
                         Image(
                             painter = BitmapPainter(imageBitmap),
@@ -186,7 +162,6 @@ fun ProfileScreen(
                         )
                     },
                     maxRangeGoal = 20000f,
-                    isUnit = false,
                     unit = " steps"
                 )
                 Spacer(modifier = Modifier.height(16.dp))
@@ -199,17 +174,12 @@ fun ProfileScreen(
                             userPreferences!!
                         )
                     },
-                    maxRangeGoal = 24f,
-                    isUnit = false,
+                    maxRangeGoal = 23f,
                     unit = " h."
                 )
-                )
-
             }
         }
-
         Spacer(modifier = Modifier.height(16.dp))
-
         Column {
             Text(
                 text = "Select character:",
@@ -314,7 +284,6 @@ fun GoalSlider(
     onValueChange: (Float) -> Unit,
     onValueChangeFinished: (() -> Unit)?,
     maxRangeGoal: Float,
-    isUnit: Boolean,
     unit: String,
 ) {
     Column {
@@ -336,80 +305,70 @@ fun ProfilePictureDialog(
     dialogTitle: String = "Choose your profile picture:",
     selectedPfp: String = "",
     setProfilePicture: (String) -> Unit,
-    profilePictures:
-    List<StorageReference>,
-
-
+    profilePictures: List<StorageReference>,
     ) {
-    AlertDialog(
+        AlertDialog(
+            title = {
+                Text(text = dialogTitle)
+            },
+            text = {
+                LazyRow {
+                    items(profilePictures) {
+                        var imageBitmap by remember {
+                            mutableStateOf<ImageBitmap?>(null)
+                        }
 
-        title = {
-            Text(text = dialogTitle)
-        },
-        text = {
+                        it.getBytes(ONE_MEGABYTE).addOnSuccessListener {
+                            imageBitmap =
+                                BitmapFactory.decodeByteArray(it, 0, it.size).asImageBitmap()
+                        }
 
-
-            LazyRow {
-                items(profilePictures) {
-
-
-                    var imageBitmap by remember {
-                        mutableStateOf<ImageBitmap?>(null)
+                        if (imageBitmap != null)
+                            Image(
+                                painter = BitmapPainter(imageBitmap!!),
+                                contentDescription = "contentDescription",
+                                modifier = Modifier
+                                    .padding(10.dp)
+                                    .size(90.dp)
+                                    .clip(CircleShape)
+                                    .clickable { setProfilePicture(it.name) }
+                                    .then(
+                                        if (selectedPfp == it.name) Modifier.border(
+                                            6.dp,
+                                            Color(parseColor("#f7b416")),
+                                            CircleShape
+                                        ) else Modifier.border(
+                                            1.dp,
+                                            Color.LightGray,
+                                            CircleShape
+                                        )
+                                    ),
+                            )
                     }
-
-                    it.getBytes(ONE_MEGABYTE).addOnSuccessListener {
-                        imageBitmap =
-                            BitmapFactory.decodeByteArray(it, 0, it.size).asImageBitmap()
+                }
+            },
+            onDismissRequest = {
+                onDismissRequest()
+            },
+            confirmButton = {
+                OutlinedButton(
+                    onClick = {
+                        onConfirmation(selectedPfp)
                     }
-
-                    if (imageBitmap != null)
-                        Image(
-                            painter = BitmapPainter(imageBitmap!!),
-                            contentDescription = "contentDescription",
-                            modifier = Modifier
-                                .padding(10.dp)
-                                .size(90.dp)
-                                .clip(CircleShape)
-                                .clickable { setProfilePicture(it.name) }
-                                .then(
-                                    if (selectedPfp == it.name) Modifier.border(
-                                        6.dp,
-                                        Color(parseColor("#f7b416")),
-                                        CircleShape
-                                    ) else Modifier.border(
-                                        1.dp,
-                                        Color.LightGray,
-                                        CircleShape
-                                    )
-                                ),
-                        )
-
+                ) {
+                    Text("Confirm")
                 }
-
-            }
-        },
-        onDismissRequest = {
-            onDismissRequest()
-        },
-        confirmButton = {
-            OutlinedButton(
-                onClick = {
-                    onConfirmation(selectedPfp)
+            },
+            dismissButton = {
+                Button(
+                    onClick = {
+                        onDismissRequest()
+                    }
+                ) {
+                    Text("Dismiss")
                 }
-            ) {
-                Text("Confirm")
             }
-        },
-        dismissButton = {
-            Button(
-                onClick = {
-                    onDismissRequest()
-                }
-            ) {
-                Text("Dismiss")
-            }
-        }
-    )
+        )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)

@@ -2,7 +2,6 @@ package com.projecte.mewnagochi.screens.profile
 
 import android.content.Context
 import android.graphics.BitmapFactory
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.lifecycle.ViewModel
@@ -17,8 +16,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 
@@ -28,7 +25,9 @@ data class ProfileUiState(
     val openAlertDialog: Boolean = false,
     val stepsGoal: Int = 0,
     val notificationHour : Int = 20,
-    val currentSteps : Int = 0
+    val currentSteps : Int = 0,
+    val selectProfilePhoto: Boolean = false,
+    val selectedProfilePhoto: String = "",
 )
 
 class ProfileViewModel : ViewModel() {
@@ -56,7 +55,6 @@ class ProfileViewModel : ViewModel() {
         }
     }
 
-    fun logOut(onSuccess: () -> Unit,onResult: (Throwable?) -> Unit) {
     fun logOut(onSuccess: () -> Unit, onResult: (Throwable?) -> Unit) {
         accountService.signOut(onSuccess, onResult)
     }
@@ -68,15 +66,11 @@ class ProfileViewModel : ViewModel() {
                 userPreferences = UserPreferences()
             }
             userPreferences = userPreferences.copy(selectedSkin = "witch")
-            storageService.updatePreferences(userPreferences) {
-
-
-            }
+            storageService.updatePreferences(userPreferences){}
         }
     }
 
     fun getProfilePictures() {
-
         viewModelScope.launch {
             storageService.listImages { photos ->
                 _photoList.value = photos
@@ -86,7 +80,6 @@ class ProfileViewModel : ViewModel() {
 
     val profilePicture: Flow<ImageBitmap>
         get() = flow {
-
             try {
                 val refe =
                     storageService.getImage(storageService.getUserPreferences()!!.selectedPfp)!!
@@ -101,7 +94,6 @@ class ProfileViewModel : ViewModel() {
                     ).await()
                     emit(BitmapFactory.decodeByteArray(refe, 0, refe.size).asImageBitmap())
                 } catch (e: Exception) {
-
                     emit(ImageBitmap(1,1))
                 }
             }
@@ -109,12 +101,10 @@ class ProfileViewModel : ViewModel() {
 
     fun getProfilePicture(name: String) {
         try {
-        storageService.getImage(name)!!.getBytes(ONE_MEGABYTE).addOnSuccessListener {
-
-            BitmapFactory.decodeByteArray(it, 0, it.size).asImageBitmap()
-        }
+            storageService.getImage(name)!!.getBytes(ONE_MEGABYTE).addOnSuccessListener {
+                BitmapFactory.decodeByteArray(it, 0, it.size).asImageBitmap()
+            }
         } catch (e: Exception) {
-
             BitmapFactory.decodeByteArray(null, 0, 0).asImageBitmap()
         }
 
@@ -127,19 +117,16 @@ class ProfileViewModel : ViewModel() {
                 userPreferences = UserPreferences()
             }
             userPreferences = userPreferences.copy(selectedSkin = "adventurer")
-            storageService.updatePreferences(userPreferences) {
-
-
-            }
+            storageService.updatePreferences(userPreferences){}
         }
     }
 
     fun onOpenAlertDialogChange(value: Boolean) {
-        uiState.value = uiState.value.copy(openAlertDialog = value)
+        _uiState.value = uiState.value.copy(openAlertDialog = value)
     }
 
     fun onSelectProfilePhotoChange(value: Boolean) {
-        uiState.value = uiState.value.copy(selectProfilePhoto = value)
+        _uiState.value = uiState.value.copy(selectProfilePhoto = value)
     }
 
     fun onStepsGoalChanged(value : Float) {
@@ -147,6 +134,7 @@ class ProfileViewModel : ViewModel() {
     }
     fun onHourNotificationChanged(value : Float) {
         _uiState.value = uiState.value.copy(notificationHour = value.toInt())
+    }
 
     fun onStepsGoalSet(preferences: UserPreferences) {
         storageService.updatePreferences(preferences.copy(stepsGoal = uiState.value.stepsGoal)) {
@@ -160,7 +148,7 @@ class ProfileViewModel : ViewModel() {
     }
 
     fun selectProfilePicture(name: String) {
-        uiState.value = uiState.value.copy(selectedProfilePhoto = name)
+        _uiState.value = uiState.value.copy(selectedProfilePhoto = name)
     }
 
     fun setProfilePicture(name: String) {
@@ -171,10 +159,7 @@ class ProfileViewModel : ViewModel() {
                 userPreferences = UserPreferences()
             }
             userPreferences = userPreferences.copy(selectedPfp = name)
-            storageService.updatePreferences(userPreferences) {
-
-
-            }
+            storageService.updatePreferences(userPreferences){}
         }
     }
 
@@ -185,6 +170,4 @@ class ProfileViewModel : ViewModel() {
             }
         }
     }
-
-
 }
