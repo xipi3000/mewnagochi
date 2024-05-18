@@ -1,5 +1,7 @@
 package com.projecte.mewnagochi.services.auth
 
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.firebase.Firebase
 import com.google.firebase.auth.AuthCredential
 import com.google.firebase.auth.EmailAuthProvider
@@ -67,6 +69,7 @@ class AccountServiceImpl  : AccountService {
     override fun signOut(onSuccess: () -> Unit,onResult: (Throwable?) -> Unit) {
         try{
             Firebase.auth.signOut()
+
             onSuccess()
         }
         catch (e:Exception){
@@ -148,7 +151,7 @@ class AccountServiceImpl  : AccountService {
             .addOnCompleteListener { onResult(it.exception) }
     }
     override fun verifyEmail() : Boolean{
-          return  Firebase.auth.currentUser!!.isEmailVerified
+          return  Firebase.auth.currentUser?.isEmailVerified ?: false
     }
 
     override fun changePassword(email: String, onResult: (Throwable?) -> Unit ) {

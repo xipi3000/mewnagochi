@@ -26,10 +26,10 @@ class HomeScreenViewModel (
         private set
     val functionMessage : Flow<String> get()= flow{
        emit( "Que tal si vas a caminar un ratet")
-        viewModelScope.launch {
-            delay(3000)
-            emit("")
-        }
+        delay(3000)
+           // delay(3000)
+        emit("")
+
     }
     val items = storageService.items
     val selectedSkin: Flow<UserPreferences?> = storageService.userPreferences

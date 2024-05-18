@@ -76,6 +76,8 @@ import coil.compose.AsyncImage
 import coil.compose.rememberImagePainter
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.firebase.storage.StorageReference
 import com.projecte.mewnagochi.R
 import com.projecte.mewnagochi.screens.login.User
@@ -265,13 +267,24 @@ fun ProfileScreen(
         }
 
     }
+    val context :Context = LocalContext.current
     when {
         uiState.openAlertDialog -> {
             AlertDialogExample(
                 onDismissRequest = { viewModel.onOpenAlertDialogChange(false) },
                 onConfirmation = {
                     viewModel.onOpenAlertDialogChange(false)
-                    viewModel.logOut(onSuccess, onResult)
+                    viewModel.logOut({
+                        val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).build()
+                        val googleSignInClient = GoogleSignIn.getClient(context, gso)
+                        googleSignInClient.signOut().addOnCompleteListener {
+                            if(it.isComplete) {
+                                onSuccess()
+                            }
+                            else onResult(it.exception)
+                        }
+
+                     }, onResult)
                 },
                 dialogTitle = "Logging out",
                 dialogText = "You are logging out of the app, your session will be closed",

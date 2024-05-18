@@ -38,7 +38,7 @@ class StorageServiceImpl : StorageService {
 
 
  fun setFirestoreNetworkEnabled() {
-     val firestore = FirebaseFirestore.getInstance()
+        val firestore = FirebaseFirestore.getInstance()
          firestore.enableNetwork()
              .addOnCompleteListener { task ->
                  if (task.isSuccessful) {
