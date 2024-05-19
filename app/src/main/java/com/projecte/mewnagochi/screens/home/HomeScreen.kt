@@ -1,14 +1,12 @@
 package com.projecte.mewnagochi.screens.home
 
 import android.annotation.SuppressLint
-import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.scrollable
@@ -22,18 +20,15 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Create
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -48,22 +43,14 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.projecte.mewnagochi.R
 import com.projecte.mewnagochi.services.notification.MyFirebaseMessagingService
-import com.projecte.mewnagochi.screens.store.StoreItemContainer
-import com.projecte.mewnagochi.screens.store.animatedBorder
-import com.projecte.mewnagochi.services.storage.Item
 import com.projecte.mewnagochi.services.storage.UserPreferences
 import com.projecte.mewnagochi.ui.furniture.MovableItem
 import com.projecte.mewnagochi.ui.theme.Person
 import com.projecte.mewnagochi.ui.theme.PersonInvited
-import java.util.UUID
 
 
 @SuppressLint("UnrememberedMutableInteractionSource")
@@ -76,7 +63,7 @@ fun HomeScreen(homeScreenViewModel: HomeScreenViewModel = viewModel(),
     var isAddingFurniture by remember { mutableStateOf(false) }
 
     val userItems by homeScreenViewModel.items.collectAsState(emptyList())
-    val user by homeScreenViewModel.selectedSkin.collectAsState(UserPreferences())
+    val user by homeScreenViewModel.userPreferences.collectAsState(UserPreferences())
     val person = Person()
     person.BuildSprite()
     val person2 = PersonInvited()

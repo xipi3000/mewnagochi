@@ -10,6 +10,10 @@ import android.util.Log
 import androidx.core.app.NotificationCompat
 import com.projecte.mewnagochi.MainActivity
 import com.projecte.mewnagochi.R
+import com.projecte.mewnagochi.services.storage.StorageServiceImpl
+import com.projecte.mewnagochi.services.storage.UserPreferences
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 
 class myBackgroundService: Service() {
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
@@ -45,6 +49,23 @@ class myBackgroundService: Service() {
             .setAutoCancel(true)
             .setContentIntent(pendingIntent)
             .setPriority(NotificationCompat.PRIORITY_MAX)
+        val storageService = StorageServiceImpl()
+        runBlocking {
+            launch {
+                try {
+                    val userPreferences = storageService.getUserPreferences()
+                    storageService.updatePreferences(
+                        userPreferences!!.copy(
+                            notificationText = body ?: ""
+                        )
+                    ) {}
+
+                }
+                catch (e:Exception){
+                    Log.e("Service","couldn't get user preferences")
+                }
+            }
+        }
 
         val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 

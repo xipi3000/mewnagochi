@@ -35,7 +35,7 @@ class StatsViewModel: ViewModel() {
     private val _uiState = MutableStateFlow(StatsUiState())
     val uiState: StateFlow<StatsUiState> = _uiState.asStateFlow()
     lateinit var healthPermissionLauncher: ActivityResultLauncher<Set<String>>
-
+    val userPreferences = StorageServiceImpl().userPreferences
     fun showSnackbar(
         mainText: String, actionText: String, snackbarHostState: SnackbarHostState,
         function: () -> Unit

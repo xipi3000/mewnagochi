@@ -160,7 +160,7 @@ class AccountServiceImpl  : AccountService {
     }
 
     override fun getUserId(): String {
-        return Firebase.auth.currentUser!!.uid
+        return Firebase.auth.currentUser?.uid?:""
     }
 
 }

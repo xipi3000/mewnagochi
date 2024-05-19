@@ -25,6 +25,7 @@ import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.unit.IntOffset
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.projecte.mewnagochi.R
+import com.projecte.mewnagochi.services.storage.UserPreferences
 import com.projecte.mewnagochi.ui.animation.Animation
 import com.projecte.mewnagochi.ui.animation.AnimationManager
 import kotlinx.coroutines.CoroutineScope
@@ -178,6 +179,7 @@ class PersonInvited() {
     fun Draw(
         personViewModel: PersonInvitedViewModel = viewModel()
     ) {
+        val userPreferences by personViewModel.userPreferences.collectAsState(initial = UserPreferences())
         val offsetX by personViewModel.offsetX.collectAsState()
         var offsetY by remember { mutableStateOf(0f) }
         val personState by personViewModel.personState.collectAsState()
@@ -226,6 +228,7 @@ class PersonInvited() {
                         aniManager.playAnim(6)
                         delay(100)
                         personViewModel.setState(PersonState.IDLE)
+                        personViewModel.hideDialog(userPreferences!!)
                     }
                 }
             }

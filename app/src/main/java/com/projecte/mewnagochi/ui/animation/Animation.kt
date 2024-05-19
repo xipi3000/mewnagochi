@@ -30,6 +30,7 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.projecte.mewnagochi.screens.home.HomeScreenViewModel
+import com.projecte.mewnagochi.services.storage.UserPreferences
 
 
 class Animation(
@@ -59,14 +60,14 @@ class Animation(
         modifier: Modifier,
         viewModel: HomeScreenViewModel = viewModel()
     ) {
-        val message by viewModel.functionMessage.collectAsState("")
+        val userPreferences by viewModel.userPreferences.collectAsState(UserPreferences())
         if (!isPlaying) return
         Column(
             modifier = Modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Bottom
         ) {
-            if (message.isNotEmpty()) {
+            if (userPreferences?.notificationText?.isNotEmpty()?:false) {
                 Box(
                     contentAlignment = Alignment.Center,
                     modifier = modifier
@@ -84,7 +85,7 @@ class Animation(
                             dialog,
                         )
                     }
-                    Text(text = message,
+                    Text(text = userPreferences?.notificationText?:"",
                         style = MaterialTheme.typography.titleLarge,
                         modifier = Modifier.run {
                             width(dialog.width.dp * 10 / 30)
