@@ -2,6 +2,7 @@ package com.projecte.mewnagochi.services.storage
 
 
 import com.google.firebase.storage.StorageReference
+import com.projecte.mewnagochi.screens.store.StoreItemNet
 import kotlinx.coroutines.flow.Flow
 
 
@@ -24,5 +25,6 @@ interface StorageService {
     suspend fun listImages(onPhotosReceived: (List<StorageReference>) -> Unit)
     fun setFirestoreNetworkDisabled()
     fun setFirestoreNetworkEnabled()
+    val storeItems: Flow<List<StoreItemNet>>
 }
 

@@ -10,6 +10,7 @@ import com.google.firebase.firestore.firestore
 import com.google.firebase.firestore.toObject
 import com.google.firebase.storage.StorageReference
 import com.google.firebase.storage.storage
+import com.projecte.mewnagochi.screens.store.StoreItemNet
 import com.projecte.mewnagochi.services.auth.AccountServiceImpl
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -26,6 +27,7 @@ class StorageServiceImpl : StorageService {
     companion object {
         private const val USER_ID_FIELD = "userId"
         private const val ITEM_COLLECTION = "items"
+        private const val STORE_ITEM_COLLECTION = "storeItems"
         private const val USER_COLLECTION = "usersPreferences"
         private const val MONEY_COLLECTION = "usersMoney"
 
@@ -99,6 +101,13 @@ class StorageServiceImpl : StorageService {
                     .whereEqualTo(USER_ID_FIELD, user.id)
                     .dataObjects()
             }
+
+    override  val storeItems: Flow<List<StoreItemNet>>
+        get() =
+                firestore
+                    .collection(STORE_ITEM_COLLECTION)
+                    .dataObjects()
+
     @OptIn(ExperimentalCoroutinesApi::class)
     override val userPreferences: Flow<UserPreferences?>
         get() =try{
@@ -232,6 +241,27 @@ class StorageServiceImpl : StorageService {
             }
         }
     }
+    //Funció per iniciar la store
+    fun createStore(onResult: (Throwable?) -> Unit, item: StoreItemNet, onSuccess: () -> Unit) {
+        Log.i("store",item.name)
+        try {
+            firestore.collection(STORE_ITEM_COLLECTION).document(item.name).set(item)
+                .addOnCompleteListener {
+                    if (it.isComplete) {
+                        Log.i("store", "success")
+                        onSuccess()
+                    } else {
+                        Log.i("store", it.exception.toString())
+                        onResult(it.exception)
+                    }
+                }
+        }
+        catch (e:Exception){
+            Log.e("store",e.toString())
+        }
+
+    }
+
 
 }
 object FirestoreProvider {
