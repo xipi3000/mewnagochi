@@ -155,8 +155,12 @@ class AccountServiceImpl  : AccountService {
     }
 
     override fun changePassword(email: String, onResult: (Throwable?) -> Unit ) {
+        try {
             Firebase.auth.sendPasswordResetEmail(email)
                 .addOnCompleteListener { onResult(it.exception) }
+        }catch (e : Exception){
+            onResult(e)
+        }
     }
 
     override fun getUserId(): String {

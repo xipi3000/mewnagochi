@@ -37,7 +37,7 @@ class StorageServiceImpl : StorageService {
     private val storage = FirebaseStorageProvider.instance
 
 
- fun setFirestoreNetworkEnabled() {
+ override fun setFirestoreNetworkEnabled() {
         val firestore = FirebaseFirestore.getInstance()
          firestore.enableNetwork()
              .addOnCompleteListener { task ->
@@ -53,7 +53,7 @@ class StorageServiceImpl : StorageService {
 
 
  }
-    fun setFirestoreNetworkDisabled() {
+    override fun setFirestoreNetworkDisabled() {
     firestore.disableNetwork()
     .addOnCompleteListener { task ->
         if (task.isSuccessful) {
@@ -66,7 +66,7 @@ class StorageServiceImpl : StorageService {
     FirebaseStorageProvider.disable()
 
 }
-     suspend fun listImages(onPhotosReceived: (List<StorageReference>) -> Unit) {
+     override suspend fun listImages(onPhotosReceived: (List<StorageReference>) -> Unit) {
         if(FirebaseStorageProvider.enabled.value) {
             val photos = storage.listAll().await().items
             onPhotosReceived(photos)
@@ -75,7 +75,7 @@ class StorageServiceImpl : StorageService {
             onPhotosReceived(emptyList())
         }
      }
-    fun getImage(name : String): StorageReference? {
+    override fun getImage(name : String): StorageReference? {
         if(FirebaseStorageProvider.enabled.value) {
             try {
                 return storage.child("/").child(name)
@@ -88,8 +88,7 @@ class StorageServiceImpl : StorageService {
         }
 
     }
-    private val collection get() = firestore.collection(ITEM_COLLECTION)
-        .whereEqualTo(USER_ID_FIELD, auth.getUserId())
+
 
     @OptIn(ExperimentalCoroutinesApi::class)
     override val items: Flow<List<Item>>
@@ -151,7 +150,7 @@ class StorageServiceImpl : StorageService {
 
     override suspend fun getUserPreferences(): UserPreferences? =
         firestore.collection(USER_COLLECTION).document(auth.getUserId()).get().await().toObject()
-    suspend fun getMoney(): Long =
+    override suspend fun getMoney(): Long =
         try{
         database.getReference(MONEY_COLLECTION)
             .child(auth.getUserId()).get().await().value as Long? ?: 0L}

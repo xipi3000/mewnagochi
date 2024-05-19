@@ -38,35 +38,44 @@ class RegisterViewModel : ViewModel(){
     }
     fun createUser() {
         if(uiState.value.password.equals(uiState.value.repeatedPassword)) {
-            val accountService = AccountServiceImpl()
-            accountService.createAccount(
-                uiState.value.email,
-                uiState.value.password,
-                uiState.value.username
-            ) { error ->
-                if (error == null) {
-                    val storegeService = StorageServiceImpl()
-                    storegeService.createPreferences(
-                        userId = accountService.getUserId(),
-                        onSuccess = {
-                            onErrorMessage("")
-                            loginFinished()
-                        },
-                        onResult = {
-                            onErrorMessage(it?.message!!)
+            if(uiState.value.email!= "" && uiState.value.password!="" && uiState.value.username!="") {
+                val accountService = AccountServiceImpl()
+                accountService.createAccount(
+                    uiState.value.email,
+                    uiState.value.password,
+                    uiState.value.username
+                ) { error ->
+                    if (error == null) {
+                        val storegeService = StorageServiceImpl()
+                        storegeService.createPreferences(
+                            userId = accountService.getUserId(),
+                            onSuccess = {
+                                onErrorMessage("")
+                                loginFinished()
+                            },
+                            onResult = {
+                                onErrorMessage(it?.message!!)
+                            }
+
+                        )
+
+                    } else {
+                        if(error.message.toString().contains("network")) {
+                            onErrorMessage("Internet connection needed")
                         }
+                        else{
+                            try {
+                                onErrorMessage(error.cause?.message!!)
+                            } catch (e: Exception) {
 
-                    )
-
-                } else {
-                    try {
-                        onErrorMessage(error.cause?.message!!)
+                                onErrorMessage(error.message!!)
+                            }
+                        }
+                        // onError(error)
                     }
-                    catch (e : Exception){
-                        onErrorMessage(error.message!!)
-                    }
-                    // onError(error)
                 }
+            }else{
+                onErrorMessage("Fields still blank")
             }
         }
         else {

@@ -83,7 +83,9 @@ class LoginViewModel : ViewModel() {
                         onErrorMessage("Please verify your email")
                     }
                 } else {
-                    onErrorMessage(error.message.toString())
+                    onErrorMessage(
+                        if(error.toString().contains("network"))"Internet connection needed"
+                        else error.message.toString())
                     // onError(error)
                 }
             }

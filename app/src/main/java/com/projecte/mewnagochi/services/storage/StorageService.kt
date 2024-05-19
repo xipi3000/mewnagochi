@@ -1,6 +1,7 @@
 package com.projecte.mewnagochi.services.storage
 
 
+import com.google.firebase.storage.StorageReference
 import kotlinx.coroutines.flow.Flow
 
 
@@ -19,5 +20,10 @@ interface StorageService {
     fun createPreferences(onResult: (Throwable?) -> Unit, userId: String, onSuccess: () -> Unit)
     fun updatePreferences(preferences: UserPreferences, onResult: (Throwable?) -> Unit)
     suspend fun getUserPreferences(): UserPreferences?
+    suspend fun getMoney(): Long
+    fun getImage(name: String): StorageReference?
+    suspend fun listImages(onPhotosReceived: (List<StorageReference>) -> Unit)
+    fun setFirestoreNetworkDisabled()
+    fun setFirestoreNetworkEnabled()
 }
 

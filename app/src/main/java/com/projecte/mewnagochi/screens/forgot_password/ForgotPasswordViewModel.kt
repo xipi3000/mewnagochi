@@ -1,6 +1,5 @@
 package com.projecte.mewnagochi.screens.forgot_password
 
-import android.util.Log
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
@@ -12,6 +11,8 @@ class ForgotPasswordViewModel: ViewModel() {
         private set
     var emailSent: MutableState<Boolean> = mutableStateOf(false)
         private set
+    var errorMessage: MutableState<String> = mutableStateOf("")
+        private set
 
     fun onEmailChange(email : String){
         this.email.value = email
@@ -20,8 +21,12 @@ class ForgotPasswordViewModel: ViewModel() {
         AccountServiceImpl().changePassword(email.value) { error ->
             if (error == null) {
                 emailSent.value = true
+                errorMessage.value= ""
             } else {
-                Log.e("", error.toString())
+                if(email.value=="")errorMessage.value= "Email can't be blank"
+                else if(error.toString().contains("network"))errorMessage.value= "Internet connection needed"
+                else errorMessage.value= error.toString()
+
             }
 
         }

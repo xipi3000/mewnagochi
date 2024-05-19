@@ -2,7 +2,9 @@ package com.projecte.mewnagochi.screens.sign_up
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -10,6 +12,7 @@ import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -47,6 +50,7 @@ fun RegisterFinished(
             tint = Color.Green,
             modifier = Modifier.size(70.dp)
         )
+
         Button(onClick = onRegisterFinished) {
             Text(text = "LogIn")
         }
@@ -93,11 +97,16 @@ fun RegisterScreen(
 
             )
             Text(text = uiState.errorMessage, color = Color.Red)
-            Button(onClick = viewModel::createUser) {
+            Row(horizontalArrangement = Arrangement.SpaceAround,modifier = Modifier.fillMaxWidth()){
+                OutlinedButton(onClick = onRegisterFinished) {
+                    Text("Cancel")
+                }
+                Button(onClick = viewModel::createUser) {
 
-                Text("Register")
+                    Text("Register")
 
 
+                }
             }
         }
     }
