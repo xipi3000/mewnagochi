@@ -22,7 +22,6 @@ import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.imageResource
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.IntOffset
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.projecte.mewnagochi.R
@@ -214,7 +213,6 @@ class Person() {
                         if (personState == PersonState.FALLING) {
                             personViewModel.setState(PersonState.RISING)
                         }
-                        //TODO: FICAR ALGUN RANDOM DE TIPO PUGUI AIXECAR-SE MOLT RAPID O LENT
 
                     }
                 }

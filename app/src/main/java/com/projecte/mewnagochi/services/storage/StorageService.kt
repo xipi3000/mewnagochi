@@ -13,7 +13,6 @@ interface StorageService {
 
     suspend fun saveItem(item: Item, onResult: (Throwable?) -> Unit, onSuccess: () -> Unit)
     fun updateItem(item: Item, onResult: (Throwable?) -> Unit)
-    fun deleteItem(itemId: String, onResult: (Throwable?) -> Unit)
     val items: Flow<List<Item>>
 
     suspend fun getItem(itemId: String): Item?

@@ -232,9 +232,7 @@ class StorageServiceImpl : StorageService {
             }
         }
     }
-    override fun deleteItem(itemId: String, onResult: (Throwable?) -> Unit) {
-        TODO("Not yet implemented")
-    }
+
 }
 object FirestoreProvider {
     val firestore: FirebaseFirestore by lazy {

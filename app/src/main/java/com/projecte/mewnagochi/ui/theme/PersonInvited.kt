@@ -212,7 +212,6 @@ class PersonInvited() {
                         if (personState == PersonState.FALLING) {
                             personViewModel.setState(PersonState.RISING)
                         }
-                        //TODO: FICAR ALGUN RANDOM DE TIPO PUGUI AIXECAR-SE MOLT RAPID O LENT
 
                     }
                 }

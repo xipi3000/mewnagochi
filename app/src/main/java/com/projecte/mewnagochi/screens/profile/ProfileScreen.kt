@@ -84,7 +84,6 @@ fun ProfileScreen(
         initial = InternetPreferenceState()
     )
 
-    //TODO: CHOOSE INTERNET
     val profilePictures by viewModel.photoList.collectAsState()
     when {
         uiState.selectProfilePhoto -> {
