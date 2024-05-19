@@ -50,15 +50,20 @@ class myBackgroundService: Service() {
             .setContentIntent(pendingIntent)
             .setPriority(NotificationCompat.PRIORITY_MAX)
         val storageService = StorageServiceImpl()
+
         runBlocking {
             launch {
+
                 try {
+                    Log.i("Service","preferences set")
                     val userPreferences = storageService.getUserPreferences()
                     storageService.updatePreferences(
                         userPreferences!!.copy(
-                            notificationText = body ?: ""
+                            notificationText = title ?: "Error"
                         )
-                    ) {}
+                    ) {
+                        Log.e("Service","not preferences")
+                    }
 
                 }
                 catch (e:Exception){

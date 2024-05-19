@@ -48,7 +48,7 @@ fun StatsScreen(
         modifier = Modifier
             .fillMaxSize()
     ) { scaffoldPadding ->
-        Log.i("calla", scaffoldPadding.toString())
+
 
         if (healthConnectMannager.availability.value == HealthConnectAvailability.NOT_SUPPORTED ||
             healthConnectMannager.availability.value == HealthConnectAvailability.NOT_INSTALLED) {
@@ -61,7 +61,8 @@ fun StatsScreen(
         Column(
             modifier = Modifier
                 .padding(8.dp)
-                .fillMaxSize(),
+                .fillMaxSize()
+                .padding(scaffoldPadding),
             verticalArrangement = Arrangement.SpaceEvenly,
             horizontalAlignment = androidx.compose.ui.Alignment.CenterHorizontally,
         ) {
