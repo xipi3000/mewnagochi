@@ -25,8 +25,13 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.projecte.mewnagochi.screens.home.HomeScreenViewModel
 import com.projecte.mewnagochi.services.storage.Item
-import com.projecte.mewnagochi.ui.theme.PersonState
 import kotlin.math.roundToInt
+
+enum class MovableItemState{
+    IDLE,
+    CLICKED,
+    BEING_DRAGGED,
+}
 
 @Composable
 fun MovableItem(
@@ -35,11 +40,11 @@ fun MovableItem(
 ) {
     var offsetX by remember { mutableFloatStateOf(item.posX) }
     var offsetY by remember { mutableFloatStateOf(item.posY) }
-    var objectState by remember { mutableStateOf(PersonState.IDLE) }
+    var objectState by remember { mutableStateOf(MovableItemState.IDLE) }
     val screenUi by viewModel.uiState
 
     if (screenUi.selectedFurnitureId != item.id) {
-        objectState = PersonState.IDLE
+        objectState = MovableItemState.IDLE
     }
 
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -62,17 +67,12 @@ fun MovableItem(
             contentDescription = "",
             modifier = Modifier
                 .offset {
-                    //if (object_state == PersonState.BEING_DRAGED) {
+
                         IntOffset(
                             offsetX.roundToInt(),
                             offsetY.roundToInt()
                         )
-                   // } else {
-                     /*   IntOffset(
-                            item.posX.roundToInt(),
-                            item.posY.roundToInt()
-                        )
-                    }*/
+
                 }
                 .then(
                     if (screenUi.isEditingFurniture) {
@@ -80,16 +80,16 @@ fun MovableItem(
                             .pointerInput(Unit) {
                                 detectDragGestures(
                                     onDragStart = {
-                                        if (objectState == PersonState.CLICKED)
-                                            objectState = PersonState.BEING_DRAGED
+                                        if (objectState == MovableItemState.CLICKED)
+                                            objectState = MovableItemState.BEING_DRAGGED
                                     },
                                     onDragEnd = {
                                         viewModel.deselectFurniture()
-                                        objectState = PersonState.IDLE
+                                        objectState = MovableItemState.IDLE
                                         viewModel.updateItem(item.copy(posX = offsetX, posY = offsetY))
                                     }
                                 ) { change, dragAmount ->
-                                    if (objectState == PersonState.BEING_DRAGED) {
+                                    if (objectState == MovableItemState.BEING_DRAGGED) {
                                         change.consume()
                                         offsetX += dragAmount.x
                                         offsetY += dragAmount.y
@@ -97,20 +97,20 @@ fun MovableItem(
                                 }
                             }
                             .clickable(
-                                interactionSource = MutableInteractionSource(),
+                                interactionSource = remember{MutableInteractionSource()},
                                 indication = null
                             ) {
-                                objectState = if (objectState != PersonState.CLICKED) {
+                                objectState = if (objectState != MovableItemState.CLICKED) {
                                     viewModel.selectFurniture(item.id)
 
-                                    PersonState.CLICKED
+                                    MovableItemState.CLICKED
                                 } else {
                                     viewModel.deselectFurniture()
-                                    PersonState.IDLE
+                                    MovableItemState.IDLE
                                 }
                             }
                             .then(
-                                if (objectState == PersonState.CLICKED || objectState == PersonState.BEING_DRAGED) Modifier.border(
+                                if (objectState == MovableItemState.CLICKED || objectState == MovableItemState.BEING_DRAGGED) Modifier.border(
                                     2.dp,
                                     Color.Yellow
                                 ) else Modifier

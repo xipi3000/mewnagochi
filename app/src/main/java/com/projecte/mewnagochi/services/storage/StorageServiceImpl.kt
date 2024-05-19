@@ -236,8 +236,12 @@ class StorageServiceImpl : StorageService {
 
         firestore.collection(USER_COLLECTION).document(auth.getUserId()).set(preferences).addOnCompleteListener {
             if(!it.isComplete){
-                createPreferences(userId = auth.getUserId(), onSuccess = {}, onResult = {})
-                firestore.collection(USER_COLLECTION).document(auth.getUserId()).set(preferences)
+                createPreferences(userId = auth.getUserId(), onSuccess = {
+                    firestore.collection(USER_COLLECTION).document(auth.getUserId()).set(preferences)
+                }, onResult = {
+                    Log.e("UserPreferencesError",it.toString())}
+                )
+
             }
         }
     }
