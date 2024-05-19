@@ -18,4 +18,5 @@ interface AccountService {
     fun getUserId(): String
     fun signOut(onSuccess: () -> Unit,onResult: (Throwable?) -> Unit)
 
+    fun getUserName(): String
 }

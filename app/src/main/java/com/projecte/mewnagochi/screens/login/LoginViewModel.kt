@@ -21,11 +21,15 @@ data class LoginUiState(
 )
 
 class LoginViewModel : ViewModel() {
+    val  accountService = AccountServiceImpl()
     var uiState = mutableStateOf(LoginUiState())
         private set
+    val currentUser = accountService.currentUser
     fun isUserLoggedIn(): Boolean{
 
-        val accountService = AccountServiceImpl()
+
+
+
         if(accountService.verifyEmail()) {
             return accountService.isUserSignedIn
         }

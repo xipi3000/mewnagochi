@@ -1,7 +1,5 @@
 package com.projecte.mewnagochi.services.auth
 
-import com.google.android.gms.auth.api.signin.GoogleSignIn
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.firebase.Firebase
 import com.google.firebase.auth.AuthCredential
 import com.google.firebase.auth.EmailAuthProvider
@@ -31,6 +29,7 @@ class AccountServiceImpl  : AccountService {
 
 
     override val isUserSignedIn: Boolean
+
         get() = Firebase.auth.currentUser!=null
 
     override val currentUser: Flow<User>
@@ -165,6 +164,9 @@ class AccountServiceImpl  : AccountService {
 
     override fun getUserId(): String {
         return Firebase.auth.currentUser?.uid?:""
+    }
+    override fun getUserName(): String {
+        return Firebase.auth.currentUser?.displayName?:""
     }
 
 }
