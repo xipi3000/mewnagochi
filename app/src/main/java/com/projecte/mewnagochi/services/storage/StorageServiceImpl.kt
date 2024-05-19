@@ -162,9 +162,9 @@ class StorageServiceImpl : StorageService {
     override suspend fun getMoney(): Long =
         try{
         database.getReference(MONEY_COLLECTION)
-            .child(auth.getUserId()).get().await().value as Long? ?: 0L}
+            .child(auth.getUserId()).get().await().value as Long? ?: -1L}
         catch (e : Exception){
-            0L
+            -1L
         }
 
     override suspend fun saveMoney(

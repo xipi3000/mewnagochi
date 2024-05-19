@@ -4,8 +4,11 @@ package com.projecte.mewnagochi.screens.login
 import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.AuthCredential
 import com.projecte.mewnagochi.services.auth.AccountServiceImpl
+import com.projecte.mewnagochi.services.storage.StorageServiceImpl
+import kotlinx.coroutines.launch
 
 data class User(
     val id: String = "",
@@ -59,7 +62,18 @@ class LoginViewModel : ViewModel() {
         accountService.authenticateWithGoogle(credential){
             error ->
             if(error == null){
+                viewModelScope.launch {
+                    if(StorageServiceImpl().getMoney()==-1L)
+                    StorageServiceImpl().saveMoney(
+                        10,
+                        { Log.e("error",it?.message.toString()) },
+                        onSuccess = {
+
+                        })
                     onSuccess()
+                }
+
+
             }
             else {
                 Log.e("error",error.toString())

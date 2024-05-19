@@ -2,8 +2,10 @@ package com.projecte.mewnagochi.screens.sign_up
 
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.projecte.mewnagochi.services.auth.AccountServiceImpl
 import com.projecte.mewnagochi.services.storage.StorageServiceImpl
+import kotlinx.coroutines.launch
 
 data class RegisterUiState(
     val email: String = "",
@@ -51,6 +53,12 @@ class RegisterViewModel : ViewModel(){
                             userId = accountService.getUserId(),
                             onSuccess = {
                                 onErrorMessage("")
+                                viewModelScope.launch {
+                                    StorageServiceImpl().saveMoney(10, {onErrorMessage(it?.message!!)}, onSuccess = {
+
+                                    })
+
+                                }
                                 loginFinished()
                             },
                             onResult = {

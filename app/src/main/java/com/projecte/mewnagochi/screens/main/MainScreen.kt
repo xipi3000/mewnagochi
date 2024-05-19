@@ -109,16 +109,17 @@ fun MainScreen(
     val selectedItem by myViewModel.navigationBarSelected.collectAsState()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
-    val user by myViewModel.currentUser.collectAsState(initial = User())
-    val userMoney by myViewModel.money.collectAsState(initial = null)
+
     val imageBitmap by myViewModel.profilePicture.collectAsState(initial = ImageBitmap(1,1))
     val networkOnline by    FirebaseStorageProvider.enableFlow.collectAsState(initial = false)
     Scaffold(
         topBar = {
             if (navigationBarItems.any { it.label == currentRoute }&&currentRoute!="Profile") {
+                val user by myViewModel.currentUser.collectAsState(initial = User())
+                val userMoney by myViewModel.money.collectAsState(initial = null)
                 TopAppBar(title = {
                         UserAppBar(
-                            user=user.displayName,
+                            user=  user.displayName,
                             numOfCoins = userMoney?:0,
                             imageBitmap = imageBitmap
                         )
